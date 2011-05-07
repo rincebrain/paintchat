@@ -61,7 +61,7 @@ public class JSController
 			var_class_3_ = Class.forName("java.lang.String");
 		    } catch (ClassNotFoundException classnotfoundexception) {
 			NoClassDefFoundError noclassdeffounderror
-			    = new NoClassDefFoundError;
+			    = new NoClassDefFoundError();
 			((UNCONSTRUCTED)noclassdeffounderror)
 			    .NoClassDefFoundError
 			    (classnotfoundexception.getMessage());
@@ -78,7 +78,7 @@ public class JSController
 			var_class_6_ = Class.forName("[Ljava.lang.Object;");
 		    } catch (ClassNotFoundException classnotfoundexception) {
 			NoClassDefFoundError noclassdeffounderror
-			    = new NoClassDefFoundError;
+			    = new NoClassDefFoundError();
 			((UNCONSTRUCTED)noclassdeffounderror)
 			    .NoClassDefFoundError
 			    (classnotfoundexception.getMessage());
@@ -260,7 +260,7 @@ public class JSController
 			var_class_20_ = Class.forName("java.lang.String");
 		    } catch (ClassNotFoundException classnotfoundexception) {
 			NoClassDefFoundError noclassdeffounderror
-			    = new NoClassDefFoundError;
+			    = new NoClassDefFoundError();
 			((UNCONSTRUCTED)noclassdeffounderror)
 			    .NoClassDefFoundError
 			    (classnotfoundexception.getMessage());
@@ -334,7 +334,7 @@ public class JSController
 			var_class_29_ = Class.forName("java.lang.String");
 		    } catch (ClassNotFoundException classnotfoundexception) {
 			NoClassDefFoundError noclassdeffounderror
-			    = new NoClassDefFoundError;
+			    = new NoClassDefFoundError();
 			((UNCONSTRUCTED)noclassdeffounderror)
 			    .NoClassDefFoundError
 			    (classnotfoundexception.getMessage());
@@ -409,7 +409,7 @@ public class JSController
 			var_class_34_ = Class.forName("java.lang.String");
 		    } catch (ClassNotFoundException classnotfoundexception) {
 			NoClassDefFoundError noclassdeffounderror
-			    = new NoClassDefFoundError;
+			    = new NoClassDefFoundError();
 			((UNCONSTRUCTED)noclassdeffounderror)
 			    .NoClassDefFoundError
 			    (classnotfoundexception.getMessage());
@@ -426,7 +426,7 @@ public class JSController
 			var_class_37_ = Class.forName("java.lang.Object");
 		    } catch (ClassNotFoundException classnotfoundexception) {
 			NoClassDefFoundError noclassdeffounderror
-			    = new NoClassDefFoundError;
+			    = new NoClassDefFoundError();
 			((UNCONSTRUCTED)noclassdeffounderror)
 			    .NoClassDefFoundError
 			    (classnotfoundexception.getMessage());
@@ -449,7 +449,7 @@ public class JSController
 			var_class_44_ = Class.forName("java.lang.Object");
 		    } catch (ClassNotFoundException classnotfoundexception) {
 			NoClassDefFoundError noclassdeffounderror
-			    = new NoClassDefFoundError;
+			    = new NoClassDefFoundError();
 			((UNCONSTRUCTED)noclassdeffounderror)
 			    .NoClassDefFoundError
 			    (classnotfoundexception.getMessage());
@@ -496,7 +496,7 @@ public class JSController
 			var_class_50_ = Class.forName("java.applet.Applet");
 		    } catch (ClassNotFoundException classnotfoundexception) {
 			NoClassDefFoundError noclassdeffounderror
-			    = new NoClassDefFoundError;
+			    = new NoClassDefFoundError();
 			((UNCONSTRUCTED)noclassdeffounderror)
 			    .NoClassDefFoundError
 			    (classnotfoundexception.getMessage());

@@ -1,11 +1,13 @@
-/* DebugListener - Decompiled by JODE
- * Visit http://jode.sourceforge.net/
- */
 package paintchat.debug;
 
-public interface DebugListener
+public abstract interface DebugListener
 {
-    public void log(Object object);
-    
-    public void logDebug(Object object);
+  public abstract void log(Object paramObject);
+
+  public abstract void logDebug(Object paramObject);
 }
+
+/* Location:           /home/rich/paintchat/paintchat/reveng/
+ * Qualified Name:     paintchat.debug.DebugListener
+ * JD-Core Version:    0.6.0
+ */

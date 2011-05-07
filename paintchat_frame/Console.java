@@ -35,8 +35,8 @@ public class Console extends TextPanel implements Runnable, DebugListener
 	    while (isRun) {
 		if (cOut.size() > 0) {
 		    CharArrayWriter chararraywriter;
-		    MONITORENTER (chararraywriter = cOut);
-		    MISSING MONITORENTER
+/*		    MONITORENTER (chararraywriter = cOut);
+		    MISSING MONITORENTER*/
 		    synchronized (chararraywriter) {
 			this.setText(cOut.toString());
 			cOut.reset();

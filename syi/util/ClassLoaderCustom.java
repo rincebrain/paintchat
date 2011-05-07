@@ -76,7 +76,7 @@ public class ClassLoaderCustom extends ClassLoader
 			var_class_5_ = Class.forName("java.lang.Object");
 		    } catch (ClassNotFoundException classnotfoundexception) {
 			NoClassDefFoundError noclassdeffounderror
-			    = new NoClassDefFoundError;
+			    = new NoClassDefFoundError();
 			((UNCONSTRUCTED)noclassdeffounderror)
 			    .NoClassDefFoundError
 			    (classnotfoundexception.getMessage());

@@ -38,8 +38,8 @@ public class LineTalker extends PaintChatTalker
 		int i_1_ = bytestream.size();
 		byte[] is = bytestream.getBuffer();
 		ByteStream bytestream_2_;
-		MONITORENTER (bytestream_2_ = lines_send);
-		MISSING MONITORENTER
+/*		MONITORENTER (bytestream_2_ = lines_send);
+		MISSING MONITORENTER*/
 		synchronized (bytestream_2_) {
 		    while (i + 1 < i_1_) {
 			i += m.set(is, i);
@@ -60,8 +60,8 @@ public class LineTalker extends PaintChatTalker
 	iSendInterval = 4000;
 	server.addTalker(this);
 	ByteStream bytestream;
-	MONITORENTER (bytestream = lines_send);
-	MISSING MONITORENTER
+/*	MONITORENTER (bytestream = lines_send);
+	MISSING MONITORENTER*/
 	synchronized (bytestream) {
 	    lines_send.w2(1);
 	    lines_send.write(0);
@@ -110,8 +110,8 @@ public class LineTalker extends PaintChatTalker
 	} else if (lines_send.size() > 2) {
 	    ByteStream bytestream = this.getWriteBuffer();
 	    ByteStream bytestream_3_;
-	    MONITORENTER (bytestream_3_ = lines_send);
-	    MISSING MONITORENTER
+/*	    MONITORENTER (bytestream_3_ = lines_send);
+	    MISSING MONITORENTER*/
 	    synchronized (bytestream_3_) {
 		lines_send.writeTo(bytestream);
 		lines_send.reset();

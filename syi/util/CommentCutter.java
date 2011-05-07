@@ -49,8 +49,8 @@ class CommentCutter
     
     public void addLineFlag(int[] is) {
 	CommentCutter commentcutter_0_;
-	MONITORENTER (commentcutter_0_ = this);
-	MISSING MONITORENTER
+/*	MONITORENTER (commentcutter_0_ = this);
+	MISSING MONITORENTER*/
 	synchronized (commentcutter_0_) {
 	    if (flagLine == null) {
 		flagLine = new int[0][];
@@ -69,8 +69,8 @@ class CommentCutter
     
     public void addWholeFlag(int[] is, int[] is_3_) {
 	CommentCutter commentcutter_4_;
-	MONITORENTER (commentcutter_4_ = this);
-	MISSING MONITORENTER
+/*	MONITORENTER (commentcutter_4_ = this);
+	MISSING MONITORENTER*/
 	synchronized (commentcutter_4_) {
 	    if (flagWhole == null) {
 		flagWhole = new int[0][];
@@ -103,8 +103,8 @@ class CommentCutter
     
     public void cut() throws IOException {
 	CommentCutter commentcutter_8_;
-	MONITORENTER (commentcutter_8_ = this);
-	MISSING MONITORENTER
+/*	MONITORENTER (commentcutter_8_ = this);
+	MISSING MONITORENTER*/
 	synchronized (commentcutter_8_) {
 	    try {
 		if (flagLine == null && flagWhole == null)
@@ -215,8 +215,8 @@ class CommentCutter
     
     public void setInOut(Reader reader, Writer writer) {
 	CommentCutter commentcutter_13_;
-	MONITORENTER (commentcutter_13_ = this);
-	MISSING MONITORENTER
+/*	MONITORENTER (commentcutter_13_ = this);
+	MISSING MONITORENTER*/
 	synchronized (commentcutter_13_) {
 	    Out = writer;
 	    In = reader;

@@ -40,8 +40,8 @@ public class ThreadPool extends Thread
     public void interrupt() {
 	try {
 	    ThreadPool threadpool_8_;
-	    MONITORENTER (threadpool_8_ = this);
-	    MISSING MONITORENTER
+	    /*MONITORENTER (threadpool_8_ = this);
+	    MISSING MONITORENTER*/
 	    synchronized (threadpool_8_) {
 		if (!isEmpty)
 		    super.interrupt();
@@ -55,8 +55,8 @@ public class ThreadPool extends Thread
 	try {
 	    if (pool != null) {
 		Object object;
-		MONITORENTER (object = lock);
-		MISSING MONITORENTER
+		/*MONITORENTER (object = lock);
+		MISSING MONITORENTER*/
 		synchronized (object) {
 		    if (isLive) {
 			pool[poolNumber] = null;
@@ -79,8 +79,8 @@ public class ThreadPool extends Thread
     public static void poolGcAll() {
 	if (pool != null) {
 	    Object object;
-	    MONITORENTER (object = lock);
-	    MISSING MONITORENTER
+	    /*MONITORENTER (object = lock);
+	    MISSING MONITORENTER*/
 	    synchronized (object) {
 		for (int i = 0; i < pool.length; i++) {
 		    ThreadPool threadpool = pool[i];
@@ -94,8 +94,8 @@ public class ThreadPool extends Thread
     public static void poolKillAll() {
 	if (pool != null) {
 	    Object object;
-	    MONITORENTER (object = lock);
-	    MISSING MONITORENTER
+	    /*MONITORENTER (object = lock);
+	    MISSING MONITORENTER*/
 	    synchronized (object) {
 		for (int i = 0; i < pool.length; i++)
 		    pool[i].kill();
@@ -105,8 +105,8 @@ public class ThreadPool extends Thread
     
     public static void poolSetLimit(int i) {
 	Object object;
-	MONITORENTER (object = lock);
-	MISSING MONITORENTER
+/*	MONITORENTER (object = lock);
+	MISSING MONITORENTER*/
 	synchronized (object) {
 	    poolKillAll();
 	    threadLimit = i;

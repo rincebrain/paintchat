@@ -194,7 +194,7 @@ public class Tools implements ToolBox, ActionListener
 		    var_class_11_ = Class.forName("paintchat.M");
 		} catch (ClassNotFoundException classnotfoundexception) {
 		    NoClassDefFoundError noclassdeffounderror
-			= new NoClassDefFoundError;
+			= new NoClassDefFoundError();
 		    ((UNCONSTRUCTED)noclassdeffounderror).NoClassDefFoundError
 			(classnotfoundexception.getMessage());
 		    throw noclassdeffounderror;

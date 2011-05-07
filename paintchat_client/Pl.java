@@ -340,10 +340,7 @@ public class Pl extends Panel
 			    var_class_6_ = Class.forName("java.awt.Toolkit");
 			} catch (ClassNotFoundException classnotfoundexception) {
 			    NoClassDefFoundError noclassdeffounderror
-				= new NoClassDefFoundError;
-			    ((UNCONSTRUCTED)noclassdeffounderror)
-				.NoClassDefFoundError
-				(classnotfoundexception.getMessage());
+				= new NoClassDefFoundError(classnotfoundexception.getMessage());
 			    throw noclassdeffounderror;
 			}
 			var_class = class$0 = var_class_6_;
@@ -358,10 +355,7 @@ public class Pl extends Panel
 			    var_class_10_ = Class.forName("java.awt.Image");
 			} catch (ClassNotFoundException classnotfoundexception) {
 			    NoClassDefFoundError noclassdeffounderror
-				= new NoClassDefFoundError;
-			    ((UNCONSTRUCTED)noclassdeffounderror)
-				.NoClassDefFoundError
-				(classnotfoundexception.getMessage());
+				= new NoClassDefFoundError(classnotfoundexception.getMessage());
 			    throw noclassdeffounderror;
 			}
 			var_class_9_ = class$1 = var_class_10_;
@@ -375,10 +369,7 @@ public class Pl extends Panel
 			    var_class_13_ = Class.forName("java.awt.Point");
 			} catch (ClassNotFoundException classnotfoundexception) {
 			    NoClassDefFoundError noclassdeffounderror
-				= new NoClassDefFoundError;
-			    ((UNCONSTRUCTED)noclassdeffounderror)
-				.NoClassDefFoundError
-				(classnotfoundexception.getMessage());
+				= new NoClassDefFoundError(classnotfoundexception.getMessage());
 			    throw noclassdeffounderror;
 			}
 			var_class_12_ = class$2 = var_class_13_;
@@ -392,10 +383,7 @@ public class Pl extends Panel
 			    var_class_16_ = Class.forName("java.lang.String");
 			} catch (ClassNotFoundException classnotfoundexception) {
 			    NoClassDefFoundError noclassdeffounderror
-				= new NoClassDefFoundError;
-			    ((UNCONSTRUCTED)noclassdeffounderror)
-				.NoClassDefFoundError
-				(classnotfoundexception.getMessage());
+				= new NoClassDefFoundError(classnotfoundexception.getMessage());
 			    throw noclassdeffounderror;
 			}
 			var_class_15_ = class$3 = var_class_16_;
@@ -410,10 +398,7 @@ public class Pl extends Panel
 			    var_class_18_ = Class.forName("java.awt.Toolkit");
 			} catch (ClassNotFoundException classnotfoundexception) {
 			    NoClassDefFoundError noclassdeffounderror
-				= new NoClassDefFoundError;
-			    ((UNCONSTRUCTED)noclassdeffounderror)
-				.NoClassDefFoundError
-				(classnotfoundexception.getMessage());
+				= new NoClassDefFoundError((classnotfoundexception.getMessage()));
 			    throw noclassdeffounderror;
 			}
 			var_class_17_ = class$0 = var_class_18_;

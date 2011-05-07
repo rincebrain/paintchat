@@ -268,8 +268,8 @@ public class Server implements Runnable
 		socket.setSoTimeout(180000);
 		if (!isLiveThread) {
 		    Thread thread;
-		    MONITORENTER (thread = tLive);
-		    MISSING MONITORENTER
+/*		    MONITORENTER (thread = tLive);
+		    MISSING MONITORENTER*/
 		    synchronized (thread) {
 			tLive.notify();
 		    }
@@ -312,8 +312,8 @@ public class Server implements Runnable
 		if (textServer.getUserCount() <= 0
 		    && lineServer.getUserCount() <= 0) {
 		    Thread thread;
-		    MONITORENTER (thread = tLive);
-		    MISSING MONITORENTER
+/*		    MONITORENTER (thread = tLive);
+		    MISSING MONITORENTER*/
 		    synchronized (thread) {
 			debug.log("pchat_gc:suspend");
 			isLiveThread = false;

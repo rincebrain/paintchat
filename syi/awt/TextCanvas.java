@@ -92,8 +92,8 @@ public class TextCanvas extends Canvas
 	if (string != null) {
 	    CharArrayWriter chararraywriter = buffer;
 	    CharArrayWriter chararraywriter_4_;
-	    MONITORENTER (chararraywriter_4_ = chararraywriter);
-	    MISSING MONITORENTER
+/*	    MONITORENTER (chararraywriter_4_ = chararraywriter);
+	    MISSING MONITORENTER*/
 	    synchronized (chararraywriter_4_) {
 		chararraywriter.reset();
 		reset();

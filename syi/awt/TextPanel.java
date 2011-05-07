@@ -167,8 +167,8 @@ public class TextPanel extends Canvas implements ActionListener, ItemListener
     
     public void addText(String string, boolean bool) {
 	Object object;
-	MONITORENTER (object = lock);
-	MISSING MONITORENTER
+/*	MONITORENTER (object = lock);
+	MISSING MONITORENTER*/
 	synchronized (object) {
 	    if (iSeek > 0) {
 		System.arraycopy(strings, 0, strings, 1, iSeek);
@@ -243,8 +243,8 @@ public class TextPanel extends Canvas implements ActionListener, ItemListener
 			string_9_ = string.substring(i_7_ + 1, i_6_);
 		    if (string_8_.indexOf("$clear") >= 0) {
 			Object object;
-			MONITORENTER (object = lock);
-			MISSING MONITORENTER
+/*			MONITORENTER (object = lock);
+			MISSING MONITORENTER*/
 			synchronized (object) {
 			    for (int i_10_ = 0; i_10_ < strings.length;
 				 i_10_++)
@@ -509,8 +509,8 @@ public class TextPanel extends Canvas implements ActionListener, ItemListener
     public void remove(String string) {
 	try {
 	    Object object;
-	    MONITORENTER (object = lock);
-	    MISSING MONITORENTER
+/*	    MONITORENTER (object = lock);
+	    MISSING MONITORENTER*/
 	    synchronized (object) {
 		int i = iSeek;
 		for (int i_29_ = 0; i_29_ < i; i_29_++) {

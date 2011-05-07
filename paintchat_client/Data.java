@@ -93,13 +93,8 @@ public class Data
 		Port = config.getP(string_0_, 41411);
 		try {
 		    /* empty */
-		} catch (InterruptedException interruptedexception) {
-		    break;
-		}
-	    }
-	    while (!isDestroy) {
-		int i = 0;
-		while (i < 2) {
+    		int i = 0;
+		do {
 		    try {
 			return new Socket(address, Port);
 		    } catch (IOException ioexception) {
@@ -107,11 +102,13 @@ public class Data
 			Thread.sleep(3000L);
 			i++;
 		    }
-		}
-		if (!mi.alert("reconnect", true))
+		} while ((i < 2) || !mi.alert("reconnect", true));
+            } catch (InterruptedException interruptedexception) {
 		    break;
+		}
 	    }
-	} while (false);
+        }
+        while (!isDestroy);
 	destroy();
 	return null;
     }

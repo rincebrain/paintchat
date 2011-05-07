@@ -39,8 +39,8 @@ public class TLine extends PaintChatTalker
 	    switch (bytestream.getBuffer()[0]) {
 	    case 0: {
 		ByteStream bytestream_0_;
-		MONITORENTER (bytestream_0_ = stmIn);
-		MISSING MONITORENTER
+/*		MONITORENTER (bytestream_0_ = stmIn);
+		MISSING MONITORENTER*/
 		synchronized (bytestream_0_) {
 		    stmIn.w2(0);
 		    break;
@@ -61,13 +61,13 @@ public class TLine extends PaintChatTalker
 			inflater.reset();
 			inflater.setInput(bytestream.getBuffer(), 0, i);
 			TLine tline_1_;
-			MONITORENTER (tline_1_ = this);
-			MISSING MONITORENTER
+/*			MONITORENTER (tline_1_ = this);
+			MISSING MONITORENTER*/
 			synchronized (tline_1_) {
 			    byte[] is = workSend.getBuffer();
 			    ByteStream bytestream_2_;
-			    MONITORENTER (bytestream_2_ = stmIn);
-			    MISSING MONITORENTER
+/*			    MONITORENTER (bytestream_2_ = stmIn);
+			    MISSING MONITORENTER*/
 			    synchronized (bytestream_2_) {
 				while (!inflater.needsInput()) {
 				    int i_3_
@@ -83,8 +83,8 @@ public class TLine extends PaintChatTalker
 			inflater = null;
 		    }
 		    ByteStream bytestream_4_;
-		    MONITORENTER (bytestream_4_ = stmIn);
-		    MISSING MONITORENTER
+/*		    MONITORENTER (bytestream_4_ = stmIn);
+		    MISSING MONITORENTER*/
 		    synchronized (bytestream_4_) {
 			bytestream.writeTo(stmIn);
 		    }
@@ -106,8 +106,8 @@ public class TLine extends PaintChatTalker
     protected void mWrite() throws IOException {
 	if (bSendCash.size() > 0) {
 	    ByteStream bytestream;
-	    MONITORENTER (bytestream = bSendCash);
-	    MISSING MONITORENTER
+/*	    MONITORENTER (bytestream = bSendCash);
+	    MISSING MONITORENTER*/
 	    synchronized (bytestream) {
 		this.write(bSendCash);
 		bSendCash.reset();

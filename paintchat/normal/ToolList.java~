@@ -113,7 +113,7 @@ public class ToolList
 			var_class_13_ = Class.forName("paintchat.M");
 		    } catch (ClassNotFoundException classnotfoundexception) {
 			NoClassDefFoundError noclassdeffounderror
-			    = new NoClassDefFoundError;
+			    = new NoClassDefFoundError();
 			noclassdeffounderror.NoClassDefFoundError
 			    (classnotfoundexception.getMessage());
 			throw noclassdeffounderror;

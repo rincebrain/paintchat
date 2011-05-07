@@ -61,7 +61,7 @@ public class DataBeanInfo extends SimpleBeanInfo
 		var_class_1_ = Class.forName("paintchat_frame.Data");
 	    } catch (ClassNotFoundException classnotfoundexception) {
 		NoClassDefFoundError noclassdeffounderror
-		    = new NoClassDefFoundError;
+		    = new NoClassDefFoundError();
 		((UNCONSTRUCTED)noclassdeffounderror)
 		    .NoClassDefFoundError(classnotfoundexception.getMessage());
 		throw noclassdeffounderror;
@@ -78,7 +78,7 @@ public class DataBeanInfo extends SimpleBeanInfo
     public BeanDescriptor getBeanDescriptor() {
 	BeanDescriptor beandescriptor = null;
 	try {
-	    BeanDescriptor beandescriptor_2_ = new BeanDescriptor;
+	    BeanDescriptor beandescriptor_2_ = new BeanDescriptor();
 	    Class var_class = class$0;
 	    if (var_class == null) {
 		Class var_class_3_;
@@ -86,7 +86,7 @@ public class DataBeanInfo extends SimpleBeanInfo
 		    var_class_3_ = Class.forName("paintchat_frame.Data");
 		} catch (ClassNotFoundException classnotfoundexception) {
 		    NoClassDefFoundError noclassdeffounderror
-			= new NoClassDefFoundError;
+			= new NoClassDefFoundError();
 		    ((UNCONSTRUCTED)noclassdeffounderror).NoClassDefFoundError
 			(classnotfoundexception.getMessage());
 		    throw noclassdeffounderror;

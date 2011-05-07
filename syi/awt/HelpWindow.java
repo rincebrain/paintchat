@@ -38,8 +38,8 @@ public class HelpWindow extends Window implements Runnable
 	}
 	if (rAdd != null && rAdd != Thread.currentThread()) {
 	    Thread thread;
-	    MONITORENTER (thread = rAdd);
-	    MISSING MONITORENTER
+/*	    MONITORENTER (thread = rAdd);
+	    MISSING MONITORENTER*/
 	    synchronized (thread) {
 		rAdd.interrupt();
 		rAdd.notify();
@@ -53,8 +53,8 @@ public class HelpWindow extends Window implements Runnable
 	    Thread thread = Thread.currentThread();
 	    if (object.timeStart > 0) {
 		Thread thread_0_;
-		MONITORENTER (thread_0_ = thread);
-		MISSING MONITORENTER
+/*		MONITORENTER (thread_0_ = thread);
+		MISSING MONITORENTER*/
 		synchronized (thread_0_) {
 		    thread.wait((long) object.timeStart);
 		}
@@ -63,8 +63,8 @@ public class HelpWindow extends Window implements Runnable
 		showHelp(object);
 		if (object.timeEnd > 0) {
 		    Thread thread_1_;
-		    MONITORENTER (thread_1_ = thread);
-		    MISSING MONITORENTER
+/*		    MONITORENTER (thread_1_ = thread);
+		    MISSING MONITORENTER*/
 		    synchronized (thread_1_) {
 			thread.wait((long) object.timeEnd);
 		    }
