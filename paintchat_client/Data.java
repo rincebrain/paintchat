@@ -3,10 +3,12 @@ package paintchat_client;
 import java.applet.Applet;
 import java.io.*;
 import java.net.*;
-import java.util.Hashtable;
+//import java.util.Hashtable;
 import java.util.Locale;
+
 import paintchat.*;
-import paintchat_server.PaintChatTalker;
+//import paintchat_server.PaintChatTalker;
+
 import syi.awt.Awt;
 import syi.awt.TextPanel;
 import syi.util.ByteStream;

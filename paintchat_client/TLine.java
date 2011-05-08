@@ -130,89 +130,63 @@ public class TLine extends PaintChatTalker
         }
     }
 
-    public void send(M m)
-    {
-label0:
-        {
-            synchronized(bSendCash)
-            {
-                if(m != null)
-                {
-                    break label0;
-                }
-                try
-                {
+    public void send(M m) {
+        synchronized (bSendCash) {
+            if (m == null) {
+                try {
                     super.canWrite = true;
                     bSendCash.reset();
                     bSendCash.w2(2);
                     write(bSendCash);
                     flush();
+                } catch (IOException _ex) {
                 }
-                catch(IOException _ex) { }
+                return;
             }
-            return;
+            m.get(bSendCash, workSend, mgOut);
+            if (mgOut == null) {
+                mgOut = new M();
+            }
+            mgOut.set(m);
         }
-        m.get(bSendCash, workSend, mgOut);
-        if(mgOut == null)
-        {
-            mgOut = new M();
-        }
-        mgOut.set(m);
-        bytestream;
-        JVM INSTR monitorexit ;
     }
 
-    public void run()
-    {
-        if(!isRunDraw)
-        {
+    public void run() {
+        if (!isRunDraw) {
             isRunDraw = true;
             ThreadPool.poolStartThread(this, 'd');
             super.run();
             return;
         }
-          goto _L1
-_L3:
-label0:
-        {
-            if(stmIn.size() < 2)
-            {
-                break MISSING_BLOCK_LABEL_191;
-            }
-            int j;
-            synchronized(stmIn)
-            {
-                byte abyte0[] = stmIn.getBuffer();
-                int i = (abyte0[0] & 0xff) << 8 | abyte0[1] & 0xff;
-                if(i > 2)
-                {
-                    break label0;
+        try {
+            while (this.isRunDraw) {
+                if (stmIn.size() >= 2) {
+                    int j;
+                    synchronized (stmIn) {
+                        byte abyte0[] = stmIn.getBuffer();
+                        int i = (abyte0[0] & 0xff) << 8 | abyte0[1] & 0xff;
+                        if (i <= 2) {
+                            mgDraw.newUser(null).wait = 0;
+                            data.addTextComp();
+                            stmIn.reset(i + 2);
+                            continue;
+                        }
+                        j = mgDraw.set(stmIn.getBuffer(), 0);
+                        stmIn.reset(j);
+                    }
+                    if (mgDraw.iLayer >= data.info.L) {
+                        data.info.setL(mgDraw.iLayer + 1);
+                    }
+                    mgDraw.draw();
+                } else {
+                    Thread.currentThread();
+                    Thread.sleep(3000L);
                 }
-                mgDraw.newUser(null).wait = 0;
-                data.addTextComp();
-                stmIn.reset(i + 2);
             }
-            continue; /* Loop/switch isn't completed */
+        } catch (InterruptedException localInterruptedException) {
         }
-        j = mgDraw.set(stmIn.getBuffer(), 0);
-        stmIn.reset(j);
-        bytestream;
-        JVM INSTR monitorexit ;
-        if(mgDraw.iLayer >= data.info.L)
-        {
-            data.info.setL(mgDraw.iLayer + 1);
-        }
-        mgDraw.draw();
-        continue; /* Loop/switch isn't completed */
-        Thread.currentThread();
-        Thread.sleep(3000L);
-_L1:
-        if(isRunDraw) goto _L3; else goto _L2
-_L2:
-        break MISSING_BLOCK_LABEL_212;
-        JVM INSTR pop ;
     }
-
+    
     public synchronized void mRStop()
     {
         send(null);

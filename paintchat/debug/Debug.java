@@ -121,32 +121,27 @@ public class Debug
     private void writeLogFile(Object obj)
     {
         String s = obj != null ? obj.toString() : "null";
-        Debug debug = this;
-        JVM INSTR monitorenter ;
-        BufferedWriter bufferedwriter = wFile;
-label0:
+        synchronized (this)
         {
-            if(bufferedwriter != null)
-            {
-                break label0;
+            BufferedWriter bufferedwriter = wFile;
+            try {
+                if(bufferedwriter == null)
+                {
+                    return;
+                }
+                bufferedwriter.write(s);
+                bufferedwriter.newLine();
             }
-            return;
+            catch (IOException _ex1)
+            {
+                try
+                {
+                    bufferedwriter.close();
+                }
+                catch(IOException _ex2) { }
+                wFile = null;
+            }
         }
-        bufferedwriter.write(s);
-        bufferedwriter.newLine();
-        break MISSING_BLOCK_LABEL_61;
-        JVM INSTR pop ;
-        try
-        {
-            bufferedwriter.close();
-        }
-        catch(IOException _ex) { }
-        wFile = null;
-          goto _L1
-        debug;
-        JVM INSTR monitorexit ;
-        throw ;
-_L1:
     }
 
     public synchronized void setListener(DebugListener debuglistener)

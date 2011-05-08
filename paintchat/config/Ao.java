@@ -241,8 +241,7 @@ public class Ao extends ConfigApplet
 
     public String getAppletInfo()
     {
-        return "paintchat.config.Ao2 \u306F VisualAge for Java \u3092\u4F7F\u7528\u3057\u3066\u4F5C" +
-"\u6210\u3055\u308C\u307E\u3057\u305F\u3002"
+        return "paintchat.config.Ao2 (The) VisualAge for Java (Was created using.)"
 ;
     }
 
@@ -862,9 +861,7 @@ public class Ao extends ConfigApplet
         }
         catch(Throwable throwable)
         {
-            System.err.println("java.applet.Applet \u306E main() \u3067\u4F8B\u5916\u304C\u767A\u751F\u3057\u307E" +
-"\u3057\u305F"
-);
+            System.err.println("java.applet.Applet (The) main() (An exception occurred in)");
             throwable.printStackTrace(System.out);
         }
     }

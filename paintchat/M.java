@@ -1930,7 +1930,7 @@ public class M
         int i1 = info.W;
         int j1 = info.H;
         byte abyte0[] = info.iMOffs;
-        int j3 = (byte)iAlpha;
+        byte j3 = (byte)iAlpha;
         if(i < 0)
         {
             i = 0;

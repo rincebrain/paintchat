@@ -17,7 +17,7 @@ public class Server
     implements Runnable
 {
 
-    public static final String STR_VERSION = "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatServer v3.57b";
+    public static final String STR_VERSION = "(C)And Mino, PaintChatServer v3.57b";
     public static final String FILE_CONFIG = "cnf/paintchat.cf";
     private TalkerInstance talkerInstance;
     private boolean live;
@@ -87,7 +87,7 @@ public class Server
             }
             lineServer.mStop();
             textServer.mStop();
-            debug.log("PaintChat\u30B5\u30FC\u30D0\u30FC\u3092\u7D42\u4E86\u3055\u305B\u307E\u3059");
+            debug.log("PaintChat (Terminates the server)");
         }
         catch(Throwable _ex) { }
         if(isOnlyServer)
@@ -230,13 +230,11 @@ public class Server
             Server server = new Server(s1, config1, null, true);
             if(server.isExecute(flag))
             {
-                throw new Exception("\u65E2\u306B\u8D77\u52D5\u3057\u3066\u3044\u307E\u3059\u3002");
+                throw new Exception("(Has already started.)");
             }
             if(flag)
             {
-                throw new Exception("\u65E2\u306B\u30B5\u30FC\u30D0\u30FC\u306F\u7D42\u4E86\u3057\u3066\u3044\u308B\u304B" +
-"\u3001\u691C\u7D22\u3092\u5931\u6557\u3057\u307E\u3057\u305F\u3002"
-);
+                throw new Exception("(That the server is already completed, the search failed.)");
             }
             server.init();
         }

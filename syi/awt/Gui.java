@@ -30,7 +30,7 @@ public class Gui extends Awt
             String s3;
             if(resource == null)
             {
-                s3 = (flag ? "\u66F8\u304D\u8FBC\u3080" : "\u8AAD\u307F\u3053\u3080") + "\u30D5\u30A1\u30A4\u30EB\u3092\u9078\u629E\u3057\u3066\u304F\u3060\u3055\u3044";
+                s3 = (flag ? "Write" : "Read this") + "Please select a file";
             } else
             {
                 s3 = resource.getString("Dialog." + (flag ? "Save" : "Load"));

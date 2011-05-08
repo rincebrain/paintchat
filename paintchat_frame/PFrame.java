@@ -21,7 +21,7 @@ public class PFrame extends Frame
     implements ActionListener, ItemListener, MouseListener, WindowListener, Runnable
 {
 
-    public static final String STR_VERSION = "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66";
+    public static final String STR_VERSION = "(C)And Mino, PaintChatApp v3.66";
     private Config config;
     private Res res;
     private Debug debug;
@@ -290,7 +290,7 @@ public class PFrame extends Frame
         {
             if(flag)
             {
-                new ConfigDialog("paintchat.config.PConfig", "cnf/dialogs.jar", config, res, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+                new ConfigDialog("paintchat.config.PConfig", "cnf/dialogs.jar", config, res, "(C)And Mino, PaintChatApp v3.66");
             }
         }
         catch(Exception exception)
@@ -1164,7 +1164,7 @@ public class PFrame extends Frame
     {
         try
         {
-            new ConfigDialog("paintchat.config.ConfigServer", "cnf/dialogs.jar", config, res, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+            new ConfigDialog("paintchat.config.ConfigServer", "cnf/dialogs.jar", config, res, "(C)And Mino, PaintChatApp v3.66");
         }
         catch(Exception exception)
         {
@@ -1174,13 +1174,13 @@ public class PFrame extends Frame
 
     public void menuItem10_ActionPerformed1()
     {
-        if(getData().isRunPaintChatServer() && MessageBox.confirm("ConfirmMayServerStopNow", "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66"))
+        if(getData().isRunPaintChatServer() && MessageBox.confirm("ConfirmMayServerStopNow", "(C)And Mino, PaintChatApp v3.66"))
         {
             getData().startPaintChat(false);
         }
         try
         {
-            new ConfigDialog("paintchat.config.ConfigServer", "cnf/dialogs.jar", config, res, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+            new ConfigDialog("paintchat.config.ConfigServer", "cnf/dialogs.jar", config, res, "(C)And Mino, PaintChatApp v3.66");
         }
         catch(Throwable _ex) { }
     }
@@ -1189,7 +1189,7 @@ public class PFrame extends Frame
     {
         try
         {
-            new ConfigDialog("paintchat.config.PConfig", "cnf/dialogs.jar", config, res, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+            new ConfigDialog("paintchat.config.PConfig", "cnf/dialogs.jar", config, res, "(C)And Mino, PaintChatApp v3.66");
         }
         catch(Throwable throwable)
         {
@@ -1201,7 +1201,7 @@ public class PFrame extends Frame
     {
         try
         {
-            new ConfigDialog("paintchat.config.Ao", "cnf/dialogs.jar", config, res, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+            new ConfigDialog("paintchat.config.Ao", "cnf/dialogs.jar", config, res, "(C)And Mino, PaintChatApp v3.66");
         }
         catch(Throwable throwable)
         {
@@ -1212,7 +1212,7 @@ public class PFrame extends Frame
     public void menuItem6_ActionPerformed()
     {
         StringBuffer stringbuffer = new StringBuffer();
-        stringbuffer.append("(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+        stringbuffer.append("(C)And Mino, PaintChatApp v3.66");
         stringbuffer.append('\n');
         stringbuffer.append('\n');
         stringbuffer.append("JavaVirtualMachine(JVM):");
@@ -1220,14 +1220,8 @@ public class PFrame extends Frame
         stringbuffer.append("\nJVM Version:");
         stringbuffer.append(System.getProperty("java.version"));
         stringbuffer.append('\n');
-        stringbuffer.append("\n\u7ACB\u3061\u4E0A\u3052\u753B\u9762\u306ECG\u306Fuzuki\u3055\u3093\u304C\u4F5C" +
-"\u6210\u3057\u307E\u3057\u305F\u3002\nuzuki\u3055\u3093\u306EHP http://www19.fre" +
-"eweb.ne.jp/play/m_uzuki/top.htm\n\u52B9\u679C\u97F3\u306F\u3042\u3084\u3084\u3055" +
-"\u3093\u304C\u4F5C\u6210\u3057\u307E\u3057\u305F\u3002\n\u30ED\u30D3\u30FC\u30D7" +
-"\u30ED\u30B0\u30E9\u30E0\u306F\u85CD\u73E0\u3055\u3093\u304C\u4F5C\u6210\u3001\u7BA1" +
-"\u7406\u3057\u3066\u3044\u307E\u3059\u3002"
-);
-        MessageBox.alert(stringbuffer.toString(), "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+        stringbuffer.append("\nThe launch window's CG is created uzuki.\nuzuki's HP http://www19.freeweb.ne.jp/play/m_uzuki/top.htm\nAdded the sound effects created Ayaya.\nIndigo Pearl's lobby to create a program has been managed. ");
+        MessageBox.alert(stringbuffer.toString(), "(C)And Mino, PaintChatApp v3.66");
     }
 
     public void mouseClicked(MouseEvent mouseevent)
@@ -1355,7 +1349,7 @@ public class PFrame extends Frame
             Dimension dimension = getToolkit().getScreenSize();
             Point point = new Point((dimension.width - image.getWidth(null)) / 2, (dimension.height - image.getHeight(null)) / 2);
             getHelp().setForeground(Color.black);
-            HelpWindowContent helpwindowcontent = new HelpWindowContent(image, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66", false, point, null);
+            HelpWindowContent helpwindowcontent = new HelpWindowContent(image, "(C)And Mino, PaintChatApp v3.66", false, point, null);
             helpwindowcontent.timeStart = 0;
             helpwindowcontent.timeEnd = 3500;
             helpwindowcontent.setVisit(true);
@@ -1367,7 +1361,7 @@ public class PFrame extends Frame
             if(config.getBool("App_IsConsole"))
             {
                 showConsole();
-                ivjConsole.addText("(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+                ivjConsole.addText("(C)And Mino, PaintChatApp v3.66");
                 ivjConsole.addText("http://shichan.jp/");
                 ivjConsole.addText(" ");
                 if(config.getBool("App_ShowStartHelp", true))
@@ -1381,10 +1375,10 @@ public class PFrame extends Frame
             {
                 showHelp();
             }
-            if(!config.getString("App_Version").equals("(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66"))
+            if(!config.getString("App_Version").equals("(C)And Mino, PaintChatApp v3.66"))
             {
                 (new FileManager(config)).templateToWWW();
-                config.put("App_Version", "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+                config.put("App_Version", "(C)And Mino, PaintChatApp v3.66");
                 debug.log("Client update.");
             }
             getIp().setText(PopupMenuPaintChat.getAddress(config, debug));
@@ -1511,7 +1505,7 @@ public class PFrame extends Frame
     {
         try
         {
-            AppletWatcher appletwatcher = new AppletWatcher("paintchat_client.Client", "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66", config, res, false);
+            AppletWatcher appletwatcher = new AppletWatcher("paintchat_client.Client", "(C)And Mino, PaintChatApp v3.66", config, res, false);
             appletwatcher.setIconImage(getIconImage());
             appletwatcher.show();
         }

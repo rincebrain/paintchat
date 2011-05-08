@@ -135,7 +135,7 @@ public class HttpServer
             }
             if(debug.bool_debug)
             {
-                debug.logDebug("Mime\u30ED\u30FC\u30C9");
+                debug.logDebug("Mime(Road)");
             }
             fmt = new SimpleDateFormat("EEEE',' dd MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
             dirLog = config.getString("Http_Log.Dir");

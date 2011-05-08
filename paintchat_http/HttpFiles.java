@@ -149,52 +149,34 @@ public class HttpFiles
         return s;
     }
 
-    private void setup()
-    {
-label0:
-        {
-            if(bErrorUpper != null)
-            {
-                return;
-            }
-            File file;
-            byte abyte0[];
-            FileInputStream fileinputstream;
-            int i;
-            String s;
-            synchronized(this)
-            {
-                if(bErrorUpper == null)
-                {
-                    break label0;
-                }
-            }
+    private void setup() {
+        if (bErrorUpper != null) {
             return;
         }
-        try
-        {
-            res_bytes[3] = res.get("not_found").getBytes();
-            res_bytes[4] = res.get("server_error").getBytes();
-            file = new File(dirTmp, "err.html");
-            abyte0 = new byte[(int)file.length()];
-            fileinputstream = new FileInputStream(file);
-            Io.rFull(fileinputstream, abyte0, 0, abyte0.length);
-            fileinputstream.close();
-            i = Math.max(indexOf(abyte0, "<!--ERRORMESSAGE-->".getBytes()), 0);
-            bErrorUpper = new byte[i];
-            System.arraycopy(abyte0, 0, bErrorUpper, 0, i);
-            s = "<!--/ERRORMESSAGE-->";
-            i = Math.max(0, indexOf(abyte0, s.getBytes())) + s.length();
-            bErrorBottom = new byte[abyte0.length - i];
-            System.arraycopy(abyte0, i, bErrorBottom, 0, abyte0.length - i);
+        synchronized (this) {
+            if (bErrorUpper != null) {
+                return;
+            }
+            try {
+                res_bytes[3] = res.get("not_found").getBytes();
+                res_bytes[4] = res.get("server_error").getBytes();
+                File file = new File(dirTmp, "err.html");
+                byte abyte0[] = new byte[(int) file.length()];
+                FileInputStream fileinputstream = new FileInputStream(file);
+                Io.rFull(fileinputstream, abyte0, 0, abyte0.length);
+                fileinputstream.close();
+                int i = Math.max(indexOf(abyte0, "<!--ERRORMESSAGE-->".getBytes()), 0);
+                bErrorUpper = new byte[i];
+                System.arraycopy(abyte0, 0, bErrorUpper, 0, i);
+                String s = "<!--/ERRORMESSAGE-->";
+                i = Math.max(0, indexOf(abyte0, s.getBytes())) + s.length();
+                bErrorBottom = new byte[abyte0.length - i];
+                System.arraycopy(abyte0, i, bErrorBottom, 0, abyte0.length - i);
+            } catch (Throwable _ex) {
+                bErrorUpper = new byte[0];
+                bErrorBottom = new byte[0];
+            }
         }
-        catch(Throwable _ex)
-        {
-            bErrorUpper = new byte[0];
-            bErrorBottom = new byte[0];
-        }
-        httpfiles;
-        JVM INSTR monitorexit ;
     }
 
     public String uriToPath(String s)

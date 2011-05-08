@@ -187,7 +187,7 @@ public class Data
         String s = "chatIndex";
         if(lobby != null)
         {
-            if(!MessageBox.confirm("LobbyDisconnect", "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66"))
+            if(!MessageBox.confirm("LobbyDisconnect", "(C)And Mino, PaintChatApp v3.66"))
             {
                 return;
             } else
@@ -203,7 +203,7 @@ public class Data
         {
             try
             {
-                new ConfigDialog("paintchat.config.Ao", "cnf/dialogs.jar", config, res, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+                new ConfigDialog("paintchat.config.Ao", "cnf/dialogs.jar", config, res, "(C)And Mino, PaintChatApp v3.66");
             }
             catch(Exception exception)
             {
@@ -217,8 +217,8 @@ public class Data
         }
         try
         {
-            int i = "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66".lastIndexOf('v') + 1;
-            config.put("pchatVersion", "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66".substring(i, i + 4));
+            int i = "(C)And Mino, PaintChatApp v3.66".lastIndexOf('v') + 1;
+            config.put("pchatVersion", "(C)And Mino, PaintChatApp v3.66".substring(i, i + 4));
             lobby = (Applet)(new ClassLoaderCustom()).loadClass("lobbyusers.Users", "cnf", true).newInstance();
             lobby.setStub(ServerStub.getDefaultStub(config, res));
             lobby.init();

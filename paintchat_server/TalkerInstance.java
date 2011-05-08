@@ -194,7 +194,7 @@ public class TalkerInstance
                 {
                     stringbuffer.append("response=ping ok\n");
                     stringbuffer.append("version=");
-                    stringbuffer.append("(C)\u3057\u3043\u3061\u3083\u3093 PaintChatServer v3.57b");
+                    stringbuffer.append("(C)And Mino, PaintChatServer v3.57b");
                     stringbuffer.append("\n");
                     abyte0 = stringbuffer.toString().getBytes("UTF8");
                 }

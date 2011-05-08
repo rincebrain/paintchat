@@ -40,7 +40,7 @@ public class TText extends PaintChatTalker
     {
         try
         {
-            MgText mgtext = new MgText(0, (byte)2, null);
+            MgText mgtext = new MgText(0, (byte)2, (String) null);
             stm.reset();
             mgtext.getData(stm, false);
             write(stm);
@@ -127,7 +127,7 @@ public class TText extends PaintChatTalker
         {
             super.canWrite = true;
             stm.reset();
-            (new MgText(0, (byte)2, null)).getData(stm, false);
+            (new MgText(0, (byte)2, (String) null)).getData(stm, false);
             write(stm);
             flush();
             mStop();
