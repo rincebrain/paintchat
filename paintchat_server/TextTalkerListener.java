@@ -8,30 +8,26 @@ import paintchat.MgText;
 import paintchat.Res;
 import syi.util.Vector2;
 
-public abstract interface TextTalkerListener
+public interface TextTalkerListener
 {
-  public abstract void mStart(Socket paramSocket, InputStream paramInputStream, OutputStream paramOutputStream, Res paramRes);
 
-  public abstract void mStop();
+    public abstract void mStart(Socket socket, InputStream inputstream, OutputStream outputstream, Res res);
 
-  public abstract void send(MgText paramMgText);
+    public abstract void mStop();
 
-  public abstract MgText getHandleName();
+    public abstract void send(MgText mgtext);
 
-  public abstract void sendUpdate(Vector2 paramVector2);
+    public abstract MgText getHandleName();
 
-  public abstract boolean isValidate();
+    public abstract void sendUpdate(Vector2 vector2);
 
-  public abstract InetAddress getAddress();
+    public abstract boolean isValidate();
 
-  public abstract boolean isGuest();
+    public abstract InetAddress getAddress();
 
-  public abstract void kill();
+    public abstract boolean isGuest();
 
-  public abstract int getSpeakCount();
+    public abstract void kill();
+
+    public abstract int getSpeakCount();
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_server.TextTalkerListener
- * JD-Core Version:    0.6.0
- */

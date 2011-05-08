@@ -8,122 +8,133 @@ import paintchat_server.PaintChatTalker;
 import syi.util.ByteInputStream;
 import syi.util.ByteStream;
 
+// Referenced classes of package paintchat_client:
+//            Pl, Data
+
 public class TText extends PaintChatTalker
 {
-  private Pl pl;
-  private Data data;
-  private MgText mg = new MgText();
-  private ByteInputStream bin = new ByteInputStream();
-  private ByteStream stm = new ByteStream();
-  private Res names = new Res();
 
-  public TText(Pl paramPl, Data paramData)
-  {
-    this.pl = paramPl;
-    this.data = paramData;
-    this.iSendInterval = 1000;
-  }
+    private Pl pl;
+    private Data data;
+    private MgText mg;
+    private ByteInputStream bin;
+    private ByteStream stm;
+    private Res names;
 
-  public void mInit()
-  {
-  }
-
-  protected synchronized void mDestroy()
-  {
-    try
+    public TText(Pl pl1, Data data1)
     {
-      MgText localMgText = new MgText(0, 2, null);
-      this.stm.reset();
-      localMgText.getData(this.stm, false);
-      write(this.stm);
-      this.stm.reset();
-      flush();
+        mg = new MgText();
+        bin = new ByteInputStream();
+        stm = new ByteStream();
+        names = new Res();
+        pl = pl1;
+        data = data1;
+        super.iSendInterval = 1000;
     }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
 
-  protected void mRead(ByteStream paramByteStream)
-    throws IOException
-  {
-    int i = 0;
-    int j = paramByteStream.size();
-    this.bin.setByteStream(paramByteStream);
-    while (i < j)
-    {
-      i += this.mg.setData(this.bin);
-      String str = this.mg.toString();
-      Integer localInteger = new Integer(this.mg.ID);
-      switch (this.mg.head)
-      {
-      case 1:
-        this.names.put(localInteger, str);
-        this.pl.addInOut(str, true);
-        break;
-      case 2:
-        this.names.remove(localInteger);
-        this.pl.addInOut(str, false);
-        break;
-      case 0:
-        this.pl.addText(this.mg.bName != null ? this.mg.getUserName() : (String)this.names.get(localInteger), str, true);
-        this.pl.dSound(1);
-        break;
-      case 102:
-        this.data.mPermission(str);
-        break;
-      default:
-        this.pl.addText(null, str, true);
-        this.pl.dSound(1);
-      }
-    }
-  }
-
-  protected void mIdle(long paramLong)
-    throws IOException
-  {
-  }
-
-  protected synchronized void mWrite()
-    throws IOException
-  {
-    if (this.stm.size() <= 0)
-      return;
-    write(this.stm);
-    this.stm.reset();
-  }
-
-  public synchronized void send(MgText paramMgText)
-  {
-    try
-    {
-      paramMgText.getData(this.stm, false);
-    }
-    catch (IOException localIOException)
+    public void mInit()
     {
     }
-  }
 
-  public synchronized void mRStop()
-  {
-    try
+    protected synchronized void mDestroy()
     {
-      this.canWrite = true;
-      this.stm.reset();
-      new MgText(0, 2, null).getData(this.stm, false);
-      write(this.stm);
-      flush();
-      mStop();
+        try
+        {
+            MgText mgtext = new MgText(0, (byte)2, null);
+            stm.reset();
+            mgtext.getData(stm, false);
+            write(stm);
+            stm.reset();
+            flush();
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
     }
-    catch (Throwable localThrowable)
+
+    protected void mRead(ByteStream bytestream)
+        throws IOException
     {
-      localThrowable.printStackTrace();
+        int i = 0;
+        int j = bytestream.size();
+        bin.setByteStream(bytestream);
+        while(i < j) 
+        {
+            i += mg.setData(bin);
+            String s = mg.toString();
+            Integer integer = new Integer(mg.ID);
+            switch(mg.head)
+            {
+            case 1: // '\001'
+                names.put(integer, s);
+                pl.addInOut(s, true);
+                break;
+
+            case 2: // '\002'
+                names.remove(integer);
+                pl.addInOut(s, false);
+                break;
+
+            case 0: // '\0'
+                pl.addText(mg.bName == null ? (String)names.get(integer) : mg.getUserName(), s, true);
+                pl.dSound(1);
+                break;
+
+            case 102: // 'f'
+                data.mPermission(s);
+                break;
+
+            default:
+                pl.addText(null, s, true);
+                pl.dSound(1);
+                break;
+            }
+        }
     }
-  }
+
+    protected void mIdle(long l)
+        throws IOException
+    {
+    }
+
+    protected synchronized void mWrite()
+        throws IOException
+    {
+        if(stm.size() <= 0)
+        {
+            return;
+        } else
+        {
+            write(stm);
+            stm.reset();
+            return;
+        }
+    }
+
+    public synchronized void send(MgText mgtext)
+    {
+        try
+        {
+            mgtext.getData(stm, false);
+        }
+        catch(IOException _ex) { }
+    }
+
+    public synchronized void mRStop()
+    {
+        try
+        {
+            super.canWrite = true;
+            stm.reset();
+            (new MgText(0, (byte)2, null)).getData(stm, false);
+            write(stm);
+            flush();
+            mStop();
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_client.TText
- * JD-Core Version:    0.6.0
- */

@@ -1,325 +1,356 @@
 package syi.awt;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.MediaTracker;
-import java.awt.Toolkit;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.PixelGrabber;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 
+// Referenced classes of package syi.awt:
+//            LComponent
+
 public class Awt
 {
-  public static Frame main_frame = null;
-  public static Color cC;
-  public static Color cDk;
-  public static Color cLt;
-  public static Color cBk;
-  public static Color cFore;
-  public static Color cF;
-  public static Color cFSel;
-  public static Color clBar;
-  public static Color clLBar;
-  public static Color clBarT;
-  private static Font fontDef = null;
-  private static float Q = 0.0F;
-  private static MediaTracker mt = null;
 
-  public static final void drawFrame(Graphics paramGraphics, boolean paramBoolean, int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    setup();
-    drawFrame(paramGraphics, paramBoolean, paramInt1, paramInt2, paramInt3, paramInt4, cDk, cLt);
-  }
+    public static Frame main_frame = null;
+    public static Color cC;
+    public static Color cDk;
+    public static Color cLt;
+    public static Color cBk;
+    public static Color cFore;
+    public static Color cF;
+    public static Color cFSel;
+    public static Color clBar;
+    public static Color clLBar;
+    public static Color clBarT;
+    private static Font fontDef = null;
+    private static float Q = 0.0F;
+    private static MediaTracker mt = null;
 
-  public static final void drawFrame(Graphics paramGraphics, boolean paramBoolean, int paramInt1, int paramInt2, int paramInt3, int paramInt4, Color paramColor1, Color paramColor2)
-  {
-    setup();
-    int i = paramInt1 + paramInt3;
-    int j = paramInt2 + paramInt4;
-    paramGraphics.setColor(paramColor1 == null ? cDk : paramColor1);
-    paramGraphics.fillRect(paramInt1, paramInt2, paramInt3, 1);
-    paramGraphics.fillRect(paramInt1, paramInt2 + 1, 1, paramInt4 - 2);
-    paramGraphics.fillRect(paramInt1 + 2, j - 2, paramInt3 - 2, 1);
-    paramGraphics.fillRect(i - 1, paramInt2 + 2, 1, paramInt4 - 4);
-    paramGraphics.setColor(paramColor2 == null ? cLt : paramColor2);
-    if (!paramBoolean)
+    public Awt()
     {
-      paramGraphics.fillRect(paramInt1 + 1, paramInt2 + 1, paramInt3 - 2, 1);
-      paramGraphics.fillRect(paramInt1 + 1, paramInt2 + 2, 1, paramInt4 - 4);
     }
-    paramGraphics.fillRect(paramInt1 + 1, j - 1, paramInt3 - 1, 1);
-    paramGraphics.fillRect(i, paramInt2 + 1, 1, paramInt4 - 2);
-  }
 
-  public static final void fillFrame(Graphics paramGraphics, boolean paramBoolean, int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    fillFrame(paramGraphics, paramBoolean, paramInt1, paramInt2, paramInt3, paramInt4, cC, cDk, cDk, cLt);
-  }
-
-  public static final void fillFrame(Graphics paramGraphics, boolean paramBoolean, int paramInt1, int paramInt2, int paramInt3, int paramInt4, Color paramColor1, Color paramColor2, Color paramColor3, Color paramColor4)
-  {
-    drawFrame(paramGraphics, paramBoolean, paramInt1, paramInt2, paramInt3, paramInt4, paramColor3, paramColor4);
-    paramGraphics.setColor(paramColor1 == null ? cC : paramBoolean ? paramColor2 : paramColor2 == null ? cDk : paramColor1);
-    paramGraphics.fillRect(paramInt1 + 2, paramInt2 + 2, paramInt3 - 3, paramInt4 - 4);
-  }
-
-  public static void getDef(Component paramComponent)
-  {
-    setup();
-    paramComponent.setBackground(cBk);
-    paramComponent.setForeground(cFore);
-    paramComponent.setFont(getDefFont());
-    if ((paramComponent instanceof LComponent))
+    public static final void drawFrame(Graphics g, boolean flag, int i, int j, int k, int l)
     {
-      LComponent localLComponent = (LComponent)paramComponent;
-      localLComponent.clBar = clBar;
-      localLComponent.clLBar = clLBar;
-      localLComponent.clBarT = clBarT;
-      localLComponent.clFrame = cF;
+        setup();
+        drawFrame(g, flag, i, j, k, l, cDk, cLt);
     }
-  }
 
-  public static Font getDefFont()
-  {
-    if (fontDef == null)
-      fontDef = new Font("sansserif", 0, (int)(16.0F * q()));
-    return fontDef;
-  }
-
-  public static Component getParent(Component paramComponent)
-  {
-    Container localContainer = paramComponent.getParent();
-    return (localContainer instanceof Window) ? localContainer : localContainer == null ? paramComponent : getParent(localContainer);
-  }
-
-  public static Frame getPFrame()
-  {
-    if (main_frame == null)
-      main_frame = new Frame();
-    return main_frame;
-  }
-
-  public static boolean isR(MouseEvent paramMouseEvent)
-  {
-    return (paramMouseEvent.isAltDown()) || (paramMouseEvent.isControlDown()) || ((paramMouseEvent.getModifiers() & 0x4) != 0);
-  }
-
-  public static boolean isWin()
-  {
-    String str = "Win";
-    return System.getProperty("os.name", str).startsWith(str);
-  }
-
-  public static void moveCenter(Window paramWindow)
-  {
-    Dimension localDimension1 = paramWindow.getToolkit().getScreenSize();
-    Dimension localDimension2 = paramWindow.getSize();
-    paramWindow.setLocation(localDimension1.width / 2 - localDimension2.width / 2, localDimension1.height / 2 - localDimension2.height / 2);
-  }
-
-  public static InputStream openStream(URL paramURL)
-    throws IOException
-  {
-    URLConnection localURLConnection = paramURL.openConnection();
-    localURLConnection.setUseCaches(true);
-    return localURLConnection.getInputStream();
-  }
-
-  public static float q()
-  {
-    if (Q == 0.0F)
+    public static final void drawFrame(Graphics g, boolean flag, int i, int j, int k, int l, Color color, Color color1)
     {
-      Dimension localDimension = Toolkit.getDefaultToolkit().getScreenSize();
-      int i = 2264;
-      int j = localDimension.width + localDimension.height;
-      Q = Math.min(1.0F + (j - i) / i / 2.0F, 2.0F);
-    }
-    return Q;
-  }
-
-  public static String replaceText(String paramString1, String paramString2, String paramString3)
-  {
-    if (paramString1.indexOf(paramString3) < 0)
-      return paramString1;
-    StringBuffer localStringBuffer = new StringBuffer();
-    try
-    {
-      char[] arrayOfChar = paramString3.toCharArray();
-      if (arrayOfChar.length <= 0)
-        return paramString1;
-      int i = 0;
-      int j = 0;
-      int k = paramString1.length();
-      for (int m = 0; m < k; m++)
-      {
-        char c;
-        if ((c = paramString1.charAt(m)) == arrayOfChar[j])
+        setup();
+        int i1 = i + k;
+        int j1 = j + l;
+        g.setColor(color != null ? color : cDk);
+        g.fillRect(i, j, k, 1);
+        g.fillRect(i, j + 1, 1, l - 2);
+        g.fillRect(i + 2, j1 - 2, k - 2, 1);
+        g.fillRect(i1 - 1, j + 2, 1, l - 4);
+        g.setColor(color1 != null ? color1 : cLt);
+        if(!flag)
         {
-          if (j == 0)
-            i = m;
-          j++;
-          if (j < arrayOfChar.length)
-            continue;
-          j = 0;
-          localStringBuffer.append(paramString2);
+            g.fillRect(i + 1, j + 1, k - 2, 1);
+            g.fillRect(i + 1, j + 2, 1, l - 4);
         }
-        else
+        g.fillRect(i + 1, j1 - 1, k - 1, 1);
+        g.fillRect(i1, j + 1, 1, l - 2);
+    }
+
+    public static final void fillFrame(Graphics g, boolean flag, int i, int j, int k, int l)
+    {
+        fillFrame(g, flag, i, j, k, l, cC, cDk, cDk, cLt);
+    }
+
+    public static final void fillFrame(Graphics g, boolean flag, int i, int j, int k, int l, Color color, Color color1, 
+            Color color2, Color color3)
+    {
+        drawFrame(g, flag, i, j, k, l, color2, color3);
+        g.setColor(flag ? color1 != null ? color1 : cDk : color != null ? color : cC);
+        g.fillRect(i + 2, j + 2, k - 3, l - 4);
+    }
+
+    public static void getDef(Component component)
+    {
+        setup();
+        component.setBackground(cBk);
+        component.setForeground(cFore);
+        component.setFont(getDefFont());
+        if(component instanceof LComponent)
         {
-          if (j > 0)
-          {
-            for (int n = 0; n < j; n++)
-              localStringBuffer.append(paramString1.charAt(i + n));
-            j = 0;
-          }
-          localStringBuffer.append(c);
+            LComponent lcomponent = (LComponent)component;
+            lcomponent.clBar = clBar;
+            lcomponent.clLBar = clLBar;
+            lcomponent.clBarT = clBarT;
+            lcomponent.clFrame = cF;
         }
-      }
     }
-    catch (RuntimeException localRuntimeException)
+
+    public static Font getDefFont()
     {
-      System.out.println("replace" + localRuntimeException);
+        if(fontDef == null)
+        {
+            fontDef = new Font("sansserif", 0, (int)(16F * q()));
+        }
+        return fontDef;
     }
-    return localStringBuffer.toString();
-  }
 
-  public static void setDef(Component paramComponent, boolean paramBoolean)
-  {
-    try
+    public static Component getParent(Component component)
     {
-      Object localObject;
-      if (!paramBoolean)
-      {
-        paramBoolean = true;
-      }
-      else
-      {
-        localObject = paramComponent.getParent();
-        ((Component)localObject).setFont(((Component)localObject).getFont());
-        ((Component)localObject).setForeground(((Component)localObject).getForeground());
-        ((Component)localObject).setBackground(((Component)localObject).getBackground());
-      }
-      if ((paramComponent instanceof Container))
-      {
-        localObject = ((Container)paramComponent).getComponents();
-        if (localObject != null)
-          for (int i = 0; i < localObject.length; i++)
-          {
-            paramComponent = localObject[i];
-            setDef(paramComponent, true);
-          }
-      }
+        Container container = component.getParent();
+        return ((Component) (container != null ? (container instanceof Window) ? container : getParent(((Component) (container))) : component));
     }
-    catch (Throwable localThrowable)
+
+    public static Frame getPFrame()
     {
-      localThrowable.printStackTrace();
+        if(main_frame == null)
+        {
+            main_frame = new Frame();
+        }
+        return main_frame;
     }
-  }
 
-  public static void setPFrame(Frame paramFrame)
-  {
-    main_frame = paramFrame;
-  }
-
-  public static final void setup()
-  {
-    if (cC == null)
+    public static boolean isR(MouseEvent mouseevent)
     {
-      cC = new Color(13487565);
-      cDk = Awt.cLt = null;
+        return mouseevent.isAltDown() || mouseevent.isControlDown() || (mouseevent.getModifiers() & 4) != 0;
     }
-    if (cDk == null)
-      cDk = cC.darker();
-    if (cLt == null)
-      cLt = cC.brighter();
-    if (cBk == null)
-      cBk = new Color(13619199);
-    if (cFore == null)
-      cFore = new Color(5263480);
-    if (cF == null)
-      cF = cFore;
-    if (cFSel == null)
-      cFSel = new Color(15610675);
-    if (clBar == null)
-      clBar = new Color(6711039);
-    if (clLBar == null)
-      clLBar = new Color(8947967);
-    if (clBarT == null)
-      clBarT = Color.white;
-  }
 
-  public static Image toMin(Image paramImage, int paramInt1, int paramInt2)
-  {
-    Image localImage = paramImage.getScaledInstance(paramInt1, paramInt2, 16);
-    paramImage.flush();
-    wait(localImage);
-    return localImage;
-  }
-
-  public static String trimString(String paramString1, String paramString2, String paramString3)
-  {
-    if ((paramString1 == null) || (paramString1.length() <= 0) || (paramString2 == null) || (paramString3 == null))
-      return "";
-    try
+    public static boolean isWin()
     {
-      int i;
-      if ((i = paramString1.indexOf(paramString2)) == -1)
+        String s = "Win";
+        return System.getProperty("os.name", s).startsWith(s);
+    }
+
+    public static void moveCenter(Window window)
+    {
+        Dimension dimension = window.getToolkit().getScreenSize();
+        Dimension dimension1 = window.getSize();
+        window.setLocation(dimension.width / 2 - dimension1.width / 2, dimension.height / 2 - dimension1.height / 2);
+    }
+
+    public static InputStream openStream(URL url)
+        throws IOException
+    {
+        URLConnection urlconnection = url.openConnection();
+        urlconnection.setUseCaches(true);
+        return urlconnection.getInputStream();
+    }
+
+    public static float q()
+    {
+        if(Q == 0.0F)
+        {
+            Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+            int i = 2264;
+            int j = dimension.width + dimension.height;
+            Q = Math.min(1.0F + (float)(j - i) / (float)i / 2.0F, 2.0F);
+        }
+        return Q;
+    }
+
+    public static String replaceText(String s, String s1, String s2)
+    {
+        if(s.indexOf(s2) < 0)
+        {
+            return s;
+        }
+        StringBuffer stringbuffer = new StringBuffer();
+        try
+        {
+            char ac[] = s2.toCharArray();
+            if(ac.length <= 0)
+            {
+                return s;
+            }
+            int i = 0;
+            int j = 0;
+            int k = s.length();
+            for(int l = 0; l < k; l++)
+            {
+                char c;
+                if((c = s.charAt(l)) == ac[j])
+                {
+                    if(j == 0)
+                    {
+                        i = l;
+                    }
+                    if(++j >= ac.length)
+                    {
+                        j = 0;
+                        stringbuffer.append(s1);
+                    }
+                } else
+                {
+                    if(j > 0)
+                    {
+                        for(int i1 = 0; i1 < j; i1++)
+                        {
+                            stringbuffer.append(s.charAt(i + i1));
+                        }
+
+                        j = 0;
+                    }
+                    stringbuffer.append(c);
+                }
+            }
+
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            System.out.println("replace" + runtimeexception);
+        }
+        return stringbuffer.toString();
+    }
+
+    public static void setDef(Component component, boolean flag)
+    {
+        try
+        {
+            if(!flag)
+            {
+                flag = true;
+            } else
+            {
+                Container container = component.getParent();
+                container.setFont(container.getFont());
+                container.setForeground(container.getForeground());
+                container.setBackground(container.getBackground());
+            }
+            if(component instanceof Container)
+            {
+                Component acomponent[] = ((Container)component).getComponents();
+                if(acomponent != null)
+                {
+                    for(int i = 0; i < acomponent.length; i++)
+                    {
+                        component = acomponent[i];
+                        setDef(component, true);
+                    }
+
+                }
+            }
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    public static void setPFrame(Frame frame)
+    {
+        main_frame = frame;
+    }
+
+    public static final void setup()
+    {
+        if(cC == null)
+        {
+            cC = new Color(0xcdcdcd);
+            cDk = cLt = null;
+        }
+        if(cDk == null)
+        {
+            cDk = cC.darker();
+        }
+        if(cLt == null)
+        {
+            cLt = cC.brighter();
+        }
+        if(cBk == null)
+        {
+            cBk = new Color(0xcfcfff);
+        }
+        if(cFore == null)
+        {
+            cFore = new Color(0x505078);
+        }
+        if(cF == null)
+        {
+            cF = cFore;
+        }
+        if(cFSel == null)
+        {
+            cFSel = new Color(0xee3333);
+        }
+        if(clBar == null)
+        {
+            clBar = new Color(0x6666ff);
+        }
+        if(clLBar == null)
+        {
+            clLBar = new Color(0x8888ff);
+        }
+        if(clBarT == null)
+        {
+            clBarT = Color.white;
+        }
+    }
+
+    public static Image toMin(Image image, int i, int j)
+    {
+        Image image1 = image.getScaledInstance(i, j, 16);
+        image.flush();
+        wait(image1);
+        return image1;
+    }
+
+    public static String trimString(String s, String s1, String s2)
+    {
+        if(s == null || s.length() <= 0 || s1 == null || s2 == null)
+        {
+            return "";
+        }
+        try
+        {
+            int i;
+            if((i = s.indexOf(s1)) == -1)
+            {
+                return "";
+            }
+            int j;
+            if((j = s.indexOf(s2, i + s1.length())) == -1)
+            {
+                j = s.length() - 1;
+            }
+            return s.substring(i + s1.length(), j);
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            System.out.println("t_trimString:" + runtimeexception.toString());
+        }
         return "";
-      int j;
-      if ((j = paramString1.indexOf(paramString3, i + paramString2.length())) == -1)
-        j = paramString1.length() - 1;
-      return paramString1.substring(i + paramString2.length(), j);
     }
-    catch (RuntimeException localRuntimeException)
-    {
-      System.out.println("t_trimString:" + localRuntimeException.toString());
-    }
-    return "";
-  }
 
-  public static int[] getPix(Image paramImage)
-  {
-    try
+    public static int[] getPix(Image image)
     {
-      PixelGrabber localPixelGrabber = new PixelGrabber(paramImage, 0, 0, paramImage.getWidth(null), paramImage.getHeight(null), true);
-      localPixelGrabber.grabPixels();
-      return (int[])localPixelGrabber.getPixels();
+        try
+        {
+            PixelGrabber pixelgrabber = new PixelGrabber(image, 0, 0, image.getWidth(null), image.getHeight(null), true);
+            pixelgrabber.grabPixels();
+            return (int[])pixelgrabber.getPixels();
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+        return null;
     }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-    return null;
-  }
 
-  public static void wait(Image paramImage)
-  {
-    if (mt == null)
-      mt = new MediaTracker(getPFrame());
-    try
+    public static void wait(Image image)
     {
-      mt.addImage(paramImage, 0);
-      mt.waitForID(0);
+        if(mt == null)
+        {
+            mt = new MediaTracker(getPFrame());
+        }
+        try
+        {
+            mt.addImage(image, 0);
+            mt.waitForID(0);
+        }
+        catch(InterruptedException _ex) { }
+        mt.removeImage(image, 0);
     }
-    catch (InterruptedException localInterruptedException)
-    {
-    }
-    mt.removeImage(paramImage, 0);
-  }
+
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.awt.Awt
- * JD-Core Version:    0.6.0
- */

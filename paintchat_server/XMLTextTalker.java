@@ -7,199 +7,227 @@ import paintchat.debug.DebugListener;
 import syi.util.ByteInputStream;
 import syi.util.Vector2;
 
+// Referenced classes of package paintchat_server:
+//            XMLTalker, TextTalkerListener, TextServer
+
 public class XMLTextTalker extends XMLTalker
-  implements TextTalkerListener
+    implements TextTalkerListener
 {
-  private Vector2 send_text = new Vector2();
-  private Vector2 send_update = new Vector2();
-  private ByteInputStream input = new ByteInputStream();
-  private TextServer server;
-  private DebugListener debug;
-  private MgText mgName;
-  private boolean isOnlyUserList = false;
-  private boolean isGuest = false;
-  private boolean isKill = false;
-  private int countSpeak = 0;
 
-  public XMLTextTalker(TextServer paramTextServer, DebugListener paramDebugListener)
-  {
-    this.server = paramTextServer;
-    this.debug = paramDebugListener;
-  }
+    private Vector2 send_text;
+    private Vector2 send_update;
+    private ByteInputStream input;
+    private TextServer server;
+    private DebugListener debug;
+    private MgText mgName;
+    private boolean isOnlyUserList;
+    private boolean isGuest;
+    private boolean isKill;
+    private int countSpeak;
 
-  protected void mInit()
-    throws IOException
-  {
-    Res localRes = getStatus();
-    this.mgName = new MgText(0, 1, getStatus().get("name"));
-    this.isOnlyUserList = localRes.getBool("user_list_only", false);
-    this.isGuest = localRes.getBool("guest", false);
-    this.server.addTalker(this);
-  }
-
-  protected void mDestroy()
-  {
-  }
-
-  protected void mRead(String paramString1, String paramString2, Res paramRes)
-    throws IOException
-  {
-    if (this.mgName == null)
-      return;
-    byte b = (byte)strToHint(paramString1);
-    MgText localMgText = new MgText();
-    localMgText.setData(this.mgName.ID, b, toEscape(paramString2));
-    switch (b)
+    public XMLTextTalker(TextServer textserver, DebugListener debuglistener)
     {
-    default:
-      if (this.isGuest)
-      {
-        String str = this.server.getPassword();
-        if ((str == null) || (str.length() <= 0) || (!getStatus().get("password").equals(str)))
-          break;
-      }
-      else
-      {
-        this.server.addText(this, localMgText);
-      }
-      break;
-    case 102:
-      try
-      {
-        if (paramString2.indexOf("get:infomation") >= 0)
-        {
-          send(this.server.getInfomation());
-        }
-        else
-        {
-          int i = paramRes.getInt("id", 0);
-          if (i <= 0)
-            break;
-          this.server.doAdmin(paramString2, i);
-        }
-      }
-      catch (RuntimeException localRuntimeException)
-      {
-        this.debug.log(localRuntimeException);
-      }
-    case 2:
-      this.server.removeTalker(this);
+        send_text = new Vector2();
+        send_update = new Vector2();
+        input = new ByteInputStream();
+        isOnlyUserList = false;
+        isGuest = false;
+        isKill = false;
+        countSpeak = 0;
+        server = textserver;
+        debug = debuglistener;
     }
-  }
 
-  protected void mWrite()
-    throws IOException
-  {
-    MgText localMgText;
-    if (this.send_update != null)
+    protected void mInit()
+        throws IOException
     {
-      i = this.send_update.size();
-      if (i > 0)
-      {
-        StringBuffer localStringBuffer = new StringBuffer();
-        for (int k = 0; k < i; k++)
+        Res res = getStatus();
+        mgName = new MgText(0, (byte)1, getStatus().get("name"));
+        isOnlyUserList = res.getBool("user_list_only", false);
+        isGuest = res.getBool("guest", false);
+        server.addTalker(this);
+    }
+
+    protected void mDestroy()
+    {
+    }
+
+    protected void mRead(String s, String s1, Res res)
+        throws IOException
+    {
+        if(mgName == null)
         {
-          localMgText = (MgText)this.send_update.get(k);
-          String str = hintToString(localMgText.head);
-          localStringBuffer.append('<');
-          localStringBuffer.append(str);
-          localStringBuffer.append(" name=\"");
-          localStringBuffer.append(toEscape(localMgText.getUserName()));
-          localStringBuffer.append("\">");
-          localStringBuffer.append(toEscape(localMgText.toString()));
-          localStringBuffer.append("</");
-          localStringBuffer.append(str);
-          localStringBuffer.append('>');
+            return;
         }
-        write("update", localStringBuffer.toString());
-        this.send_update.removeAll();
-      }
-      this.send_update = null;
-    }
-    int i = this.send_text.size();
-    if (i <= 0)
-      return;
-    for (int j = 0; j < i; j++)
-    {
-      localMgText = (MgText)this.send_text.get(j);
-      write(hintToString(localMgText.head), toEscape(localMgText.toString()), "id=\"" + localMgText.ID + "\" name=\"" + toEscape(localMgText.getUserName()) + "\"");
-    }
-    this.send_text.remove(i);
-  }
-
-  public void send(MgText paramMgText)
-  {
-    if (!isValidate())
-      return;
-    if ((this.isOnlyUserList) && (paramMgText.head != 1) && (paramMgText.head != 2))
-      return;
-    this.send_text.add(paramMgText);
-  }
-
-  public MgText getHandleName()
-  {
-    return this.mgName;
-  }
-
-  public void sendUpdate(Vector2 paramVector2)
-  {
-    paramVector2.copy(this.send_text);
-  }
-
-  public boolean isGuest()
-  {
-    return this.isGuest;
-  }
-
-  private String toEscape(String paramString)
-  {
-    if ((paramString.indexOf('<') >= 0) || (paramString.indexOf('>') >= 0) || (paramString.indexOf('&') >= 0) || (paramString.indexOf('"') >= 0) || (paramString.indexOf('"') >= 0))
-    {
-      StringBuffer localStringBuffer = new StringBuffer();
-      for (int i = 0; i < paramString.length(); i++)
-      {
-        char c = paramString.charAt(i);
-        switch (c)
+        byte byte0 = (byte)strToHint(s);
+        MgText mgtext = new MgText();
+        mgtext.setData(mgName.ID, byte0, toEscape(s1));
+        switch(byte0)
         {
-        case '<':
-          localStringBuffer.append("&lt;");
-          break;
-        case '>':
-          localStringBuffer.append("&gt;");
-          break;
-        case '&':
-          localStringBuffer.append("&amp;");
-          break;
-        case '"':
-          localStringBuffer.append("&qout;");
-          break;
         default:
-          localStringBuffer.append(c);
+            if(isGuest)
+            {
+                String s2 = server.getPassword();
+                if(s2 == null || s2.length() <= 0 || !getStatus().get("password").equals(s2))
+                {
+                    break;
+                }
+            }
+            server.addText(this, mgtext);
+            break;
+
+        case 102: // 'f'
+            try
+            {
+                if(s1.indexOf("get:infomation") >= 0)
+                {
+                    send(server.getInfomation());
+                    break;
+                }
+                int i = res.getInt("id", 0);
+                if(i > 0)
+                {
+                    server.doAdmin(s1, i);
+                }
+            }
+            catch(RuntimeException runtimeexception)
+            {
+                debug.log(runtimeexception);
+            }
+            break;
+
+        case 2: // '\002'
+            server.removeTalker(this);
+            break;
         }
-      }
-      return localStringBuffer.toString();
     }
-    return paramString;
-  }
 
-  private boolean equalsPassword()
-  {
-    String str = this.server.getPassword();
-    return (str == null) || (str.length() <= 0) || (!getStatus().get("password").equals(str));
-  }
+    protected void mWrite()
+        throws IOException
+    {
+        if(send_update != null)
+        {
+            int i = send_update.size();
+            if(i > 0)
+            {
+                StringBuffer stringbuffer = new StringBuffer();
+                for(int l = 0; l < i; l++)
+                {
+                    MgText mgtext = (MgText)send_update.get(l);
+                    String s = hintToString(mgtext.head);
+                    stringbuffer.append('<');
+                    stringbuffer.append(s);
+                    stringbuffer.append(" name=\"");
+                    stringbuffer.append(toEscape(mgtext.getUserName()));
+                    stringbuffer.append("\">");
+                    stringbuffer.append(toEscape(mgtext.toString()));
+                    stringbuffer.append("</");
+                    stringbuffer.append(s);
+                    stringbuffer.append('>');
+                }
 
-  public void kill()
-  {
-    this.isKill = true;
-  }
+                write("update", stringbuffer.toString());
+                send_update.removeAll();
+            }
+            send_update = null;
+        }
+        int j = send_text.size();
+        if(j <= 0)
+        {
+            return;
+        }
+        for(int k = 0; k < j; k++)
+        {
+            MgText mgtext1 = (MgText)send_text.get(k);
+            write(hintToString(mgtext1.head), toEscape(mgtext1.toString()), "id=\"" + mgtext1.ID + "\" name=\"" + toEscape(mgtext1.getUserName()) + "\"");
+        }
 
-  public int getSpeakCount()
-  {
-    return this.countSpeak;
-  }
+        send_text.remove(j);
+    }
+
+    public void send(MgText mgtext)
+    {
+        if(!isValidate())
+        {
+            return;
+        }
+        if(isOnlyUserList && mgtext.head != 1 && mgtext.head != 2)
+        {
+            return;
+        } else
+        {
+            send_text.add(mgtext);
+            return;
+        }
+    }
+
+    public MgText getHandleName()
+    {
+        return mgName;
+    }
+
+    public void sendUpdate(Vector2 vector2)
+    {
+        vector2.copy(send_text);
+    }
+
+    public boolean isGuest()
+    {
+        return isGuest;
+    }
+
+    private String toEscape(String s)
+    {
+        if(s.indexOf('<') >= 0 || s.indexOf('>') >= 0 || s.indexOf('&') >= 0 || s.indexOf('"') >= 0 || s.indexOf('"') >= 0)
+        {
+            StringBuffer stringbuffer = new StringBuffer();
+            for(int i = 0; i < s.length(); i++)
+            {
+                char c = s.charAt(i);
+                switch(c)
+                {
+                case 60: // '<'
+                    stringbuffer.append("&lt;");
+                    break;
+
+                case 62: // '>'
+                    stringbuffer.append("&gt;");
+                    break;
+
+                case 38: // '&'
+                    stringbuffer.append("&amp;");
+                    break;
+
+                case 34: // '"'
+                    stringbuffer.append("&qout;");
+                    break;
+
+                default:
+                    stringbuffer.append(c);
+                    break;
+                }
+            }
+
+            return stringbuffer.toString();
+        } else
+        {
+            return s;
+        }
+    }
+
+    private boolean equalsPassword()
+    {
+        String s = server.getPassword();
+        return s == null || s.length() <= 0 || !getStatus().get("password").equals(s);
+    }
+
+    public void kill()
+    {
+        isKill = true;
+    }
+
+    public int getSpeakCount()
+    {
+        return countSpeak;
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_server.XMLTextTalker
- * JD-Core Version:    0.6.0
- */

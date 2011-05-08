@@ -1,1432 +1,1578 @@
 package paintchat_frame;
 
 import java.applet.Applet;
-import java.awt.BorderLayout;
-import java.awt.Checkbox;
-import java.awt.CheckboxMenuItem;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuComponent;
-import java.awt.MenuItem;
-import java.awt.Panel;
-import java.awt.Point;
-import java.awt.PopupMenu;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
 import java.util.EventObject;
 import java.util.Hashtable;
-import paintchat.Config;
-import paintchat.Res;
-import paintchat.Resource;
+import paintchat.*;
 import paintchat.debug.Debug;
 import syi.applet.AppletWatcher;
 import syi.applet.ServerStub;
-import syi.awt.Awt;
-import syi.awt.Gui;
-import syi.awt.HelpWindow;
-import syi.awt.HelpWindowContent;
-import syi.awt.LButton;
-import syi.awt.LTextField;
-import syi.awt.MessageBox;
-import syi.awt.TextPanel;
-import syi.util.Io;
-import syi.util.PProperties;
-import syi.util.ThreadPool;
+import syi.awt.*;
+import syi.util.*;
+
+// Referenced classes of package paintchat_frame:
+//            ConfigDialog, Console, Data, PopupMenuPaintChat, 
+//            FileManager
 
 public class PFrame extends Frame
-  implements ActionListener, ItemListener, MouseListener, WindowListener, Runnable
+    implements ActionListener, ItemListener, MouseListener, WindowListener, Runnable
 {
-  public static final String STR_VERSION = "(C)しぃちゃん PaintChatApp v3.66";
-  private Config config;
-  private Res res;
-  private Debug debug = null;
-  private Panel ivjPanel3 = null;
-  private Panel ivjPanelLeft = null;
-  private GridLayout ivjPanelLeftGridLayout = null;
-  private Menu ivjMenu1 = null;
-  private FlowLayout ivjPanel3FlowLayout = null;
-  private Menu ivjMenu2 = null;
-  private Menu ivjMenu3 = null;
-  private MenuItem ivjMenuItem1 = null;
-  private MenuItem ivjMenuItem2 = null;
-  private MenuItem ivjMenuItem3 = null;
-  private MenuItem ivjMenuItem4 = null;
-  private BorderLayout ivjPFrameBorderLayout = null;
-  private MenuBar ivjPFrameMenuBar = null;
-  private HelpWindow ivjHelp = null;
-  private Console ivjConsole = null;
-  private MenuItem ivjMenuItem6 = null;
-  private MenuItem ivjMenuHelpDocument = null;
-  private CheckboxMenuItem ivjMenuShowConsole = null;
-  private CheckboxMenuItem ivjMenuShowHelp = null;
-  private Data ivjData = null;
-  private LTextField ivjHttp_Port = null;
-  private LTextField ivjIp = null;
-  private LButton ivjLobby_Button = null;
-  private LTextField ivjPaintchat_Port = null;
-  private LButton ivjHttp_Button = null;
-  private LButton ivjPaintchat_Button = null;
-  private MenuItem ivjMenu_Help_Update = null;
-  private MenuItem ivjMenuItem9 = null;
-  private MenuItem ivjMenuItem10 = null;
-  private MenuItem ivjMenu_FilesCopy = null;
 
-  public PFrame()
-  {
-    initialize();
-  }
-
-  public PFrame(String paramString)
-  {
-    super(paramString);
-  }
-
-  public void actionPerformed(ActionEvent paramActionEvent)
-  {
-    if (paramActionEvent.getSource() == getMenuItem6())
-      connEtoC2(paramActionEvent);
-    if (paramActionEvent.getSource() == getMenuItem4())
-      connEtoC6(paramActionEvent);
-    if (paramActionEvent.getSource() == getMenuHelpDocument())
-      connEtoC7(paramActionEvent);
-    if (paramActionEvent.getSource() == getMenuItem1())
-      connEtoC11(paramActionEvent);
-    if (paramActionEvent.getSource() == getMenuItem2())
-      connEtoC12(paramActionEvent);
-    if (paramActionEvent.getSource() == getMenuItem9())
-      connEtoC16(paramActionEvent);
-    if (paramActionEvent.getSource() == getMenuItem10())
-      connEtoC18(paramActionEvent);
-    if (paramActionEvent.getSource() == getMenuItem3())
-      connEtoC9(paramActionEvent);
-    if (paramActionEvent.getSource() == getMenu_FilesCopy())
-      connEtoC13(paramActionEvent);
-    String str;
-    if (paramActionEvent.getSource() == getPaintchat_Port())
-    {
-      try
-      {
-        str = paramActionEvent.getActionCommand();
-        Integer.parseInt(str);
-      }
-      catch (NumberFormatException localNumberFormatException1)
-      {
-        str = "41411";
-      }
-      getPaintchat_Port().setText(str);
-      this.config.put("Connection_Port_PaintChat", str);
-      this.config.saveConfig(null, null);
-    }
-    if (paramActionEvent.getSource() == getHttp_Port())
-    {
-      try
-      {
-        str = paramActionEvent.getActionCommand();
-        Integer.parseInt(str);
-      }
-      catch (NumberFormatException localNumberFormatException2)
-      {
-        str = "80";
-      }
-      getHttp_Port().setText(str);
-      this.config.put("Connection_Port_Http", str);
-      this.config.saveConfig(null, null);
-    }
-  }
-
-  private void connEtoC1(WindowEvent paramWindowEvent)
-  {
-    try
-    {
-      destroy();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC11(ActionEvent paramActionEvent)
-  {
-    try
-    {
-      startHttp();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC12(ActionEvent paramActionEvent)
-  {
-    try
-    {
-      startServer();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC13(ActionEvent paramActionEvent)
-  {
-    try
-    {
-      setupWWWFolder();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC16(ActionEvent paramActionEvent)
-  {
-    try
-    {
-      startClient();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC17(WindowEvent paramWindowEvent)
-  {
-    try
-    {
-      pFrame_WindowClosed(paramWindowEvent);
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC18(ActionEvent paramActionEvent)
-  {
-    try
-    {
-      menuItem10_ActionPerformed1();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  public void connEtoC18_NormalResult(boolean paramBoolean)
-  {
-    try
-    {
-      if (paramBoolean)
-        new ConfigDialog("paintchat.config.PConfig", "cnf/dialogs.jar", this.config, this.res, "(C)しぃちゃん PaintChatApp v3.66");
-    }
-    catch (Exception localException)
-    {
-      localException.printStackTrace();
-    }
-  }
-
-  private void connEtoC2(ActionEvent paramActionEvent)
-  {
-    try
-    {
-      menuItem6_ActionPerformed();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC3(MouseEvent paramMouseEvent)
-  {
-    try
-    {
-      iP_MouseClicked();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC4(ItemEvent paramItemEvent)
-  {
-    try
-    {
-      showConsole();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC5(ItemEvent paramItemEvent)
-  {
-    try
-    {
-      showHelp();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC6(ActionEvent paramActionEvent)
-  {
-    try
-    {
-      menuItem4_ActionPerformed();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC7(ActionEvent paramActionEvent)
-  {
-    try
-    {
-      menuHelpDocument_ActionPerformed();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC8(WindowEvent paramWindowEvent)
-  {
-    try
-    {
-      pFrame_WindowIconified(paramWindowEvent);
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC9(ActionEvent paramActionEvent)
-  {
-    try
-    {
-      menuItem3_ActionPerformed(paramActionEvent);
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoM1(MouseEvent paramMouseEvent)
-  {
-    try
-    {
-      getHelp().startHelp(new HelpWindowContent(paramMouseEvent.getComponent().getName(), true, Gui.getScreenPos(paramMouseEvent), this.res));
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoM2(MouseEvent paramMouseEvent)
-  {
-    try
-    {
-      getHelp().startHelp(new HelpWindowContent(paramMouseEvent.getComponent().getName(), true, Gui.getScreenPos(paramMouseEvent), this.res));
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoM3(MouseEvent paramMouseEvent)
-  {
-    try
-    {
-      getHelp().startHelp(new HelpWindowContent(paramMouseEvent.getComponent().getName(), true, Gui.getScreenPos(paramMouseEvent), this.res));
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoM4(MouseEvent paramMouseEvent)
-  {
-    try
-    {
-      getHelp().startHelp(new HelpWindowContent(paramMouseEvent.getComponent().getName(), true, Gui.getScreenPos(paramMouseEvent), this.res));
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoM5(MouseEvent paramMouseEvent)
-  {
-    try
-    {
-      getHelp().startHelp(new HelpWindowContent(paramMouseEvent.getComponent().getName(), true, Gui.getScreenPos(paramMouseEvent), this.res));
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoM6(MouseEvent paramMouseEvent)
-  {
-    try
-    {
-      getHelp().startHelp(new HelpWindowContent(paramMouseEvent.getComponent().getName(), true, Gui.getScreenPos(paramMouseEvent), this.res));
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void destroy()
-  {
-    Thread localThread = new Thread(this, "destroy");
-    localThread.start();
-  }
-
-  public Config getConfig()
-    throws IOException
-  {
-    if (this.config == null)
-      this.config = new Config("cnf/paintchat.cf");
-    return this.config;
-  }
-
-  private Console getConsole()
-  {
-    if (this.ivjConsole == null)
-      try
-      {
-        this.ivjConsole = new Console();
-        this.ivjConsole.setName("Console");
-        this.ivjConsole.setBackground(Color.white);
-        this.ivjConsole.setBounds(861, 328, 159, 60);
-        this.ivjConsole.setForeground(Color.black);
-        Applet localApplet = new Applet();
-        localApplet.setStub(ServerStub.getDefaultStub(getConfig(), getResource()));
-        this.ivjConsole.init(localApplet, 400, this.ivjConsole.getBackground(), this.ivjConsole.getForeground(), null);
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjConsole;
-  }
-
-  private Data getData()
-  {
-    if (this.ivjData == null)
-      try
-      {
-        this.ivjData = new Data();
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjData;
-  }
-
-  private HelpWindow getHelp()
-  {
-    if (this.ivjHelp == null)
-      try
-      {
-        this.ivjHelp = new HelpWindow(this);
-        this.ivjHelp.setName("Help");
-        this.ivjHelp.setBounds(275, 283, 76, 75);
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjHelp;
-  }
-
-  private LButton getHttp_Button()
-  {
-    if (this.ivjHttp_Button == null)
-      try
-      {
-        this.ivjHttp_Button = new LButton();
-        this.ivjHttp_Button.setName("Http_Button");
-        this.ivjHttp_Button.setForeground(new Color(80, 80, 120));
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjHttp_Button;
-  }
-
-  private LTextField getHttp_Port()
-  {
-    if (this.ivjHttp_Port == null)
-      try
-      {
-        this.ivjHttp_Port = new LTextField();
-        this.ivjHttp_Port.setName("Http_Port");
-        this.ivjHttp_Port.setText("80");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjHttp_Port;
-  }
-
-  private LTextField getIp()
-  {
-    if (this.ivjIp == null)
-      try
-      {
-        this.ivjIp = new LTextField();
-        this.ivjIp.setName("Ip");
-        this.ivjIp.setText("127.0.0.1");
-        this.ivjIp.setEdit(false);
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjIp;
-  }
-
-  private LButton getLobby_Button()
-  {
-    if (this.ivjLobby_Button == null)
-      try
-      {
-        this.ivjLobby_Button = new LButton();
-        this.ivjLobby_Button.setName("Lobby_Button");
-        this.ivjLobby_Button.setForeground(new Color(80, 80, 120));
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjLobby_Button;
-  }
-
-  private MenuItem getMenu_FilesCopy()
-  {
-    if (this.ivjMenu_FilesCopy == null)
-      try
-      {
-        this.ivjMenu_FilesCopy = new MenuItem();
-        this.ivjMenu_FilesCopy.setLabel("Menu_FilesCopy");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenu_FilesCopy;
-  }
-
-  private MenuItem getMenu_Help_Update()
-  {
-    if (this.ivjMenu_Help_Update == null)
-      try
-      {
-        this.ivjMenu_Help_Update = new MenuItem();
-        this.ivjMenu_Help_Update.setLabel("Menu_Help_Update");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenu_Help_Update;
-  }
-
-  private Menu getMenu1()
-  {
-    if (this.ivjMenu1 == null)
-      try
-      {
-        this.ivjMenu1 = new Menu();
-        this.ivjMenu1.setFont(new Font("dialog", 0, 14));
-        this.ivjMenu1.setActionCommand("Menu.Server");
-        this.ivjMenu1.setLabel("Menu_Action");
-        this.ivjMenu1.add(getMenuItem1());
-        this.ivjMenu1.add(getMenuItem2());
-        this.ivjMenu1.add(getMenuItem9());
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenu1;
-  }
-
-  private Menu getMenu2()
-  {
-    if (this.ivjMenu2 == null)
-      try
-      {
-        this.ivjMenu2 = new Menu();
-        this.ivjMenu2.setFont(new Font("dialog", 0, 14));
-        this.ivjMenu2.setActionCommand("Menu.Option");
-        this.ivjMenu2.setLabel("Menu_Option");
-        this.ivjMenu2.add(getMenuItem3());
-        this.ivjMenu2.add(getMenuItem10());
-        this.ivjMenu2.add(getMenuItem4());
-        this.ivjMenu2.add(getMenu_FilesCopy());
-        this.ivjMenu2.add(getMenuShowConsole());
-        this.ivjMenu2.add(getMenuShowHelp());
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenu2;
-  }
-
-  private Menu getMenu3()
-  {
-    if (this.ivjMenu3 == null)
-      try
-      {
-        this.ivjMenu3 = new Menu();
-        this.ivjMenu3.setFont(new Font("dialog", 0, 14));
-        this.ivjMenu3.setActionCommand("Menu3");
-        this.ivjMenu3.setLabel("Menu_Help");
-        this.ivjMenu3.add(getMenu_Help_Update());
-        this.ivjMenu3.add(getMenuHelpDocument());
-        this.ivjMenu3.add(getMenuItem6());
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenu3;
-  }
-
-  private MenuItem getMenuHelpDocument()
-  {
-    if (this.ivjMenuHelpDocument == null)
-      try
-      {
-        this.ivjMenuHelpDocument = new MenuItem();
-        this.ivjMenuHelpDocument.setLabel("Menu_Help_Document");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenuHelpDocument;
-  }
-
-  private MenuItem getMenuItem1()
-  {
-    if (this.ivjMenuItem1 == null)
-      try
-      {
-        this.ivjMenuItem1 = new MenuItem();
-        this.ivjMenuItem1.setActionCommand("Menu.Server.HTTP");
-        this.ivjMenuItem1.setLabel("Menu_Action_HTTP");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenuItem1;
-  }
-
-  private MenuItem getMenuItem10()
-  {
-    if (this.ivjMenuItem10 == null)
-      try
-      {
-        this.ivjMenuItem10 = new MenuItem();
-        this.ivjMenuItem10.setLabel("Menu_Option_Server");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenuItem10;
-  }
-
-  private MenuItem getMenuItem2()
-  {
-    if (this.ivjMenuItem2 == null)
-      try
-      {
-        this.ivjMenuItem2 = new MenuItem();
-        this.ivjMenuItem2.setActionCommand("Menu.Server.PaintChat");
-        this.ivjMenuItem2.setLabel("Menu_Action_PaintChat");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenuItem2;
-  }
-
-  private MenuItem getMenuItem3()
-  {
-    if (this.ivjMenuItem3 == null)
-      try
-      {
-        this.ivjMenuItem3 = new MenuItem();
-        this.ivjMenuItem3.setActionCommand("Menu.Option.Config");
-        this.ivjMenuItem3.setLabel("Menu_Option_Config");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenuItem3;
-  }
-
-  private MenuItem getMenuItem4()
-  {
-    if (this.ivjMenuItem4 == null)
-      try
-      {
-        this.ivjMenuItem4 = new MenuItem();
-        this.ivjMenuItem4.setActionCommand("Menu.Option.Lobby");
-        this.ivjMenuItem4.setLabel("Menu_Option_Lobby");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenuItem4;
-  }
-
-  private MenuItem getMenuItem6()
-  {
-    if (this.ivjMenuItem6 == null)
-      try
-      {
-        this.ivjMenuItem6 = new MenuItem();
-        this.ivjMenuItem6.setLabel("Menu_Help_About");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenuItem6;
-  }
-
-  private MenuItem getMenuItem9()
-  {
-    if (this.ivjMenuItem9 == null)
-      try
-      {
-        this.ivjMenuItem9 = new MenuItem();
-        this.ivjMenuItem9.setLabel("Menu_Action_Client");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenuItem9;
-  }
-
-  private CheckboxMenuItem getMenuShowConsole()
-  {
-    if (this.ivjMenuShowConsole == null)
-      try
-      {
-        this.ivjMenuShowConsole = new CheckboxMenuItem();
-        this.ivjMenuShowConsole.setLabel("Menu_Option_ShowConsole");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenuShowConsole;
-  }
-
-  private CheckboxMenuItem getMenuShowHelp()
-  {
-    if (this.ivjMenuShowHelp == null)
-      try
-      {
-        this.ivjMenuShowHelp = new CheckboxMenuItem();
-        this.ivjMenuShowHelp.setLabel("Menu_Option_ShowHelp");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjMenuShowHelp;
-  }
-
-  private LButton getPaintchat_Button()
-  {
-    if (this.ivjPaintchat_Button == null)
-      try
-      {
-        this.ivjPaintchat_Button = new LButton();
-        this.ivjPaintchat_Button.setName("Paintchat_Button");
-        this.ivjPaintchat_Button.setForeground(new Color(80, 80, 120));
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjPaintchat_Button;
-  }
-
-  private LTextField getPaintchat_Port()
-  {
-    if (this.ivjPaintchat_Port == null)
-      try
-      {
-        this.ivjPaintchat_Port = new LTextField();
-        this.ivjPaintchat_Port.setName("Paintchat_Port");
-        this.ivjPaintchat_Port.setText("0");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjPaintchat_Port;
-  }
-
-  private Panel getPanel3()
-  {
-    if (this.ivjPanel3 == null)
-      try
-      {
-        this.ivjPanel3 = new Panel();
-        this.ivjPanel3.setName("Panel3");
-        this.ivjPanel3.setLayout(getPanel3FlowLayout());
-        this.ivjPanel3.setBackground(new Color(204, 204, 204));
-        this.ivjPanel3.setForeground(new Color(80, 80, 120));
-        getPanel3().add(getPanelLeft(), getPanelLeft().getName());
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjPanel3;
-  }
-
-  private FlowLayout getPanel3FlowLayout()
-  {
-    FlowLayout localFlowLayout = null;
-    try
-    {
-      localFlowLayout = new FlowLayout();
-      localFlowLayout.setAlignment(1);
-      localFlowLayout.setVgap(5);
-      localFlowLayout.setHgap(5);
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-    return localFlowLayout;
-  }
-
-  private Panel getPanelLeft()
-  {
-    if (this.ivjPanelLeft == null)
-      try
-      {
-        this.ivjPanelLeft = new Panel();
-        this.ivjPanelLeft.setName("PanelLeft");
-        this.ivjPanelLeft.setLayout(getPanelLeftGridLayout());
-        this.ivjPanelLeft.setBackground(new Color(204, 204, 204));
-        this.ivjPanelLeft.setForeground(new Color(80, 80, 120));
-        getPanelLeft().add(getIp(), getIp().getName());
-        getPanelLeft().add(getHttp_Port(), getHttp_Port().getName());
-        getPanelLeft().add(getPaintchat_Port(), getPaintchat_Port().getName());
-        getPanelLeft().add(getPaintchat_Button(), getPaintchat_Button().getName());
-        getPanelLeft().add(getHttp_Button(), getHttp_Button().getName());
-        getPanelLeft().add(getLobby_Button(), getLobby_Button().getName());
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjPanelLeft;
-  }
-
-  private GridLayout getPanelLeftGridLayout()
-  {
-    GridLayout localGridLayout = null;
-    try
-    {
-      localGridLayout = new GridLayout(0, 1);
-      localGridLayout.setVgap(3);
-      localGridLayout.setHgap(0);
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-    return localGridLayout;
-  }
-
-  private BorderLayout getPFrameBorderLayout()
-  {
-    BorderLayout localBorderLayout = null;
-    try
-    {
-      localBorderLayout = new BorderLayout();
-      localBorderLayout.setVgap(0);
-      localBorderLayout.setHgap(0);
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-    return localBorderLayout;
-  }
-
-  private MenuBar getPFrameMenuBar()
-  {
-    if (this.ivjPFrameMenuBar == null)
-      try
-      {
-        this.ivjPFrameMenuBar = new MenuBar();
-        this.ivjPFrameMenuBar.setHelpMenu(getMenu3());
-        this.ivjPFrameMenuBar.add(getMenu2());
-        this.ivjPFrameMenuBar.add(getMenu1());
-        this.ivjPFrameMenuBar.add(getMenu3());
-        MenuBar localMenuBar = this.ivjPFrameMenuBar;
-        int i = localMenuBar.getMenuCount();
-        for (int j = 0; j < i; j++)
-          setResource(localMenuBar.getMenu(j));
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjPFrameMenuBar;
-  }
-
-  private Res getResource()
-  {
-    if (this.res == null)
-    {
-      Resource.loadResource();
-      this.res = Resource.loadResource("Application");
-    }
-    return this.res;
-  }
-
-  private void handleException(Throwable paramThrowable)
-  {
-  }
-
-  public void init()
-  {
-    Thread localThread = new Thread(this, "init");
-    localThread.setPriority(1);
-    localThread.setDaemon(false);
-    localThread.start();
-  }
-
-  private void initConnections()
-    throws Exception
-  {
-    getPaintchat_Port().addActionListener(this);
-    getHttp_Port().addActionListener(this);
-    getIp().addMouseListener(this);
-    getHttp_Port().addMouseListener(this);
-    getPaintchat_Port().addMouseListener(this);
-    getPaintchat_Button().addMouseListener(this);
-    getHttp_Button().addMouseListener(this);
-    getLobby_Button().addMouseListener(this);
-    getMenuItem6().addActionListener(this);
-    addWindowListener(this);
-    getMenuShowConsole().addItemListener(this);
-    getMenuShowHelp().addItemListener(this);
-    getMenuItem4().addActionListener(this);
-    getMenuHelpDocument().addActionListener(this);
-    getMenu_Help_Update().addActionListener(this);
-    getMenuItem1().addActionListener(this);
-    getMenuItem2().addActionListener(this);
-    getMenuItem9().addActionListener(this);
-    getMenuItem10().addActionListener(this);
-    getMenuItem3().addActionListener(this);
-    getMenu_FilesCopy().addActionListener(this);
-  }
-
-  private void initialize()
-  {
-    try
-    {
-      setName("PFrame");
-      setLayout(getPFrameBorderLayout());
-      setBackground(new Color(204, 204, 204));
-      setForeground(new Color(80, 80, 120));
-      setMenuBar(getPFrameMenuBar());
-      setBounds(new Rectangle(0, 0, 391, 172));
-      setSize(391, 172);
-      setTitle("PaintChat");
-      add(getPanel3(), "West");
-      initConnections();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  public void iP_MouseClicked()
-  {
-    PopupMenuPaintChat localPopupMenuPaintChat = new PopupMenuPaintChat(this.debug, this.config, this.res);
-    localPopupMenuPaintChat.show(this, this.ivjIp, 0, 0);
-  }
-
-  public void itemStateChanged(ItemEvent paramItemEvent)
-  {
-    if (paramItemEvent.getSource() == getMenuShowConsole())
-      connEtoC4(paramItemEvent);
-    if (paramItemEvent.getSource() == getMenuShowHelp())
-      connEtoC5(paramItemEvent);
-  }
-
-  public static void main(String[] paramArrayOfString)
-  {
-    try
-    {
-      PFrame localPFrame = new PFrame();
-      localPFrame.init();
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace(System.out);
-      System.exit(0);
-    }
-  }
-
-  public void menuHelpDocument_ActionPerformed()
-  {
-    Gui.showDocument("Help.html", this.config, this.res);
-  }
-
-  public void menuItem1_ActionPerformed1()
-  {
-    ThreadPool.poolStartThread(getData(), 'h');
-  }
-
-  public void menuItem10_ActionPerformed(ActionEvent paramActionEvent)
-  {
-    try
-    {
-      new ConfigDialog("paintchat.config.ConfigServer", "cnf/dialogs.jar", this.config, this.res, "(C)しぃちゃん PaintChatApp v3.66");
-    }
-    catch (Exception localException)
-    {
-      localException.printStackTrace();
-    }
-  }
-
-  public void menuItem10_ActionPerformed1()
-  {
-    if ((getData().isRunPaintChatServer()) && (MessageBox.confirm("ConfirmMayServerStopNow", "(C)しぃちゃん PaintChatApp v3.66")))
-      getData().startPaintChat(false);
-    try
-    {
-      new ConfigDialog("paintchat.config.ConfigServer", "cnf/dialogs.jar", this.config, this.res, "(C)しぃちゃん PaintChatApp v3.66");
-    }
-    catch (Throwable localThrowable)
-    {
-    }
-  }
-
-  public void menuItem3_ActionPerformed(ActionEvent paramActionEvent)
-  {
-    try
-    {
-      new ConfigDialog("paintchat.config.PConfig", "cnf/dialogs.jar", this.config, this.res, "(C)しぃちゃん PaintChatApp v3.66");
-    }
-    catch (Throwable localThrowable)
-    {
-      this.debug.log(localThrowable.getMessage());
-    }
-  }
-
-  public void menuItem4_ActionPerformed()
-  {
-    try
-    {
-      new ConfigDialog("paintchat.config.Ao", "cnf/dialogs.jar", this.config, this.res, "(C)しぃちゃん PaintChatApp v3.66");
-    }
-    catch (Throwable localThrowable)
-    {
-      this.debug.log(localThrowable.getMessage());
-    }
-  }
-
-  public void menuItem6_ActionPerformed()
-  {
-    StringBuffer localStringBuffer = new StringBuffer();
-    localStringBuffer.append("(C)しぃちゃん PaintChatApp v3.66");
-    localStringBuffer.append('\n');
-    localStringBuffer.append('\n');
-    localStringBuffer.append("JavaVirtualMachine(JVM):");
-    localStringBuffer.append(System.getProperty("java.vendor"));
-    localStringBuffer.append("\nJVM Version:");
-    localStringBuffer.append(System.getProperty("java.version"));
-    localStringBuffer.append('\n');
-    localStringBuffer.append("\n立ち上げ画面のCGはuzukiさんが作成しました。\nuzukiさんのHP http://www19.freeweb.ne.jp/play/m_uzuki/top.htm\n効果音はあややさんが作成しました。\nロビープログラムは藍珠さんが作成、管理しています。");
-    MessageBox.alert(localStringBuffer.toString(), "(C)しぃちゃん PaintChatApp v3.66");
-  }
-
-  public void mouseClicked(MouseEvent paramMouseEvent)
-  {
-    if (paramMouseEvent.getSource() == getIp())
-      connEtoC3(paramMouseEvent);
-  }
-
-  public void mouseEntered(MouseEvent paramMouseEvent)
-  {
-    if (paramMouseEvent.getSource() == getIp())
-      connEtoM1(paramMouseEvent);
-    if (paramMouseEvent.getSource() == getHttp_Port())
-      connEtoM2(paramMouseEvent);
-    if (paramMouseEvent.getSource() == getPaintchat_Port())
-      connEtoM3(paramMouseEvent);
-    if (paramMouseEvent.getSource() == getPaintchat_Button())
-      connEtoM4(paramMouseEvent);
-    if (paramMouseEvent.getSource() == getHttp_Button())
-      connEtoM5(paramMouseEvent);
-    if (paramMouseEvent.getSource() == getLobby_Button())
-      connEtoM6(paramMouseEvent);
-  }
-
-  public void mouseExited(MouseEvent paramMouseEvent)
-  {
-    getHelp().reset();
-  }
-
-  public void mousePressed(MouseEvent paramMouseEvent)
-  {
-  }
-
-  public void mouseReleased(MouseEvent paramMouseEvent)
-  {
-  }
-
-  public void panel3_MouseReleased(MouseEvent paramMouseEvent)
-  {
-    MenuBar localMenuBar = getMenuBar();
-    if ((this.ivjMenuShowConsole.getState()) || (localMenuBar != null))
-      return;
-    localMenuBar = getPFrameMenuBar();
-    localMenuBar.remove(0);
-    localMenuBar.remove(0);
-    localMenuBar.remove(0);
-    PopupMenu localPopupMenu = new PopupMenu();
-    localPopupMenu.addActionListener(this);
-    localPopupMenu.add(getMenu1());
-    localPopupMenu.add(getMenu2());
-    localPopupMenu.add(getMenu3());
-    add(localPopupMenu);
-    localPopupMenu.show(paramMouseEvent.getComponent(), paramMouseEvent.getX(), paramMouseEvent.getY());
-    localPopupMenu.removeAll();
-    localMenuBar.add(getMenu1());
-    localMenuBar.add(getMenu2());
-    localMenuBar.add(getMenu3());
-  }
-
-  public void pFrame_WindowClosed(WindowEvent paramWindowEvent)
-  {
-    System.exit(0);
-  }
-
-  public void pFrame_WindowIconified(WindowEvent paramWindowEvent)
-  {
-    if (getData().getIsNativeWindows())
-      setVisible(false);
-  }
-
-  private void rDestroy()
-  {
-    try
-    {
-      this.config.put("Connection_Port_Http", getHttp_Port().getText().trim());
-      this.config.put("Connection_Port_PaintChat", getPaintchat_Port().getText().trim());
-      this.config.saveConfig(null, null);
-      if (getData().getIsNativeWindows())
-        getData().exitWin();
-      dispose();
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
+    public static final String STR_VERSION = "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66";
+    private Config config;
+    private Res res;
+    private Debug debug;
+    private Panel ivjPanel3;
+    private Panel ivjPanelLeft;
+    private GridLayout ivjPanelLeftGridLayout;
+    private Menu ivjMenu1;
+    private FlowLayout ivjPanel3FlowLayout;
+    private Menu ivjMenu2;
+    private Menu ivjMenu3;
+    private MenuItem ivjMenuItem1;
+    private MenuItem ivjMenuItem2;
+    private MenuItem ivjMenuItem3;
+    private MenuItem ivjMenuItem4;
+    private BorderLayout ivjPFrameBorderLayout;
+    private MenuBar ivjPFrameMenuBar;
+    private HelpWindow ivjHelp;
+    private Console ivjConsole;
+    private MenuItem ivjMenuItem6;
+    private MenuItem ivjMenuHelpDocument;
+    private CheckboxMenuItem ivjMenuShowConsole;
+    private CheckboxMenuItem ivjMenuShowHelp;
+    private Data ivjData;
+    private LTextField ivjHttp_Port;
+    private LTextField ivjIp;
+    private LButton ivjLobby_Button;
+    private LTextField ivjPaintchat_Port;
+    private LButton ivjHttp_Button;
+    private LButton ivjPaintchat_Button;
+    private MenuItem ivjMenu_Help_Update;
+    private MenuItem ivjMenuItem9;
+    private MenuItem ivjMenuItem10;
+    private MenuItem ivjMenu_FilesCopy;
+
+    public PFrame()
+    {
+        debug = null;
+        ivjPanel3 = null;
+        ivjPanelLeft = null;
+        ivjPanelLeftGridLayout = null;
+        ivjMenu1 = null;
+        ivjPanel3FlowLayout = null;
+        ivjMenu2 = null;
+        ivjMenu3 = null;
+        ivjMenuItem1 = null;
+        ivjMenuItem2 = null;
+        ivjMenuItem3 = null;
+        ivjMenuItem4 = null;
+        ivjPFrameBorderLayout = null;
+        ivjPFrameMenuBar = null;
+        ivjHelp = null;
+        ivjConsole = null;
+        ivjMenuItem6 = null;
+        ivjMenuHelpDocument = null;
+        ivjMenuShowConsole = null;
+        ivjMenuShowHelp = null;
+        ivjData = null;
+        ivjHttp_Port = null;
+        ivjIp = null;
+        ivjLobby_Button = null;
+        ivjPaintchat_Port = null;
+        ivjHttp_Button = null;
+        ivjPaintchat_Button = null;
+        ivjMenu_Help_Update = null;
+        ivjMenuItem9 = null;
+        ivjMenuItem10 = null;
+        ivjMenu_FilesCopy = null;
+        initialize();
+    }
+
+    public PFrame(String s)
+    {
+        super(s);
+        debug = null;
+        ivjPanel3 = null;
+        ivjPanelLeft = null;
+        ivjPanelLeftGridLayout = null;
+        ivjMenu1 = null;
+        ivjPanel3FlowLayout = null;
+        ivjMenu2 = null;
+        ivjMenu3 = null;
+        ivjMenuItem1 = null;
+        ivjMenuItem2 = null;
+        ivjMenuItem3 = null;
+        ivjMenuItem4 = null;
+        ivjPFrameBorderLayout = null;
+        ivjPFrameMenuBar = null;
+        ivjHelp = null;
+        ivjConsole = null;
+        ivjMenuItem6 = null;
+        ivjMenuHelpDocument = null;
+        ivjMenuShowConsole = null;
+        ivjMenuShowHelp = null;
+        ivjData = null;
+        ivjHttp_Port = null;
+        ivjIp = null;
+        ivjLobby_Button = null;
+        ivjPaintchat_Port = null;
+        ivjHttp_Button = null;
+        ivjPaintchat_Button = null;
+        ivjMenu_Help_Update = null;
+        ivjMenuItem9 = null;
+        ivjMenuItem10 = null;
+        ivjMenu_FilesCopy = null;
     }
-  }
 
-  private void rInit()
-  {
-    try
+    public void actionPerformed(ActionEvent actionevent)
     {
-      System.currentTimeMillis();
-      getResource();
-      setResource(this.res, this);
-      Awt.setPFrame(this);
-      Awt.cBk = getBackground();
-      Awt.cFore = getForeground();
-      getConfig();
-      getHttp_Port().setText(this.config.getString("Connection_Port_Http", "80"));
-      getPaintchat_Port().setText(this.config.getString("Connection_Port_PaintChat", "0"));
-      Image localImage = Io.loadImageNow(this, "cnf/template/top.jpg");
-      Dimension localDimension = getToolkit().getScreenSize();
-      Point localPoint = new Point((localDimension.width - localImage.getWidth(null)) / 2, (localDimension.height - localImage.getHeight(null)) / 2);
-      getHelp().setForeground(Color.black);
-      HelpWindowContent localHelpWindowContent = new HelpWindowContent(localImage, "(C)しぃちゃん PaintChatApp v3.66", false, localPoint, null);
-      localHelpWindowContent.timeStart = 0;
-      localHelpWindowContent.timeEnd = 3500;
-      localHelpWindowContent.setVisit(true);
-      getHelp().startHelp(localHelpWindowContent);
-      MessageBox.setResource(this.res);
-      this.debug = new Debug(this.res);
-      setIconImage(Io.loadImageNow(this, "cnf/icon.gif"));
-      setTitle("PaintChat_MainWindow");
-      if (this.config.getBool("App_IsConsole"))
-      {
-        showConsole();
-        this.ivjConsole.addText("(C)しぃちゃん PaintChatApp v3.66");
-        this.ivjConsole.addText("http://shichan.jp/");
-        this.ivjConsole.addText(" ");
-        if (this.config.getBool("App_ShowStartHelp", true))
+        if(actionevent.getSource() == getMenuItem6())
         {
-          this.ivjConsole.setRText(this.res.get("StartHelp"));
-          this.ivjConsole.addText(" ");
+            connEtoC2(actionevent);
         }
-      }
-      this.res.remove("StartHelp");
-      if (this.config.getBool("App_ShowHelp", true))
-        showHelp();
-      if (!this.config.getString("App_Version").equals("(C)しぃちゃん PaintChatApp v3.66"))
-      {
-        new FileManager(this.config).templateToWWW();
-        this.config.put("App_Version", "(C)しぃちゃん PaintChatApp v3.66");
-        this.debug.log("Client update.");
-      }
-      getIp().setText(PopupMenuPaintChat.getAddress(this.config, this.debug));
-      getData().init(this.config, this.res, this.debug, getPaintchat_Button(), getHttp_Button(), getLobby_Button());
-      pack();
-      Awt.moveCenter(this);
-      setVisible(true);
+        if(actionevent.getSource() == getMenuItem4())
+        {
+            connEtoC6(actionevent);
+        }
+        if(actionevent.getSource() == getMenuHelpDocument())
+        {
+            connEtoC7(actionevent);
+        }
+        if(actionevent.getSource() == getMenuItem1())
+        {
+            connEtoC11(actionevent);
+        }
+        if(actionevent.getSource() == getMenuItem2())
+        {
+            connEtoC12(actionevent);
+        }
+        if(actionevent.getSource() == getMenuItem9())
+        {
+            connEtoC16(actionevent);
+        }
+        if(actionevent.getSource() == getMenuItem10())
+        {
+            connEtoC18(actionevent);
+        }
+        if(actionevent.getSource() == getMenuItem3())
+        {
+            connEtoC9(actionevent);
+        }
+        if(actionevent.getSource() == getMenu_FilesCopy())
+        {
+            connEtoC13(actionevent);
+        }
+        if(actionevent.getSource() == getPaintchat_Port())
+        {
+            String s;
+            try
+            {
+                s = actionevent.getActionCommand();
+                Integer.parseInt(s);
+            }
+            catch(NumberFormatException _ex)
+            {
+                s = "41411";
+            }
+            getPaintchat_Port().setText(s);
+            config.put("Connection_Port_PaintChat", s);
+            config.saveConfig(null, null);
+        }
+        if(actionevent.getSource() == getHttp_Port())
+        {
+            String s1;
+            try
+            {
+                s1 = actionevent.getActionCommand();
+                Integer.parseInt(s1);
+            }
+            catch(NumberFormatException _ex)
+            {
+                s1 = "80";
+            }
+            getHttp_Port().setText(s1);
+            config.put("Connection_Port_Http", s1);
+            config.saveConfig(null, null);
+        }
     }
-    catch (Throwable localThrowable)
+
+    private void connEtoC1(WindowEvent windowevent)
     {
-      localThrowable.printStackTrace();
+        try
+        {
+            destroy();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
     }
-  }
 
-  public void run()
-  {
-    try
+    private void connEtoC11(ActionEvent actionevent)
     {
-      switch (Thread.currentThread().getName().charAt(0))
-      {
-      case 'd':
-        rDestroy();
-        break;
-      case 'i':
-        rInit();
-      }
+        try
+        {
+            startHttp();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
     }
-    catch (Throwable localThrowable)
+
+    private void connEtoC12(ActionEvent actionevent)
     {
-      localThrowable.printStackTrace();
+        try
+        {
+            startServer();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
     }
-  }
 
-  public void setResource(MenuItem paramMenuItem)
-  {
-    paramMenuItem.setLabel(getResource().get(paramMenuItem.getLabel(), paramMenuItem.getLabel()));
-    if ((paramMenuItem instanceof Menu))
+    private void connEtoC13(ActionEvent actionevent)
     {
-      Menu localMenu = (Menu)paramMenuItem;
-      int i = localMenu.getItemCount();
-      for (int j = 0; j < i; j++)
-        setResource(localMenu.getItem(j));
+        try
+        {
+            setupWWWFolder();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
     }
-  }
 
-  public void setResource(Res paramRes, Component paramComponent)
-  {
-    Object localObject1;
-    if ((paramComponent instanceof Container))
+    private void connEtoC16(ActionEvent actionevent)
     {
-      localObject1 = (Container)paramComponent;
-      int i = ((Container)localObject1).getComponentCount();
-      for (int j = 0; j < i; j++)
-        setResource(paramRes, ((Container)localObject1).getComponent(j));
+        try
+        {
+            startClient();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
     }
-    else
+
+    private void connEtoC17(WindowEvent windowevent)
     {
-      localObject1 = paramRes.get(paramComponent.getName(), paramComponent.getName());
-      Object localObject2;
-      if ((paramComponent instanceof LTextField))
-      {
-        localObject2 = (LTextField)paramComponent;
-        ((LTextField)localObject2).setTitle((String)localObject1);
-        return;
-      }
-      if ((paramComponent instanceof LButton))
-      {
-        localObject2 = (LButton)paramComponent;
-        ((LButton)localObject2).setText((String)localObject1);
-        return;
-      }
-      if ((paramComponent instanceof Checkbox))
-      {
-        localObject2 = (Checkbox)paramComponent;
-        ((Checkbox)localObject2).setLabel((String)localObject1);
-        return;
-      }
+        try
+        {
+            pFrame_WindowClosed(windowevent);
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
     }
-  }
 
-  public void setupWWWFolder()
-  {
-    new FileManager(this.config).templateToWWW();
-  }
-
-  public void showConsole()
-  {
-    Console localConsole = getConsole();
-    int i = localConsole.getParent() == this ? 1 : 0;
-    MenuBar localMenuBar;
-    if (i != 0)
+    private void connEtoC18(ActionEvent actionevent)
     {
-      remove(localConsole);
-      localConsole.stop();
-      localMenuBar = getMenuBar();
-      localMenuBar.remove(getMenu1());
-      localMenuBar.remove(getMenu3());
+        try
+        {
+            menuItem10_ActionPerformed1();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
     }
-    else
+
+    public void connEtoC18_NormalResult(boolean flag)
     {
-      localConsole.start(this.debug);
-      add(localConsole, "Center");
-      localMenuBar = getPFrameMenuBar();
-      localMenuBar.add(getMenu1());
-      localMenuBar.add(getMenu3());
+        try
+        {
+            if(flag)
+            {
+                new ConfigDialog("paintchat.config.PConfig", "cnf/dialogs.jar", config, res, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+            }
+        }
+        catch(Exception exception)
+        {
+            exception.printStackTrace();
+        }
     }
-    this.config.put("App_IsConsole", String.valueOf(i == 0));
-    this.ivjMenuShowConsole.setState(i == 0);
-    pack();
-  }
 
-  public void showHelp()
-  {
-    boolean bool = getHelp().getIsShow();
-    getHelp().setIsShow(!bool);
-    getMenuShowHelp().setState(!bool);
-    this.config.put("App_ShowHelp", String.valueOf(!bool));
-  }
-
-  public void startClient()
-  {
-    try
+    private void connEtoC2(ActionEvent actionevent)
     {
-      AppletWatcher localAppletWatcher = new AppletWatcher("paintchat_client.Client", "(C)しぃちゃん PaintChatApp v3.66", this.config, this.res, false);
-      localAppletWatcher.setIconImage(getIconImage());
-      localAppletWatcher.show();
+        try
+        {
+            menuItem6_ActionPerformed();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
     }
-    catch (Throwable localThrowable)
+
+    private void connEtoC3(MouseEvent mouseevent)
     {
-      this.debug.log(localThrowable.getMessage());
+        try
+        {
+            iP_MouseClicked();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
     }
-  }
 
-  public void startHttp()
-  {
-    getData().startHttp(true);
-  }
+    private void connEtoC4(ItemEvent itemevent)
+    {
+        try
+        {
+            showConsole();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
 
-  public void startServer()
-  {
-    getData().startPaintChat(true);
-  }
+    private void connEtoC5(ItemEvent itemevent)
+    {
+        try
+        {
+            showHelp();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
 
-  public void startViewer()
-  {
-  }
+    private void connEtoC6(ActionEvent actionevent)
+    {
+        try
+        {
+            menuItem4_ActionPerformed();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
 
-  public void windowActivated(WindowEvent paramWindowEvent)
-  {
-  }
+    private void connEtoC7(ActionEvent actionevent)
+    {
+        try
+        {
+            menuHelpDocument_ActionPerformed();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
 
-  public void windowClosed(WindowEvent paramWindowEvent)
-  {
-    if (paramWindowEvent.getSource() == this)
-      connEtoC17(paramWindowEvent);
-  }
+    private void connEtoC8(WindowEvent windowevent)
+    {
+        try
+        {
+            pFrame_WindowIconified(windowevent);
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
 
-  public void windowClosing(WindowEvent paramWindowEvent)
-  {
-    if (paramWindowEvent.getSource() == this)
-      connEtoC1(paramWindowEvent);
-  }
+    private void connEtoC9(ActionEvent actionevent)
+    {
+        try
+        {
+            menuItem3_ActionPerformed(actionevent);
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
 
-  public void windowDeactivated(WindowEvent paramWindowEvent)
-  {
-  }
+    private void connEtoM1(MouseEvent mouseevent)
+    {
+        try
+        {
+            getHelp().startHelp(new HelpWindowContent(mouseevent.getComponent().getName(), true, Gui.getScreenPos(mouseevent), res));
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
 
-  public void windowDeiconified(WindowEvent paramWindowEvent)
-  {
-    setVisible(true);
-  }
+    private void connEtoM2(MouseEvent mouseevent)
+    {
+        try
+        {
+            getHelp().startHelp(new HelpWindowContent(mouseevent.getComponent().getName(), true, Gui.getScreenPos(mouseevent), res));
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
 
-  public void windowIconified(WindowEvent paramWindowEvent)
-  {
-    if (paramWindowEvent.getSource() == this)
-      connEtoC8(paramWindowEvent);
-  }
+    private void connEtoM3(MouseEvent mouseevent)
+    {
+        try
+        {
+            getHelp().startHelp(new HelpWindowContent(mouseevent.getComponent().getName(), true, Gui.getScreenPos(mouseevent), res));
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
 
-  public void windowOpened(WindowEvent paramWindowEvent)
-  {
-  }
+    private void connEtoM4(MouseEvent mouseevent)
+    {
+        try
+        {
+            getHelp().startHelp(new HelpWindowContent(mouseevent.getComponent().getName(), true, Gui.getScreenPos(mouseevent), res));
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
+
+    private void connEtoM5(MouseEvent mouseevent)
+    {
+        try
+        {
+            getHelp().startHelp(new HelpWindowContent(mouseevent.getComponent().getName(), true, Gui.getScreenPos(mouseevent), res));
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
+
+    private void connEtoM6(MouseEvent mouseevent)
+    {
+        try
+        {
+            getHelp().startHelp(new HelpWindowContent(mouseevent.getComponent().getName(), true, Gui.getScreenPos(mouseevent), res));
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
+
+    private void destroy()
+    {
+        Thread thread = new Thread(this, "destroy");
+        thread.start();
+    }
+
+    public Config getConfig()
+        throws IOException
+    {
+        if(config == null)
+        {
+            config = new Config("cnf/paintchat.cf");
+        }
+        return config;
+    }
+
+    private Console getConsole()
+    {
+        if(ivjConsole == null)
+        {
+            try
+            {
+                ivjConsole = new Console();
+                ivjConsole.setName("Console");
+                ivjConsole.setBackground(Color.white);
+                ivjConsole.setBounds(861, 328, 159, 60);
+                ivjConsole.setForeground(Color.black);
+                Applet applet = new Applet();
+                applet.setStub(ServerStub.getDefaultStub(getConfig(), getResource()));
+                ivjConsole.init(applet, 400, ivjConsole.getBackground(), ivjConsole.getForeground(), null);
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjConsole;
+    }
+
+    private Data getData()
+    {
+        if(ivjData == null)
+        {
+            try
+            {
+                ivjData = new Data();
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjData;
+    }
+
+    private HelpWindow getHelp()
+    {
+        if(ivjHelp == null)
+        {
+            try
+            {
+                ivjHelp = new HelpWindow(this);
+                ivjHelp.setName("Help");
+                ivjHelp.setBounds(275, 283, 76, 75);
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjHelp;
+    }
+
+    private LButton getHttp_Button()
+    {
+        if(ivjHttp_Button == null)
+        {
+            try
+            {
+                ivjHttp_Button = new LButton();
+                ivjHttp_Button.setName("Http_Button");
+                ivjHttp_Button.setForeground(new Color(80, 80, 120));
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjHttp_Button;
+    }
+
+    private LTextField getHttp_Port()
+    {
+        if(ivjHttp_Port == null)
+        {
+            try
+            {
+                ivjHttp_Port = new LTextField();
+                ivjHttp_Port.setName("Http_Port");
+                ivjHttp_Port.setText("80");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjHttp_Port;
+    }
+
+    private LTextField getIp()
+    {
+        if(ivjIp == null)
+        {
+            try
+            {
+                ivjIp = new LTextField();
+                ivjIp.setName("Ip");
+                ivjIp.setText("127.0.0.1");
+                ivjIp.setEdit(false);
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjIp;
+    }
+
+    private LButton getLobby_Button()
+    {
+        if(ivjLobby_Button == null)
+        {
+            try
+            {
+                ivjLobby_Button = new LButton();
+                ivjLobby_Button.setName("Lobby_Button");
+                ivjLobby_Button.setForeground(new Color(80, 80, 120));
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjLobby_Button;
+    }
+
+    private MenuItem getMenu_FilesCopy()
+    {
+        if(ivjMenu_FilesCopy == null)
+        {
+            try
+            {
+                ivjMenu_FilesCopy = new MenuItem();
+                ivjMenu_FilesCopy.setLabel("Menu_FilesCopy");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenu_FilesCopy;
+    }
+
+    private MenuItem getMenu_Help_Update()
+    {
+        if(ivjMenu_Help_Update == null)
+        {
+            try
+            {
+                ivjMenu_Help_Update = new MenuItem();
+                ivjMenu_Help_Update.setLabel("Menu_Help_Update");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenu_Help_Update;
+    }
+
+    private Menu getMenu1()
+    {
+        if(ivjMenu1 == null)
+        {
+            try
+            {
+                ivjMenu1 = new Menu();
+                ivjMenu1.setFont(new Font("dialog", 0, 14));
+                ivjMenu1.setActionCommand("Menu.Server");
+                ivjMenu1.setLabel("Menu_Action");
+                ivjMenu1.add(getMenuItem1());
+                ivjMenu1.add(getMenuItem2());
+                ivjMenu1.add(getMenuItem9());
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenu1;
+    }
+
+    private Menu getMenu2()
+    {
+        if(ivjMenu2 == null)
+        {
+            try
+            {
+                ivjMenu2 = new Menu();
+                ivjMenu2.setFont(new Font("dialog", 0, 14));
+                ivjMenu2.setActionCommand("Menu.Option");
+                ivjMenu2.setLabel("Menu_Option");
+                ivjMenu2.add(getMenuItem3());
+                ivjMenu2.add(getMenuItem10());
+                ivjMenu2.add(getMenuItem4());
+                ivjMenu2.add(getMenu_FilesCopy());
+                ivjMenu2.add(getMenuShowConsole());
+                ivjMenu2.add(getMenuShowHelp());
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenu2;
+    }
+
+    private Menu getMenu3()
+    {
+        if(ivjMenu3 == null)
+        {
+            try
+            {
+                ivjMenu3 = new Menu();
+                ivjMenu3.setFont(new Font("dialog", 0, 14));
+                ivjMenu3.setActionCommand("Menu3");
+                ivjMenu3.setLabel("Menu_Help");
+                ivjMenu3.add(getMenu_Help_Update());
+                ivjMenu3.add(getMenuHelpDocument());
+                ivjMenu3.add(getMenuItem6());
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenu3;
+    }
+
+    private MenuItem getMenuHelpDocument()
+    {
+        if(ivjMenuHelpDocument == null)
+        {
+            try
+            {
+                ivjMenuHelpDocument = new MenuItem();
+                ivjMenuHelpDocument.setLabel("Menu_Help_Document");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenuHelpDocument;
+    }
+
+    private MenuItem getMenuItem1()
+    {
+        if(ivjMenuItem1 == null)
+        {
+            try
+            {
+                ivjMenuItem1 = new MenuItem();
+                ivjMenuItem1.setActionCommand("Menu.Server.HTTP");
+                ivjMenuItem1.setLabel("Menu_Action_HTTP");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenuItem1;
+    }
+
+    private MenuItem getMenuItem10()
+    {
+        if(ivjMenuItem10 == null)
+        {
+            try
+            {
+                ivjMenuItem10 = new MenuItem();
+                ivjMenuItem10.setLabel("Menu_Option_Server");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenuItem10;
+    }
+
+    private MenuItem getMenuItem2()
+    {
+        if(ivjMenuItem2 == null)
+        {
+            try
+            {
+                ivjMenuItem2 = new MenuItem();
+                ivjMenuItem2.setActionCommand("Menu.Server.PaintChat");
+                ivjMenuItem2.setLabel("Menu_Action_PaintChat");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenuItem2;
+    }
+
+    private MenuItem getMenuItem3()
+    {
+        if(ivjMenuItem3 == null)
+        {
+            try
+            {
+                ivjMenuItem3 = new MenuItem();
+                ivjMenuItem3.setActionCommand("Menu.Option.Config");
+                ivjMenuItem3.setLabel("Menu_Option_Config");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenuItem3;
+    }
+
+    private MenuItem getMenuItem4()
+    {
+        if(ivjMenuItem4 == null)
+        {
+            try
+            {
+                ivjMenuItem4 = new MenuItem();
+                ivjMenuItem4.setActionCommand("Menu.Option.Lobby");
+                ivjMenuItem4.setLabel("Menu_Option_Lobby");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenuItem4;
+    }
+
+    private MenuItem getMenuItem6()
+    {
+        if(ivjMenuItem6 == null)
+        {
+            try
+            {
+                ivjMenuItem6 = new MenuItem();
+                ivjMenuItem6.setLabel("Menu_Help_About");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenuItem6;
+    }
+
+    private MenuItem getMenuItem9()
+    {
+        if(ivjMenuItem9 == null)
+        {
+            try
+            {
+                ivjMenuItem9 = new MenuItem();
+                ivjMenuItem9.setLabel("Menu_Action_Client");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenuItem9;
+    }
+
+    private CheckboxMenuItem getMenuShowConsole()
+    {
+        if(ivjMenuShowConsole == null)
+        {
+            try
+            {
+                ivjMenuShowConsole = new CheckboxMenuItem();
+                ivjMenuShowConsole.setLabel("Menu_Option_ShowConsole");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenuShowConsole;
+    }
+
+    private CheckboxMenuItem getMenuShowHelp()
+    {
+        if(ivjMenuShowHelp == null)
+        {
+            try
+            {
+                ivjMenuShowHelp = new CheckboxMenuItem();
+                ivjMenuShowHelp.setLabel("Menu_Option_ShowHelp");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjMenuShowHelp;
+    }
+
+    private LButton getPaintchat_Button()
+    {
+        if(ivjPaintchat_Button == null)
+        {
+            try
+            {
+                ivjPaintchat_Button = new LButton();
+                ivjPaintchat_Button.setName("Paintchat_Button");
+                ivjPaintchat_Button.setForeground(new Color(80, 80, 120));
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjPaintchat_Button;
+    }
+
+    private LTextField getPaintchat_Port()
+    {
+        if(ivjPaintchat_Port == null)
+        {
+            try
+            {
+                ivjPaintchat_Port = new LTextField();
+                ivjPaintchat_Port.setName("Paintchat_Port");
+                ivjPaintchat_Port.setText("0");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjPaintchat_Port;
+    }
+
+    private Panel getPanel3()
+    {
+        if(ivjPanel3 == null)
+        {
+            try
+            {
+                ivjPanel3 = new Panel();
+                ivjPanel3.setName("Panel3");
+                ivjPanel3.setLayout(getPanel3FlowLayout());
+                ivjPanel3.setBackground(new Color(204, 204, 204));
+                ivjPanel3.setForeground(new Color(80, 80, 120));
+                getPanel3().add(getPanelLeft(), getPanelLeft().getName());
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjPanel3;
+    }
+
+    private FlowLayout getPanel3FlowLayout()
+    {
+        FlowLayout flowlayout = null;
+        try
+        {
+            flowlayout = new FlowLayout();
+            flowlayout.setAlignment(1);
+            flowlayout.setVgap(5);
+            flowlayout.setHgap(5);
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+        return flowlayout;
+    }
+
+    private Panel getPanelLeft()
+    {
+        if(ivjPanelLeft == null)
+        {
+            try
+            {
+                ivjPanelLeft = new Panel();
+                ivjPanelLeft.setName("PanelLeft");
+                ivjPanelLeft.setLayout(getPanelLeftGridLayout());
+                ivjPanelLeft.setBackground(new Color(204, 204, 204));
+                ivjPanelLeft.setForeground(new Color(80, 80, 120));
+                getPanelLeft().add(getIp(), getIp().getName());
+                getPanelLeft().add(getHttp_Port(), getHttp_Port().getName());
+                getPanelLeft().add(getPaintchat_Port(), getPaintchat_Port().getName());
+                getPanelLeft().add(getPaintchat_Button(), getPaintchat_Button().getName());
+                getPanelLeft().add(getHttp_Button(), getHttp_Button().getName());
+                getPanelLeft().add(getLobby_Button(), getLobby_Button().getName());
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjPanelLeft;
+    }
+
+    private GridLayout getPanelLeftGridLayout()
+    {
+        GridLayout gridlayout = null;
+        try
+        {
+            gridlayout = new GridLayout(0, 1);
+            gridlayout.setVgap(3);
+            gridlayout.setHgap(0);
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+        return gridlayout;
+    }
+
+    private BorderLayout getPFrameBorderLayout()
+    {
+        BorderLayout borderlayout = null;
+        try
+        {
+            borderlayout = new BorderLayout();
+            borderlayout.setVgap(0);
+            borderlayout.setHgap(0);
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+        return borderlayout;
+    }
+
+    private MenuBar getPFrameMenuBar()
+    {
+        if(ivjPFrameMenuBar == null)
+        {
+            try
+            {
+                ivjPFrameMenuBar = new MenuBar();
+                ivjPFrameMenuBar.setHelpMenu(getMenu3());
+                ivjPFrameMenuBar.add(getMenu2());
+                ivjPFrameMenuBar.add(getMenu1());
+                ivjPFrameMenuBar.add(getMenu3());
+                MenuBar menubar = ivjPFrameMenuBar;
+                int i = menubar.getMenuCount();
+                for(int j = 0; j < i; j++)
+                {
+                    setResource(menubar.getMenu(j));
+                }
+
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjPFrameMenuBar;
+    }
+
+    private Res getResource()
+    {
+        if(res == null)
+        {
+            Resource.loadResource();
+            res = Resource.loadResource("Application");
+        }
+        return res;
+    }
+
+    private void handleException(Throwable throwable)
+    {
+    }
+
+    public void init()
+    {
+        Thread thread = new Thread(this, "init");
+        thread.setPriority(1);
+        thread.setDaemon(false);
+        thread.start();
+    }
+
+    private void initConnections()
+        throws Exception
+    {
+        getPaintchat_Port().addActionListener(this);
+        getHttp_Port().addActionListener(this);
+        getIp().addMouseListener(this);
+        getHttp_Port().addMouseListener(this);
+        getPaintchat_Port().addMouseListener(this);
+        getPaintchat_Button().addMouseListener(this);
+        getHttp_Button().addMouseListener(this);
+        getLobby_Button().addMouseListener(this);
+        getMenuItem6().addActionListener(this);
+        addWindowListener(this);
+        getMenuShowConsole().addItemListener(this);
+        getMenuShowHelp().addItemListener(this);
+        getMenuItem4().addActionListener(this);
+        getMenuHelpDocument().addActionListener(this);
+        getMenu_Help_Update().addActionListener(this);
+        getMenuItem1().addActionListener(this);
+        getMenuItem2().addActionListener(this);
+        getMenuItem9().addActionListener(this);
+        getMenuItem10().addActionListener(this);
+        getMenuItem3().addActionListener(this);
+        getMenu_FilesCopy().addActionListener(this);
+    }
+
+    private void initialize()
+    {
+        try
+        {
+            setName("PFrame");
+            setLayout(getPFrameBorderLayout());
+            setBackground(new Color(204, 204, 204));
+            setForeground(new Color(80, 80, 120));
+            setMenuBar(getPFrameMenuBar());
+            setBounds(new Rectangle(0, 0, 391, 172));
+            setSize(391, 172);
+            setTitle("PaintChat");
+            add(getPanel3(), "West");
+            initConnections();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
+
+    public void iP_MouseClicked()
+    {
+        PopupMenuPaintChat popupmenupaintchat = new PopupMenuPaintChat(debug, config, res);
+        popupmenupaintchat.show(this, ivjIp, 0, 0);
+    }
+
+    public void itemStateChanged(ItemEvent itemevent)
+    {
+        if(itemevent.getSource() == getMenuShowConsole())
+        {
+            connEtoC4(itemevent);
+        }
+        if(itemevent.getSource() == getMenuShowHelp())
+        {
+            connEtoC5(itemevent);
+        }
+    }
+
+    public static void main(String args[])
+    {
+        try
+        {
+            PFrame pframe = new PFrame();
+            pframe.init();
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace(System.out);
+            System.exit(0);
+        }
+    }
+
+    public void menuHelpDocument_ActionPerformed()
+    {
+        Gui.showDocument("Help.html", config, res);
+    }
+
+    public void menuItem1_ActionPerformed1()
+    {
+        ThreadPool.poolStartThread(getData(), 'h');
+    }
+
+    public void menuItem10_ActionPerformed(ActionEvent actionevent)
+    {
+        try
+        {
+            new ConfigDialog("paintchat.config.ConfigServer", "cnf/dialogs.jar", config, res, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+        }
+        catch(Exception exception)
+        {
+            exception.printStackTrace();
+        }
+    }
+
+    public void menuItem10_ActionPerformed1()
+    {
+        if(getData().isRunPaintChatServer() && MessageBox.confirm("ConfirmMayServerStopNow", "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66"))
+        {
+            getData().startPaintChat(false);
+        }
+        try
+        {
+            new ConfigDialog("paintchat.config.ConfigServer", "cnf/dialogs.jar", config, res, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+        }
+        catch(Throwable _ex) { }
+    }
+
+    public void menuItem3_ActionPerformed(ActionEvent actionevent)
+    {
+        try
+        {
+            new ConfigDialog("paintchat.config.PConfig", "cnf/dialogs.jar", config, res, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+        }
+        catch(Throwable throwable)
+        {
+            debug.log(throwable.getMessage());
+        }
+    }
+
+    public void menuItem4_ActionPerformed()
+    {
+        try
+        {
+            new ConfigDialog("paintchat.config.Ao", "cnf/dialogs.jar", config, res, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+        }
+        catch(Throwable throwable)
+        {
+            debug.log(throwable.getMessage());
+        }
+    }
+
+    public void menuItem6_ActionPerformed()
+    {
+        StringBuffer stringbuffer = new StringBuffer();
+        stringbuffer.append("(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+        stringbuffer.append('\n');
+        stringbuffer.append('\n');
+        stringbuffer.append("JavaVirtualMachine(JVM):");
+        stringbuffer.append(System.getProperty("java.vendor"));
+        stringbuffer.append("\nJVM Version:");
+        stringbuffer.append(System.getProperty("java.version"));
+        stringbuffer.append('\n');
+        stringbuffer.append("\n\u7ACB\u3061\u4E0A\u3052\u753B\u9762\u306ECG\u306Fuzuki\u3055\u3093\u304C\u4F5C" +
+"\u6210\u3057\u307E\u3057\u305F\u3002\nuzuki\u3055\u3093\u306EHP http://www19.fre" +
+"eweb.ne.jp/play/m_uzuki/top.htm\n\u52B9\u679C\u97F3\u306F\u3042\u3084\u3084\u3055" +
+"\u3093\u304C\u4F5C\u6210\u3057\u307E\u3057\u305F\u3002\n\u30ED\u30D3\u30FC\u30D7" +
+"\u30ED\u30B0\u30E9\u30E0\u306F\u85CD\u73E0\u3055\u3093\u304C\u4F5C\u6210\u3001\u7BA1" +
+"\u7406\u3057\u3066\u3044\u307E\u3059\u3002"
+);
+        MessageBox.alert(stringbuffer.toString(), "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+    }
+
+    public void mouseClicked(MouseEvent mouseevent)
+    {
+        if(mouseevent.getSource() == getIp())
+        {
+            connEtoC3(mouseevent);
+        }
+    }
+
+    public void mouseEntered(MouseEvent mouseevent)
+    {
+        if(mouseevent.getSource() == getIp())
+        {
+            connEtoM1(mouseevent);
+        }
+        if(mouseevent.getSource() == getHttp_Port())
+        {
+            connEtoM2(mouseevent);
+        }
+        if(mouseevent.getSource() == getPaintchat_Port())
+        {
+            connEtoM3(mouseevent);
+        }
+        if(mouseevent.getSource() == getPaintchat_Button())
+        {
+            connEtoM4(mouseevent);
+        }
+        if(mouseevent.getSource() == getHttp_Button())
+        {
+            connEtoM5(mouseevent);
+        }
+        if(mouseevent.getSource() == getLobby_Button())
+        {
+            connEtoM6(mouseevent);
+        }
+    }
+
+    public void mouseExited(MouseEvent mouseevent)
+    {
+        getHelp().reset();
+    }
+
+    public void mousePressed(MouseEvent mouseevent)
+    {
+    }
+
+    public void mouseReleased(MouseEvent mouseevent)
+    {
+    }
+
+    public void panel3_MouseReleased(MouseEvent mouseevent)
+    {
+        MenuBar menubar = getMenuBar();
+        if(ivjMenuShowConsole.getState() || menubar != null)
+        {
+            return;
+        } else
+        {
+            MenuBar menubar1 = getPFrameMenuBar();
+            menubar1.remove(0);
+            menubar1.remove(0);
+            menubar1.remove(0);
+            PopupMenu popupmenu = new PopupMenu();
+            popupmenu.addActionListener(this);
+            popupmenu.add(getMenu1());
+            popupmenu.add(getMenu2());
+            popupmenu.add(getMenu3());
+            add(popupmenu);
+            popupmenu.show(mouseevent.getComponent(), mouseevent.getX(), mouseevent.getY());
+            popupmenu.removeAll();
+            menubar1.add(getMenu1());
+            menubar1.add(getMenu2());
+            menubar1.add(getMenu3());
+            return;
+        }
+    }
+
+    public void pFrame_WindowClosed(WindowEvent windowevent)
+    {
+        System.exit(0);
+    }
+
+    public void pFrame_WindowIconified(WindowEvent windowevent)
+    {
+        if(getData().getIsNativeWindows())
+        {
+            setVisible(false);
+        }
+    }
+
+    private void rDestroy()
+    {
+        try
+        {
+            config.put("Connection_Port_Http", getHttp_Port().getText().trim());
+            config.put("Connection_Port_PaintChat", getPaintchat_Port().getText().trim());
+            config.saveConfig(null, null);
+            if(getData().getIsNativeWindows())
+            {
+                getData().exitWin();
+            }
+            dispose();
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    private void rInit()
+    {
+        try
+        {
+            System.currentTimeMillis();
+            getResource();
+            setResource(res, this);
+            Awt.setPFrame(this);
+            Awt.cBk = getBackground();
+            Awt.cFore = getForeground();
+            getConfig();
+            getHttp_Port().setText(config.getString("Connection_Port_Http", "80"));
+            getPaintchat_Port().setText(config.getString("Connection_Port_PaintChat", "0"));
+            Image image = Io.loadImageNow(this, "cnf/template/top.jpg");
+            Dimension dimension = getToolkit().getScreenSize();
+            Point point = new Point((dimension.width - image.getWidth(null)) / 2, (dimension.height - image.getHeight(null)) / 2);
+            getHelp().setForeground(Color.black);
+            HelpWindowContent helpwindowcontent = new HelpWindowContent(image, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66", false, point, null);
+            helpwindowcontent.timeStart = 0;
+            helpwindowcontent.timeEnd = 3500;
+            helpwindowcontent.setVisit(true);
+            getHelp().startHelp(helpwindowcontent);
+            MessageBox.setResource(res);
+            debug = new Debug(res);
+            setIconImage(Io.loadImageNow(this, "cnf/icon.gif"));
+            setTitle("PaintChat_MainWindow");
+            if(config.getBool("App_IsConsole"))
+            {
+                showConsole();
+                ivjConsole.addText("(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+                ivjConsole.addText("http://shichan.jp/");
+                ivjConsole.addText(" ");
+                if(config.getBool("App_ShowStartHelp", true))
+                {
+                    ivjConsole.setRText(res.get("StartHelp"));
+                    ivjConsole.addText(" ");
+                }
+            }
+            res.remove("StartHelp");
+            if(config.getBool("App_ShowHelp", true))
+            {
+                showHelp();
+            }
+            if(!config.getString("App_Version").equals("(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66"))
+            {
+                (new FileManager(config)).templateToWWW();
+                config.put("App_Version", "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+                debug.log("Client update.");
+            }
+            getIp().setText(PopupMenuPaintChat.getAddress(config, debug));
+            getData().init(config, res, debug, getPaintchat_Button(), getHttp_Button(), getLobby_Button());
+            pack();
+            Awt.moveCenter(this);
+            setVisible(true);
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    public void run()
+    {
+        try
+        {
+            switch(Thread.currentThread().getName().charAt(0))
+            {
+            case 100: // 'd'
+                rDestroy();
+                break;
+
+            case 105: // 'i'
+                rInit();
+                break;
+            }
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    public void setResource(MenuItem menuitem)
+    {
+        menuitem.setLabel(getResource().get(menuitem.getLabel(), menuitem.getLabel()));
+        if(menuitem instanceof Menu)
+        {
+            Menu menu = (Menu)menuitem;
+            int i = menu.getItemCount();
+            for(int j = 0; j < i; j++)
+            {
+                setResource(menu.getItem(j));
+            }
+
+        }
+    }
+
+    public void setResource(Res res1, Component component)
+    {
+        if(component instanceof Container)
+        {
+            Container container = (Container)component;
+            int i = container.getComponentCount();
+            for(int j = 0; j < i; j++)
+            {
+                setResource(res1, container.getComponent(j));
+            }
+
+        } else
+        {
+            String s = res1.get(component.getName(), component.getName());
+            if(component instanceof LTextField)
+            {
+                LTextField ltextfield = (LTextField)component;
+                ltextfield.setTitle(s);
+                return;
+            }
+            if(component instanceof LButton)
+            {
+                LButton lbutton = (LButton)component;
+                lbutton.setText(s);
+                return;
+            }
+            if(component instanceof Checkbox)
+            {
+                Checkbox checkbox = (Checkbox)component;
+                checkbox.setLabel(s);
+                return;
+            }
+        }
+    }
+
+    public void setupWWWFolder()
+    {
+        (new FileManager(config)).templateToWWW();
+    }
+
+    public void showConsole()
+    {
+        Console console = getConsole();
+        boolean flag = console.getParent() == this;
+        if(flag)
+        {
+            remove(console);
+            console.stop();
+            MenuBar menubar = getMenuBar();
+            menubar.remove(getMenu1());
+            menubar.remove(getMenu3());
+        } else
+        {
+            console.start(debug);
+            add(console, "Center");
+            MenuBar menubar1 = getPFrameMenuBar();
+            menubar1.add(getMenu1());
+            menubar1.add(getMenu3());
+        }
+        config.put("App_IsConsole", String.valueOf(!flag));
+        ivjMenuShowConsole.setState(!flag);
+        pack();
+    }
+
+    public void showHelp()
+    {
+        boolean flag = getHelp().getIsShow();
+        getHelp().setIsShow(!flag);
+        getMenuShowHelp().setState(!flag);
+        config.put("App_ShowHelp", String.valueOf(!flag));
+    }
+
+    public void startClient()
+    {
+        try
+        {
+            AppletWatcher appletwatcher = new AppletWatcher("paintchat_client.Client", "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66", config, res, false);
+            appletwatcher.setIconImage(getIconImage());
+            appletwatcher.show();
+        }
+        catch(Throwable throwable)
+        {
+            debug.log(throwable.getMessage());
+        }
+    }
+
+    public void startHttp()
+    {
+        getData().startHttp(true);
+    }
+
+    public void startServer()
+    {
+        getData().startPaintChat(true);
+    }
+
+    public void startViewer()
+    {
+    }
+
+    public void windowActivated(WindowEvent windowevent)
+    {
+    }
+
+    public void windowClosed(WindowEvent windowevent)
+    {
+        if(windowevent.getSource() == this)
+        {
+            connEtoC17(windowevent);
+        }
+    }
+
+    public void windowClosing(WindowEvent windowevent)
+    {
+        if(windowevent.getSource() == this)
+        {
+            connEtoC1(windowevent);
+        }
+    }
+
+    public void windowDeactivated(WindowEvent windowevent)
+    {
+    }
+
+    public void windowDeiconified(WindowEvent windowevent)
+    {
+        setVisible(true);
+    }
+
+    public void windowIconified(WindowEvent windowevent)
+    {
+        if(windowevent.getSource() == this)
+        {
+            connEtoC8(windowevent);
+        }
+    }
+
+    public void windowOpened(WindowEvent windowevent)
+    {
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_frame.PFrame
- * JD-Core Version:    0.6.0
- */

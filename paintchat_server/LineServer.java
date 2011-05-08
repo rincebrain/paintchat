@@ -7,201 +7,244 @@ import paintchat.debug.Debug;
 import syi.util.ByteStream;
 import syi.util.PProperties;
 
+// Referenced classes of package paintchat_server:
+//            LineTalker, PchOutputStreamForServer, PaintChatTalker, Server
+
 public class LineServer
 {
-  private boolean isLive = true;
-  private LineTalker[] talkers = new LineTalker[15];
-  private int countTalker = 0;
-  private boolean isCash = true;
-  private ByteStream bCash = new ByteStream(100000);
-  private ByteStream bWork = new ByteStream();
-  private M mgCash = null;
-  private M mgWork = new M();
-  private PchOutputStreamForServer bLog;
-  private Debug debug;
-  private Server server;
-  public Config config;
 
-  public synchronized void mInit(Config paramConfig, Debug paramDebug, Server paramServer)
-  {
-    this.debug = paramDebug;
-    this.config = paramConfig;
-    this.server = paramServer;
-    this.bLog = new PchOutputStreamForServer(this.config);
-    this.isCash = paramConfig.getBool("Server_Cash_Line", true);
-  }
+    private boolean isLive;
+    private LineTalker talkers[];
+    private int countTalker;
+    private boolean isCash;
+    private ByteStream bCash;
+    private ByteStream bWork;
+    private M mgCash;
+    private M mgWork;
+    private PchOutputStreamForServer bLog;
+    private Debug debug;
+    private Server server;
+    public Config config;
 
-  public synchronized void mStop()
-  {
-    if (!this.isLive)
-      return;
-    this.isLive = false;
-    for (int i = 0; i < this.countTalker; i++)
+    public LineServer()
     {
-      LineTalker localLineTalker = this.talkers[i];
-      if (localLineTalker == null)
-        continue;
-      localLineTalker.mStop();
+        isLive = true;
+        talkers = new LineTalker[15];
+        countTalker = 0;
+        isCash = true;
+        bCash = new ByteStream(0x186a0);
+        bWork = new ByteStream();
+        mgCash = null;
+        mgWork = new M();
     }
-    if (this.bLog != null)
+
+    public synchronized void mInit(Config config1, Debug debug1, Server server1)
     {
-      writeLog();
-      this.bLog.close();
+        debug = debug1;
+        config = config1;
+        server = server1;
+        bLog = new PchOutputStreamForServer(config);
+        isCash = config1.getBool("Server_Cash_Line", true);
     }
-  }
 
-  protected void finalize()
-    throws Throwable
-  {
-    this.isLive = false;
-  }
-
-  public synchronized void addTalker(LineTalker paramLineTalker)
-  {
-    Object localObject = this.talkers;
-    if (this.countTalker >= this.talkers.length)
+    public synchronized void mStop()
     {
-      LineTalker[] arrayOfLineTalker = new LineTalker[this.countTalker + 1];
-      System.arraycopy(localObject, 0, arrayOfLineTalker, 0, this.countTalker);
-      localObject = arrayOfLineTalker;
-    }
-    localObject[this.countTalker] = paramLineTalker;
-    this.countTalker += 1;
-    if (this.talkers != localObject)
-      this.talkers = ((LineTalker)localObject);
-    paramLineTalker.send(this.bCash, this.mgWork, this.bWork);
-    this.bLog.getLog(paramLineTalker.getLogArray());
-  }
-
-  public synchronized void removeTalker(LineTalker paramLineTalker)
-  {
-    int i = this.countTalker;
-    for (int j = 0; j < i; j++)
-    {
-      if (paramLineTalker != this.talkers[j])
-        continue;
-      removeTalker(j);
-      break;
-    }
-  }
-
-  private void removeTalker(int paramInt)
-  {
-    LineTalker localLineTalker = this.talkers[paramInt];
-    this.talkers[paramInt] = null;
-    if (localLineTalker != null)
-      localLineTalker.mStop();
-    if (paramInt + 1 < this.countTalker)
-    {
-      System.arraycopy(this.talkers, paramInt + 1, this.talkers, paramInt, this.countTalker - (paramInt + 1));
-      this.talkers[(this.countTalker - 1)] = null;
-    }
-    this.countTalker -= 1;
-  }
-
-  public synchronized void addLine(LineTalker paramLineTalker, ByteStream paramByteStream)
-  {
-    try
-    {
-      int i = 0;
-      while (i < this.countTalker)
-      {
-        LineTalker localLineTalker = this.talkers[i];
-        if ((localLineTalker == null) || (!localLineTalker.isValidate()))
+        if(!isLive)
         {
-          removeTalker(i);
-          i = 0;
+            return;
         }
-        else
+        isLive = false;
+        for(int i = 0; i < countTalker; i++)
         {
-          if (localLineTalker != paramLineTalker)
-            localLineTalker.send(paramByteStream, this.mgWork, this.bWork);
-          i++;
+            LineTalker linetalker = talkers[i];
+            if(linetalker != null)
+            {
+                linetalker.mStop();
+            }
         }
-      }
-      addCash(paramByteStream, false);
+
+        if(bLog != null)
+        {
+            writeLog();
+            bLog.close();
+        }
     }
-    catch (Throwable localThrowable)
+
+    protected void finalize()
+        throws Throwable
     {
-      this.debug.log(localThrowable.getMessage());
+        isLive = false;
     }
-  }
 
-  public void addClear(LineTalker paramLineTalker, ByteStream paramByteStream)
-  {
-    addLine(paramLineTalker, paramByteStream);
-    this.server.sendClearMessage(paramLineTalker.getAddress());
-    newLog();
-  }
-
-  private void addCash(ByteStream paramByteStream, boolean paramBoolean)
-  {
-    if ((!this.isCash) || (paramByteStream == null))
-      return;
-    int i = paramByteStream.size();
-    if (i <= 0)
-      return;
-    if ((paramBoolean) || (i + this.bCash.size() > 60000))
-      writeLog();
-    try
+    public synchronized void addTalker(LineTalker linetalker)
     {
-      int j = 0;
-      byte[] arrayOfByte = paramByteStream.getBuffer();
-      while (j < i)
-      {
-        j += this.mgWork.set(arrayOfByte, j);
-        this.mgWork.get(this.bCash, this.bWork, this.mgCash);
-        if (this.mgCash == null)
-          this.mgCash = new M();
-        this.mgCash.set(this.mgWork);
-      }
+        LineTalker alinetalker[] = talkers;
+        if(countTalker >= talkers.length)
+        {
+            LineTalker alinetalker1[] = new LineTalker[countTalker + 1];
+            System.arraycopy(alinetalker, 0, alinetalker1, 0, countTalker);
+            alinetalker = alinetalker1;
+        }
+        alinetalker[countTalker] = linetalker;
+        countTalker++;
+        if(talkers != alinetalker)
+        {
+            talkers = alinetalker;
+        }
+        linetalker.send(bCash, mgWork, bWork);
+        bLog.getLog(linetalker.getLogArray());
     }
-    catch (RuntimeException localRuntimeException)
+
+    public synchronized void removeTalker(LineTalker linetalker)
     {
-      this.debug.log(localRuntimeException);
+        int i = countTalker;
+        for(int j = 0; j < i; j++)
+        {
+            if(linetalker != talkers[j])
+            {
+                continue;
+            }
+            removeTalker(j);
+            break;
+        }
+
     }
-  }
 
-  private void writeLog()
-  {
-    if (this.bCash.size() <= 0)
-      return;
-    this.bLog.write(this.bCash.getBuffer(), 0, this.bCash.size());
-    this.bCash.reset();
-    this.mgCash = null;
-  }
-
-  public int getUserCount()
-  {
-    return this.countTalker;
-  }
-
-  public synchronized LineTalker getTalker(InetAddress paramInetAddress)
-  {
-    for (int i = 0; i < this.countTalker; i++)
+    private void removeTalker(int i)
     {
-      LineTalker localLineTalker = this.talkers[i];
-      if ((localLineTalker != null) && (paramInetAddress.equals(localLineTalker.getAddress())))
-        return localLineTalker;
+        LineTalker linetalker = talkers[i];
+        talkers[i] = null;
+        if(linetalker != null)
+        {
+            linetalker.mStop();
+        }
+        if(i + 1 < countTalker)
+        {
+            System.arraycopy(talkers, i + 1, talkers, i, countTalker - (i + 1));
+            talkers[countTalker - 1] = null;
+        }
+        countTalker--;
     }
-    return null;
-  }
 
-  public synchronized LineTalker getTalkerAt(int paramInt)
-  {
-    if ((paramInt < 0) || (paramInt >= this.countTalker))
-      return null;
-    return this.talkers[paramInt];
-  }
+    public synchronized void addLine(LineTalker linetalker, ByteStream bytestream)
+    {
+        try
+        {
+            for(int i = 0; i < countTalker;)
+            {
+                LineTalker linetalker1 = talkers[i];
+                if(linetalker1 == null || !linetalker1.isValidate())
+                {
+                    removeTalker(i);
+                    i = 0;
+                } else
+                {
+                    if(linetalker1 != linetalker)
+                    {
+                        linetalker1.send(bytestream, mgWork, bWork);
+                    }
+                    i++;
+                }
+            }
 
-  public synchronized void newLog()
-  {
-    writeLog();
-    this.bLog.newLog();
-  }
+            addCash(bytestream, false);
+        }
+        catch(Throwable throwable)
+        {
+            debug.log(throwable.getMessage());
+        }
+    }
+
+    public void addClear(LineTalker linetalker, ByteStream bytestream)
+    {
+        addLine(linetalker, bytestream);
+        server.sendClearMessage(linetalker.getAddress());
+        newLog();
+    }
+
+    private void addCash(ByteStream bytestream, boolean flag)
+    {
+        if(!isCash || bytestream == null)
+        {
+            return;
+        }
+        int i = bytestream.size();
+        if(i <= 0)
+        {
+            return;
+        }
+        if(flag || i + bCash.size() > 60000)
+        {
+            writeLog();
+        }
+        try
+        {
+            int j = 0;
+            byte abyte0[] = bytestream.getBuffer();
+            while(j < i) 
+            {
+                j += mgWork.set(abyte0, j);
+                mgWork.get(bCash, bWork, mgCash);
+                if(mgCash == null)
+                {
+                    mgCash = new M();
+                }
+                mgCash.set(mgWork);
+            }
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            debug.log(runtimeexception);
+        }
+    }
+
+    private void writeLog()
+    {
+        if(bCash.size() <= 0)
+        {
+            return;
+        } else
+        {
+            bLog.write(bCash.getBuffer(), 0, bCash.size());
+            bCash.reset();
+            mgCash = null;
+            return;
+        }
+    }
+
+    public int getUserCount()
+    {
+        return countTalker;
+    }
+
+    public synchronized LineTalker getTalker(InetAddress inetaddress)
+    {
+        for(int i = 0; i < countTalker; i++)
+        {
+            LineTalker linetalker = talkers[i];
+            if(linetalker != null && inetaddress.equals(linetalker.getAddress()))
+            {
+                return linetalker;
+            }
+        }
+
+        return null;
+    }
+
+    public synchronized LineTalker getTalkerAt(int i)
+    {
+        if(i < 0 || i >= countTalker)
+        {
+            return null;
+        } else
+        {
+            return talkers[i];
+        }
+    }
+
+    public synchronized void newLog()
+    {
+        writeLog();
+        bLog.newLog();
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_server.LineServer
- * JD-Core Version:    0.6.0
- */

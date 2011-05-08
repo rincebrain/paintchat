@@ -1,12 +1,7 @@
 package paintchat_frame;
 
 import java.applet.Applet;
-import java.awt.AWTEvent;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dialog;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.WindowEvent;
 import paintchat.Config;
 import paintchat.Res;
@@ -15,50 +10,46 @@ import syi.awt.Awt;
 
 public class ConfigDialog extends Dialog
 {
-  private Applet applet;
 
-  public ConfigDialog(String paramString1, String paramString2, Config paramConfig, Res paramRes, String paramString3)
-    throws Exception
-  {
-    super(Awt.getPFrame());
-    setModal(true);
-    this.applet = ((Applet)Class.forName(paramString1).newInstance());
-    this.applet.setStub(ServerStub.getDefaultStub(paramConfig, paramRes));
-    enableEvents(64L);
-    setLayout(new BorderLayout());
-    add(this.applet, "Center");
-    this.applet.init();
-    pack();
-    Awt.moveCenter(this);
-    setVisible(true);
-    this.applet.start();
-  }
+    private Applet applet;
 
-  protected void processWindowEvent(WindowEvent paramWindowEvent)
-  {
-    Window localWindow;
-    switch (paramWindowEvent.getID())
+    public ConfigDialog(String s, String s1, Config config, Res res, String s2)
+        throws Exception
     {
-    case 201:
-      this.applet.stop();
-      localWindow = paramWindowEvent.getWindow();
-      localWindow.dispose();
-      localWindow.removeAll();
-      break;
-    case 202:
-      this.applet.destroy();
-    case 200:
+        super(Awt.getPFrame());
+        setModal(true);
+        applet = (Applet)Class.forName(s).newInstance();
+        applet.setStub(ServerStub.getDefaultStub(config, res));
+        enableEvents(64L);
+        setLayout(new BorderLayout());
+        add(applet, "Center");
+        applet.init();
+        pack();
+        Awt.moveCenter(this);
+        setVisible(true);
+        applet.start();
     }
-    if (paramWindowEvent.getID() == 201)
+
+    protected void processWindowEvent(WindowEvent windowevent)
     {
-      localWindow = paramWindowEvent.getWindow();
-      localWindow.dispose();
-      localWindow.removeAll();
+        switch(windowevent.getID())
+        {
+        case 201: 
+            applet.stop();
+            Window window = windowevent.getWindow();
+            window.dispose();
+            window.removeAll();
+            break;
+
+        case 202: 
+            applet.destroy();
+            break;
+        }
+        if(windowevent.getID() == 201)
+        {
+            Window window1 = windowevent.getWindow();
+            window1.dispose();
+            window1.removeAll();
+        }
     }
-  }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_frame.ConfigDialog
- * JD-Core Version:    0.6.0
- */

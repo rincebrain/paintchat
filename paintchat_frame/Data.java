@@ -15,250 +15,284 @@ import paintchat.debug.Debug;
 import paintchat_http.HttpServer;
 import paintchat_server.Server;
 import syi.applet.ServerStub;
-import syi.awt.Gui;
-import syi.awt.LButton;
-import syi.awt.MessageBox;
-import syi.util.ClassLoaderCustom;
-import syi.util.PProperties;
-import syi.util.ThreadPool;
+import syi.awt.*;
+import syi.util.*;
+
+// Referenced classes of package paintchat_frame:
+//            ConfigDialog
 
 public class Data
-  implements Runnable, ActionListener
+    implements Runnable, ActionListener
 {
-  protected transient PropertyChangeSupport propertyChange;
-  private Res res = null;
-  private Config config = null;
-  private Debug debug = null;
-  private boolean fieldIsNativeWindows = false;
-  private Server server = null;
-  private HttpServer http = null;
-  private Applet lobby = null;
-  private LButton bChat;
-  private LButton bHttp;
-  private LButton bLobby;
 
-  public Data()
-  {
-    File localFile = new File("cnf/temp.tmp");
-    setIsNativeWindows(localFile.isFile());
-  }
+    protected transient PropertyChangeSupport propertyChange;
+    private Res res;
+    private Config config;
+    private Debug debug;
+    private boolean fieldIsNativeWindows;
+    private Server server;
+    private HttpServer http;
+    private Applet lobby;
+    private LButton bChat;
+    private LButton bHttp;
+    private LButton bLobby;
 
-  public void actionPerformed(ActionEvent paramActionEvent)
-  {
-    try
+    public Data()
     {
-      Object localObject = paramActionEvent.getSource();
-      ThreadPool.poolStartThread(this, localObject == this.bHttp ? 'h' : localObject == this.bChat ? 'c' : 'l');
+        res = null;
+        config = null;
+        debug = null;
+        fieldIsNativeWindows = false;
+        server = null;
+        http = null;
+        lobby = null;
+        File file = new File("cnf/temp.tmp");
+        setIsNativeWindows(file.isFile());
     }
-    catch (Throwable localThrowable)
+
+    public void actionPerformed(ActionEvent actionevent)
     {
-      this.debug.log(localThrowable.getMessage());
+        try
+        {
+            Object obj = actionevent.getSource();
+            ThreadPool.poolStartThread(this, obj != bChat ? ((char) (obj != bHttp ? 'l' : 'h')) : 'c');
+        }
+        catch(Throwable throwable)
+        {
+            debug.log(throwable.getMessage());
+        }
     }
-  }
 
-  public synchronized void addPropertyChangeListener(PropertyChangeListener paramPropertyChangeListener)
-  {
-    getPropertyChange().addPropertyChangeListener(paramPropertyChangeListener);
-  }
-
-  public boolean exitWin()
-  {
-    try
+    public synchronized void addPropertyChangeListener(PropertyChangeListener propertychangelistener)
     {
-      File localFile1 = new File(System.getProperty("user.dir"));
-      File localFile2 = new File(localFile1, "cnf\\temp.tmp");
-      if (!localFile2.isFile())
-        return false;
-      localFile2 = new File(localFile1, "PaintChat.exe");
-      if (!localFile2.isFile())
-        return false;
-      Process localProcess = Runtime.getRuntime().exec(localFile2.getCanonicalPath() + " 1");
-      localProcess.waitFor();
+        getPropertyChange().addPropertyChangeListener(propertychangelistener);
     }
-    catch (Throwable localThrowable)
+
+    public boolean exitWin()
     {
-      System.out.println("win" + localThrowable);
+        try
+        {
+            File file = new File(System.getProperty("user.dir"));
+            File file1 = new File(file, "cnf\\temp.tmp");
+            if(!file1.isFile())
+            {
+                return false;
+            }
+            file1 = new File(file, "PaintChat.exe");
+            if(!file1.isFile())
+            {
+                return false;
+            }
+            Process process = Runtime.getRuntime().exec(file1.getCanonicalPath() + " 1");
+            process.waitFor();
+        }
+        catch(Throwable throwable)
+        {
+            System.out.println("win" + throwable);
+        }
+        return true;
     }
-    return true;
-  }
 
-  public void firePropertyChange(String paramString, Object paramObject1, Object paramObject2)
-  {
-    getPropertyChange().firePropertyChange(paramString, paramObject1, paramObject2);
-  }
-
-  public boolean getIsNativeWindows()
-  {
-    return this.fieldIsNativeWindows;
-  }
-
-  protected PropertyChangeSupport getPropertyChange()
-  {
-    if (this.propertyChange == null)
-      this.propertyChange = new PropertyChangeSupport(this);
-    return this.propertyChange;
-  }
-
-  public void init(Config paramConfig, Res paramRes, Debug paramDebug, LButton paramLButton1, LButton paramLButton2, LButton paramLButton3)
-  {
-    this.config = paramConfig;
-    this.res = paramRes;
-    this.debug = paramDebug;
-    this.bChat = paramLButton1;
-    this.bHttp = paramLButton2;
-    this.bLobby = paramLButton3;
-    paramLButton1.addActionListener(this);
-    paramLButton2.addActionListener(this);
-    paramLButton3.addActionListener(this);
-    if (paramConfig.getBool("App_Auto_Http"))
-      ThreadPool.poolStartThread(this, 'h');
-    else
-      paramLButton2.setText(paramRes.get("Http_Button_Start"));
-    if (paramConfig.getBool("App_Auto_Paintchat"))
-      ThreadPool.poolStartThread(this, 'c');
-    else
-      paramLButton1.setText(paramRes.get("Paintchat_Button_Start"));
-  }
-
-  public boolean isRunPaintChatServer()
-  {
-    return this.server != null;
-  }
-
-  public synchronized void removePropertyChangeListener(PropertyChangeListener paramPropertyChangeListener)
-  {
-    getPropertyChange().removePropertyChangeListener(paramPropertyChangeListener);
-  }
-
-  public void run()
-  {
-    switch (Thread.currentThread().getName().charAt(0))
+    public void firePropertyChange(String s, Object obj, Object obj1)
     {
-    case 'c':
-      runPaintChat();
-      break;
-    case 'h':
-      runHttp();
-      break;
-    case 'l':
-      runLobby();
+        getPropertyChange().firePropertyChange(s, obj, obj1);
     }
-  }
 
-  private synchronized void runHttp()
-  {
-    if (this.http == null)
+    public boolean getIsNativeWindows()
     {
-      this.http = new HttpServer(this.config, this.debug, false);
-      this.http.init(this.config.getInt("Connection_Port_Http", 80));
-      this.bHttp.setText(this.res.get("Http_Button_Stop"));
+        return fieldIsNativeWindows;
     }
-    else
-    {
-      this.http.exitServer();
-      this.http = null;
-      this.bHttp.setText(this.res.get("Http_Button_Start"));
-    }
-  }
 
-  private synchronized void runLobby()
-  {
-    String str = "chatIndex";
-    if (this.lobby != null)
+    protected PropertyChangeSupport getPropertyChange()
     {
-      if (!MessageBox.confirm("LobbyDisconnect", "(C)しぃちゃん PaintChatApp v3.66"))
-        return;
-      Applet localApplet = this.lobby;
-      this.lobby = null;
-      localApplet.stop();
-      this.debug.log(this.res.get("LobbyOut"));
-      return;
+        if(propertyChange == null)
+        {
+            propertyChange = new PropertyChangeSupport(this);
+        }
+        return propertyChange;
     }
-    if (this.config.getInt(str) == 0)
-    {
-      try
-      {
-        new ConfigDialog("paintchat.config.Ao", "cnf/dialogs.jar", this.config, this.res, "(C)しぃちゃん PaintChatApp v3.66");
-      }
-      catch (Exception localException1)
-      {
-        this.debug.log(localException1.getMessage());
-      }
-      if (this.config.getInt(str) == 0)
-      {
-        this.debug.log("LobbyCancel");
-        return;
-      }
-    }
-    try
-    {
-      int i = "(C)しぃちゃん PaintChatApp v3.66".lastIndexOf('v') + 1;
-      this.config.put("pchatVersion", "(C)しぃちゃん PaintChatApp v3.66".substring(i, i + 4));
-      this.lobby = ((Applet)new ClassLoaderCustom().loadClass("lobbyusers.Users", "cnf", true).newInstance());
-      this.lobby.setStub(ServerStub.getDefaultStub(this.config, this.res));
-      this.lobby.init();
-      this.lobby.start();
-      this.debug.log(this.res.get("LobbyIn"));
-      if (this.config.getBool("ao_show_html"))
-        Gui.showDocument("http://ax.sakura.ne.jp/~aotama/pchat/LobbyRoom.html", this.config, this.res);
-    }
-    catch (Exception localException2)
-    {
-      this.debug.log(localException2.getMessage());
-    }
-  }
 
-  private synchronized void runPaintChat()
-  {
-    if (this.server == null)
+    public void init(Config config1, Res res1, Debug debug1, LButton lbutton, LButton lbutton1, LButton lbutton2)
     {
-      this.server = new Server(this.config.getString("Admin_Password"), this.config, this.debug, false);
-      this.server.init();
-      this.bChat.setText(this.res.get("Paintchat_Button_Stop"));
-      if (this.config.getBool("App_Auto_Lobby", true))
-        startLobby(false);
+        config = config1;
+        res = res1;
+        debug = debug1;
+        bChat = lbutton;
+        bHttp = lbutton1;
+        bLobby = lbutton2;
+        lbutton.addActionListener(this);
+        lbutton1.addActionListener(this);
+        lbutton2.addActionListener(this);
+        if(config1.getBool("App_Auto_Http"))
+        {
+            ThreadPool.poolStartThread(this, 'h');
+        } else
+        {
+            lbutton1.setText(res1.get("Http_Button_Start"));
+        }
+        if(config1.getBool("App_Auto_Paintchat"))
+        {
+            ThreadPool.poolStartThread(this, 'c');
+        } else
+        {
+            lbutton.setText(res1.get("Paintchat_Button_Start"));
+        }
     }
-    else
+
+    public boolean isRunPaintChatServer()
     {
-      this.server.exitServer();
-      this.server = null;
-      this.bChat.setText(this.res.get("Paintchat_Button_Start"));
-      if (this.lobby != null)
-        runLobby();
+        return server != null;
     }
-  }
 
-  public void setIsNativeWindows(boolean paramBoolean)
-  {
-    this.fieldIsNativeWindows = paramBoolean;
-  }
+    public synchronized void removePropertyChangeListener(PropertyChangeListener propertychangelistener)
+    {
+        getPropertyChange().removePropertyChangeListener(propertychangelistener);
+    }
 
-  public void startHttp(boolean paramBoolean)
-  {
-    if (paramBoolean)
-      ThreadPool.poolStartThread(this, 'h');
-    else
-      runHttp();
-  }
+    public void run()
+    {
+        switch(Thread.currentThread().getName().charAt(0))
+        {
+        case 99: // 'c'
+            runPaintChat();
+            break;
 
-  public void startLobby(boolean paramBoolean)
-  {
-    if (paramBoolean)
-      ThreadPool.poolStartThread(this, 'l');
-    else
-      runLobby();
-  }
+        case 104: // 'h'
+            runHttp();
+            break;
 
-  public void startPaintChat(boolean paramBoolean)
-  {
-    if (paramBoolean)
-      ThreadPool.poolStartThread(this, 'c');
-    else
-      runPaintChat();
-  }
+        case 108: // 'l'
+            runLobby();
+            break;
+        }
+    }
+
+    private synchronized void runHttp()
+    {
+        if(http == null)
+        {
+            http = new HttpServer(config, debug, false);
+            http.init(config.getInt("Connection_Port_Http", 80));
+            bHttp.setText(res.get("Http_Button_Stop"));
+        } else
+        {
+            http.exitServer();
+            http = null;
+            bHttp.setText(res.get("Http_Button_Start"));
+        }
+    }
+
+    private synchronized void runLobby()
+    {
+        String s = "chatIndex";
+        if(lobby != null)
+        {
+            if(!MessageBox.confirm("LobbyDisconnect", "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66"))
+            {
+                return;
+            } else
+            {
+                Applet applet = lobby;
+                lobby = null;
+                applet.stop();
+                debug.log(res.get("LobbyOut"));
+                return;
+            }
+        }
+        if(config.getInt(s) == 0)
+        {
+            try
+            {
+                new ConfigDialog("paintchat.config.Ao", "cnf/dialogs.jar", config, res, "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66");
+            }
+            catch(Exception exception)
+            {
+                debug.log(exception.getMessage());
+            }
+            if(config.getInt(s) == 0)
+            {
+                debug.log("LobbyCancel");
+                return;
+            }
+        }
+        try
+        {
+            int i = "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66".lastIndexOf('v') + 1;
+            config.put("pchatVersion", "(C)\u3057\u3043\u3061\u3083\u3093 PaintChatApp v3.66".substring(i, i + 4));
+            lobby = (Applet)(new ClassLoaderCustom()).loadClass("lobbyusers.Users", "cnf", true).newInstance();
+            lobby.setStub(ServerStub.getDefaultStub(config, res));
+            lobby.init();
+            lobby.start();
+            debug.log(res.get("LobbyIn"));
+            if(config.getBool("ao_show_html"))
+            {
+                Gui.showDocument("http://ax.sakura.ne.jp/~aotama/pchat/LobbyRoom.html", config, res);
+            }
+        }
+        catch(Exception exception1)
+        {
+            debug.log(exception1.getMessage());
+        }
+    }
+
+    private synchronized void runPaintChat()
+    {
+        if(server == null)
+        {
+            server = new Server(config.getString("Admin_Password"), config, debug, false);
+            server.init();
+            bChat.setText(res.get("Paintchat_Button_Stop"));
+            if(config.getBool("App_Auto_Lobby", true))
+            {
+                startLobby(false);
+            }
+        } else
+        {
+            server.exitServer();
+            server = null;
+            bChat.setText(res.get("Paintchat_Button_Start"));
+            if(lobby != null)
+            {
+                runLobby();
+            }
+        }
+    }
+
+    public void setIsNativeWindows(boolean flag)
+    {
+        fieldIsNativeWindows = flag;
+    }
+
+    public void startHttp(boolean flag)
+    {
+        if(flag)
+        {
+            ThreadPool.poolStartThread(this, 'h');
+        } else
+        {
+            runHttp();
+        }
+    }
+
+    public void startLobby(boolean flag)
+    {
+        if(flag)
+        {
+            ThreadPool.poolStartThread(this, 'l');
+        } else
+        {
+            runLobby();
+        }
+    }
+
+    public void startPaintChat(boolean flag)
+    {
+        if(flag)
+        {
+            ThreadPool.poolStartThread(this, 'c');
+        } else
+        {
+            runPaintChat();
+        }
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_frame.Data
- * JD-Core Version:    0.6.0
- */

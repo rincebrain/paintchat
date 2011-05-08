@@ -1,285 +1,301 @@
 package paintchat_server;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Hashtable;
 import paintchat.Config;
 import paintchat.Res;
 import paintchat.debug.DebugListener;
-import syi.util.ByteInputStream;
-import syi.util.Io;
-import syi.util.PProperties;
-import syi.util.ThreadPool;
-import syi.util.Vector2;
+import syi.util.*;
+
+// Referenced classes of package paintchat_server:
+//            TextServer, PaintChatTalker, TextTalker, LineTalker, 
+//            XMLTextTalker, XMLTalker, Server, LineServer
 
 public class TalkerInstance
-  implements Runnable
+    implements Runnable
 {
-  private Socket socket;
-  private InputStream In;
-  private OutputStream Out;
-  private TextServer textServer;
-  private LineServer lineServer;
-  private DebugListener debug;
-  private Config serverStatus;
-  private Server server;
-  private String strPassword;
-  boolean isAscii = false;
 
-  public TalkerInstance(Config paramConfig, Server paramServer, TextServer paramTextServer, LineServer paramLineServer, DebugListener paramDebugListener)
-  {
-    this.server = paramServer;
-    this.textServer = paramTextServer;
-    this.lineServer = paramLineServer;
-    this.serverStatus = paramConfig;
-    this.debug = paramDebugListener;
-    this.strPassword = paramConfig.getString("Admin_Password", "");
-  }
+    private Socket socket;
+    private InputStream In;
+    private OutputStream Out;
+    private TextServer textServer;
+    private LineServer lineServer;
+    private DebugListener debug;
+    private Config serverStatus;
+    private Server server;
+    private String strPassword;
+    boolean isAscii;
 
-  public void run()
-  {
-    try
+    public TalkerInstance(Config config, Server server1, TextServer textserver, LineServer lineserver, DebugListener debuglistener)
     {
-      switchConnection(this.socket);
+        isAscii = false;
+        server = server1;
+        textServer = textserver;
+        lineServer = lineserver;
+        serverStatus = config;
+        debug = debuglistener;
+        strPassword = config.getString("Admin_Password", "");
     }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-      closeSocket();
-    }
-  }
 
-  public void newTalker(Socket paramSocket)
-  {
-    TalkerInstance localTalkerInstance = new TalkerInstance(this.serverStatus, this.server, this.textServer, this.lineServer, this.debug);
-    localTalkerInstance.socket = paramSocket;
-    ThreadPool.poolStartThread(localTalkerInstance, "sock_switch");
-  }
-
-  private boolean isKillAddress(Socket paramSocket)
-  {
-    try
+    public void run()
     {
-      InetAddress localInetAddress1 = paramSocket.getInetAddress();
-      Vector2 localVector2 = this.textServer.vKillIP;
-      for (int i = 0; i < localVector2.size(); i++)
-      {
-        InetAddress localInetAddress2 = ((PaintChatTalker)localVector2.get(i)).getAddress();
-        if (localInetAddress2.equals(localInetAddress1))
-          return true;
-      }
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-      this.debug.log(localRuntimeException);
-    }
-    return false;
-  }
-
-  private void switchConnection(Socket paramSocket)
-    throws IOException
-  {
-    ByteInputStream localByteInputStream = new ByteInputStream();
-    InputStream localInputStream = paramSocket.getInputStream();
-    this.In = localInputStream;
-    this.isAscii = (Io.r(localInputStream) != 98);
-    if (this.isAscii)
-    {
-      switchAsciiConnection();
-      return;
-    }
-    int i = Io.readUShort(localInputStream);
-    if (i <= 0)
-      throw new IOException("protocol unknown");
-    byte[] arrayOfByte = new byte[i];
-    Io.rFull(localInputStream, arrayOfByte, 0, i);
-    Res localRes = new Res();
-    localByteInputStream.setBuffer(arrayOfByte, 0, i);
-    localRes.load(localByteInputStream);
-    if (localRes.getBool("local_admin"))
-    {
-      switchLocalAdmin(paramSocket, localRes);
-      return;
-    }
-    Object localObject = null;
-    String str = localRes.get("protocol", "");
-    if (str.equals("paintchat.text"))
-      localObject = new TextTalker(this.textServer, this.debug);
-    if (str.equals("paintchat.line"))
-      localObject = new LineTalker(this.lineServer, this.debug);
-    str.equals("paintchat.infomation");
-    if (localObject != null)
-    {
-      if ((this.strPassword.length() > 0) && (this.strPassword.equals(localRes.get("password", ""))))
-        localRes.put("permission", "layer:all;canvas:true;talk:true;layer_edit:true;fill:true;clean:true;");
-      else
-        localRes.put("permission", this.serverStatus.get("Client_Permission"));
-      ((PaintChatTalker)localObject).mStart(this.socket, localInputStream, null, localRes);
-    }
-  }
-
-  private void switchAsciiConnection()
-    throws IOException
-  {
-    BufferedInputStream localBufferedInputStream = new BufferedInputStream(this.In);
-    StringBuffer localStringBuffer = new StringBuffer();
-    int j = 0;
-    int i;
-    while ((i = Io.r(localBufferedInputStream)) != -1)
-    {
-      localStringBuffer.append((char)i);
-      if (i == 0)
-        break;
-      j++;
-      if (j < 255)
-        continue;
-      throw new IOException("abnormal");
-    }
-    String str1 = localStringBuffer.toString();
-    String str2 = null;
-    int k = str1.indexOf("type=");
-    if (k <= 0)
-    {
-      str2 = "paintchat.text";
-    }
-    else
-    {
-      k += 6;
-      int m = str1.indexOf('"', k);
-      if (m == -1)
-        m = str1.indexOf('\'', k);
-      str2 = m == -1 ? "paintchat.text" : str1.substring(k, m);
-    }
-    if (str2.equals("paintchat.infomation"))
-    {
-      switchLocalAdminXML(str1);
-      return;
-    }
-    XMLTextTalker localXMLTextTalker = new XMLTextTalker(this.textServer, this.debug);
-    if (localXMLTextTalker != null)
-      localXMLTextTalker.mStart(this.socket, localBufferedInputStream, null, null);
-  }
-
-  private void switchLocalAdmin(Socket paramSocket, Res paramRes)
-  {
-    try
-    {
-      String str1 = this.serverStatus.getString("Admin_Password");
-      if ((paramSocket.getInetAddress().equals(InetAddress.getLocalHost())) || ((str1 != null) && (str1.length() > 0) && (str1.equals(paramRes.get("password", "")))))
-      {
-        String str2 = paramRes.get("request", "ping");
-        StringBuffer localStringBuffer = new StringBuffer();
-        byte[] arrayOfByte1 = (byte[])null;
-        if (str2.equals("ping"))
+        try
         {
-          localStringBuffer.append("response=ping ok\n");
-          localStringBuffer.append("version=");
-          localStringBuffer.append("(C)しぃちゃん PaintChatServer v3.57b");
-          localStringBuffer.append("\n");
-          arrayOfByte1 = localStringBuffer.toString().getBytes("UTF8");
+            switchConnection(socket);
         }
-        if (str2.equals("exit"))
+        catch(Throwable throwable)
         {
-          localStringBuffer.append("response=exit ok\n");
-          byte[] arrayOfByte2 = localStringBuffer.toString().getBytes("UTF8");
-          this.Out = this.socket.getOutputStream();
-          Io.wShort(this.Out, arrayOfByte2.length);
-          this.Out.write(arrayOfByte2);
-          this.Out.flush();
-          closeSocket();
-          this.server.exitServer();
-          return;
+            throwable.printStackTrace();
+            closeSocket();
         }
-        if (arrayOfByte1 != null)
-        {
-          this.Out = this.socket.getOutputStream();
-          Io.wShort(this.Out, arrayOfByte1.length);
-          this.Out.write(arrayOfByte1);
-          this.Out.flush();
-        }
-      }
     }
-    catch (IOException localIOException)
-    {
-      this.debug.log(localIOException);
-    }
-    closeSocket();
-  }
 
-  private void switchLocalAdminXML(String paramString)
-    throws IOException
-  {
-    int i = paramString.indexOf("request=");
-    if (i < 0)
+    public void newTalker(Socket socket1)
     {
-      closeSocket();
-      return;
+        TalkerInstance talkerinstance = new TalkerInstance(serverStatus, server, textServer, lineServer, debug);
+        talkerinstance.socket = socket1;
+        ThreadPool.poolStartThread(talkerinstance, "sock_switch");
     }
-    i += 9;
-    int j = paramString.indexOf('"', i);
-    if (j < 0)
+
+    private boolean isKillAddress(Socket socket1)
     {
-      j = paramString.indexOf('\'', i);
-      if (j < 0)
-      {
+        try
+        {
+            InetAddress inetaddress = socket1.getInetAddress();
+            Vector2 vector2 = textServer.vKillIP;
+            for(int i = 0; i < vector2.size(); i++)
+            {
+                InetAddress inetaddress1 = ((PaintChatTalker)vector2.get(i)).getAddress();
+                if(inetaddress1.equals(inetaddress))
+                {
+                    return true;
+                }
+            }
+
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            debug.log(runtimeexception);
+        }
+        return false;
+    }
+
+    private void switchConnection(Socket socket1)
+        throws IOException
+    {
+        ByteInputStream byteinputstream = new ByteInputStream();
+        InputStream inputstream = socket1.getInputStream();
+        In = inputstream;
+        isAscii = Io.r(inputstream) != 98;
+        if(isAscii)
+        {
+            switchAsciiConnection();
+            return;
+        }
+        int i = Io.readUShort(inputstream);
+        if(i <= 0)
+        {
+            throw new IOException("protocol unknown");
+        }
+        byte abyte0[] = new byte[i];
+        Io.rFull(inputstream, abyte0, 0, i);
+        Res res = new Res();
+        byteinputstream.setBuffer(abyte0, 0, i);
+        res.load(byteinputstream);
+        if(res.getBool("local_admin"))
+        {
+            switchLocalAdmin(socket1, res);
+            return;
+        }
+        Object obj = null;
+        String s = res.get("protocol", "");
+        if(s.equals("paintchat.text"))
+        {
+            obj = new TextTalker(textServer, debug);
+        }
+        if(s.equals("paintchat.line"))
+        {
+            obj = new LineTalker(lineServer, debug);
+        }
+        s.equals("paintchat.infomation");
+        if(obj != null)
+        {
+            if(strPassword.length() > 0 && strPassword.equals(res.get("password", "")))
+            {
+                res.put("permission", "layer:all;canvas:true;talk:true;layer_edit:true;fill:true;clean:true;");
+            } else
+            {
+                res.put("permission", serverStatus.get("Client_Permission"));
+            }
+            ((PaintChatTalker) (obj)).mStart(socket, inputstream, null, res);
+        }
+    }
+
+    private void switchAsciiConnection()
+        throws IOException
+    {
+        BufferedInputStream bufferedinputstream = new BufferedInputStream(In);
+        StringBuffer stringbuffer = new StringBuffer();
+        int j = 0;
+        int i;
+        while((i = Io.r(bufferedinputstream)) != -1) 
+        {
+            stringbuffer.append((char)i);
+            if(i == 0)
+            {
+                break;
+            }
+            if(++j >= 255)
+            {
+                throw new IOException("abnormal");
+            }
+        }
+        String s = stringbuffer.toString();
+        String s1 = null;
+        int k = s.indexOf("type=");
+        if(k <= 0)
+        {
+            s1 = "paintchat.text";
+        } else
+        {
+            k += 6;
+            int l = s.indexOf('"', k);
+            if(l == -1)
+            {
+                l = s.indexOf('\'', k);
+            }
+            s1 = l != -1 ? s.substring(k, l) : "paintchat.text";
+        }
+        if(s1.equals("paintchat.infomation"))
+        {
+            switchLocalAdminXML(s);
+            return;
+        }
+        XMLTextTalker xmltexttalker = new XMLTextTalker(textServer, debug);
+        if(xmltexttalker != null)
+        {
+            xmltexttalker.mStart(socket, bufferedinputstream, null, null);
+        }
+    }
+
+    private void switchLocalAdmin(Socket socket1, Res res)
+    {
+        try
+        {
+            String s = serverStatus.getString("Admin_Password");
+            if(socket1.getInetAddress().equals(InetAddress.getLocalHost()) || s != null && s.length() > 0 && s.equals(res.get("password", "")))
+            {
+                String s1 = res.get("request", "ping");
+                StringBuffer stringbuffer = new StringBuffer();
+                byte abyte0[] = (byte[])null;
+                if(s1.equals("ping"))
+                {
+                    stringbuffer.append("response=ping ok\n");
+                    stringbuffer.append("version=");
+                    stringbuffer.append("(C)\u3057\u3043\u3061\u3083\u3093 PaintChatServer v3.57b");
+                    stringbuffer.append("\n");
+                    abyte0 = stringbuffer.toString().getBytes("UTF8");
+                }
+                if(s1.equals("exit"))
+                {
+                    stringbuffer.append("response=exit ok\n");
+                    byte abyte1[] = stringbuffer.toString().getBytes("UTF8");
+                    Out = socket.getOutputStream();
+                    Io.wShort(Out, abyte1.length);
+                    Out.write(abyte1);
+                    Out.flush();
+                    closeSocket();
+                    server.exitServer();
+                    return;
+                }
+                if(abyte0 != null)
+                {
+                    Out = socket.getOutputStream();
+                    Io.wShort(Out, abyte0.length);
+                    Out.write(abyte0);
+                    Out.flush();
+                }
+            }
+        }
+        catch(IOException ioexception)
+        {
+            debug.log(ioexception);
+        }
         closeSocket();
-        return;
-      }
     }
-    if (i == j)
-      return;
-    String str = paramString.substring(i, j);
-    if (str.equals("userlist"))
-    {
-      this.Out = this.socket.getOutputStream();
-      StringBuffer localStringBuffer = new StringBuffer();
-      this.textServer.getUserListXML(localStringBuffer);
-      localStringBuffer.append('\000');
-      this.Out.write(localStringBuffer.toString().getBytes("UTF8"));
-      closeSocket();
-      return;
-    }
-    if (str.equals("infomation"))
-    {
-      this.Out = this.socket.getOutputStream();
-      closeSocket();
-      return;
-    }
-    closeSocket();
-  }
 
-  private void closeSocket()
-  {
-    try
+    private void switchLocalAdminXML(String s)
+        throws IOException
     {
-      if (this.In != null)
-      {
-        this.In.close();
-        this.In = null;
-      }
-      if (this.Out != null)
-      {
-        this.Out.close();
-        this.Out = null;
-      }
-      if (this.socket != null)
-      {
-        this.socket.close();
-        this.socket = null;
-      }
+        int i = s.indexOf("request=");
+        if(i < 0)
+        {
+            closeSocket();
+            return;
+        }
+        i += 9;
+        int j = s.indexOf('"', i);
+        if(j < 0)
+        {
+            j = s.indexOf('\'', i);
+            if(j < 0)
+            {
+                closeSocket();
+                return;
+            }
+        }
+        if(i == j)
+        {
+            return;
+        }
+        String s1 = s.substring(i, j);
+        if(s1.equals("userlist"))
+        {
+            Out = socket.getOutputStream();
+            StringBuffer stringbuffer = new StringBuffer();
+            textServer.getUserListXML(stringbuffer);
+            stringbuffer.append('\0');
+            Out.write(stringbuffer.toString().getBytes("UTF8"));
+            closeSocket();
+            return;
+        }
+        if(s1.equals("infomation"))
+        {
+            Out = socket.getOutputStream();
+            closeSocket();
+            return;
+        } else
+        {
+            closeSocket();
+            return;
+        }
     }
-    catch (IOException localIOException)
+
+    private void closeSocket()
     {
-      this.debug.log(localIOException);
+        try
+        {
+            if(In != null)
+            {
+                In.close();
+                In = null;
+            }
+            if(Out != null)
+            {
+                Out.close();
+                Out = null;
+            }
+            if(socket != null)
+            {
+                socket.close();
+                socket = null;
+            }
+        }
+        catch(IOException ioexception)
+        {
+            debug.log(ioexception);
+        }
     }
-  }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_server.TalkerInstance
- * JD-Core Version:    0.6.0
- */

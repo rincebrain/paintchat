@@ -6,64 +6,78 @@ import java.util.Hashtable;
 
 public class HelpWindowContent
 {
-  public Point point;
-  public String string = null;
-  public Image image = null;
-  boolean isResource = false;
-  public Hashtable res;
-  public int timeStart = 2000;
-  public int timeEnd = 15000;
-  private boolean isEnableVisited = false;
-  private boolean isVisit = false;
 
-  public HelpWindowContent(Image paramImage, String paramString, boolean paramBoolean, Point paramPoint, Hashtable paramHashtable)
-  {
-    this.point = paramPoint;
-    this.string = paramString;
-    this.res = paramHashtable;
-    this.isResource = paramBoolean;
-    this.image = paramImage;
-  }
+    public Point point;
+    public String string;
+    public Image image;
+    boolean isResource;
+    public Hashtable res;
+    public int timeStart;
+    public int timeEnd;
+    private boolean isEnableVisited;
+    private boolean isVisit;
 
-  public HelpWindowContent(String paramString, boolean paramBoolean, Point paramPoint, Hashtable paramHashtable)
-  {
-    this.point = paramPoint;
-    this.string = paramString;
-    this.res = paramHashtable;
-    this.isResource = paramBoolean;
-  }
-
-  public String getText()
-  {
-    if ((this.string == null) || (this.string.length() == 0))
-      return "";
-    if (this.isResource)
+    public HelpWindowContent(Image image1, String s, boolean flag, Point point1, Hashtable hashtable)
     {
-      String str = (String)this.res.get(this.string + "_Com");
-      return str == null ? this.res.get(this.string).toString() : str;
+        string = null;
+        image = null;
+        isResource = false;
+        timeStart = 2000;
+        timeEnd = 15000;
+        isEnableVisited = false;
+        isVisit = false;
+        point = point1;
+        string = s;
+        res = hashtable;
+        isResource = flag;
+        image = image1;
     }
-    return this.string;
-  }
 
-  public boolean isVisible(boolean paramBoolean)
-  {
-    return !this.isEnableVisited ? paramBoolean : this.isVisit;
-  }
+    public HelpWindowContent(String s, boolean flag, Point point1, Hashtable hashtable)
+    {
+        string = null;
+        image = null;
+        isResource = false;
+        timeStart = 2000;
+        timeEnd = 15000;
+        isEnableVisited = false;
+        isVisit = false;
+        point = point1;
+        string = s;
+        res = hashtable;
+        isResource = flag;
+    }
 
-  public void setText(String paramString, boolean paramBoolean)
-  {
-    this.string = paramString;
-    this.isResource = paramBoolean;
-  }
+    public String getText()
+    {
+        if(string == null || string.length() == 0)
+        {
+            return "";
+        }
+        if(isResource)
+        {
+            String s = (String)res.get(string + "_Com");
+            return s != null ? s : res.get(string).toString();
+        } else
+        {
+            return string;
+        }
+    }
 
-  public void setVisit(boolean paramBoolean)
-  {
-    this.isEnableVisited = true;
-    this.isVisit = paramBoolean;
-  }
+    public boolean isVisible(boolean flag)
+    {
+        return isEnableVisited ? isVisit : flag;
+    }
+
+    public void setText(String s, boolean flag)
+    {
+        string = s;
+        isResource = flag;
+    }
+
+    public void setVisit(boolean flag)
+    {
+        isEnableVisited = true;
+        isVisit = flag;
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.awt.HelpWindowContent
- * JD-Core Version:    0.6.0
- */

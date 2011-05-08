@@ -1,189 +1,191 @@
 package paintchat_client;
 
-import java.awt.AWTEvent;
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dialog;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.TextComponent;
-import java.awt.TextField;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.EventObject;
 import paintchat.Res;
 import syi.awt.Awt;
 
 public class Me extends Dialog
-  implements ActionListener
+    implements ActionListener
 {
-  private static boolean isD = false;
-  public static Res res;
-  public static Res conf;
-  private Button bOk;
-  private Button bNo;
-  private TextField tText;
-  private Panel pBotton;
-  private Panel pText;
-  public boolean isOk;
 
-  public Me()
-  {
-    super(Awt.getPFrame());
-    enableEvents(64L);
-    setModal(true);
-    setLayout(new BorderLayout(5, 5));
-    String str1 = "yes";
-    String str2 = "no";
-    this.pText = new Panel(new GridLayout(0, 1));
-    add(this.pText, "North");
-    this.bOk = new Button(p(str1));
-    this.bOk.addActionListener(this);
-    this.bNo = new Button(p(str2));
-    this.bNo.addActionListener(this);
-    this.pBotton = new Panel(new FlowLayout(1, 10, 4));
-    this.pBotton.add(this.bOk);
-    add(this.pBotton, "South");
-  }
+    private static boolean isD = false;
+    public static Res res;
+    public static Res conf;
+    private Button bOk;
+    private Button bNo;
+    private TextField tText;
+    private Panel pBotton;
+    private Panel pText;
+    public boolean isOk;
 
-  public void actionPerformed(ActionEvent paramActionEvent)
-  {
-    this.isOk = ((paramActionEvent.getSource() == this.bOk) || ((paramActionEvent.getSource() instanceof TextField)));
-    dispose();
-  }
-
-  public void init(String paramString, boolean paramBoolean)
-  {
-    paramString = p(paramString);
-    setConfirm(paramBoolean);
-    int i = 0;
-    while (i < paramString.length())
+    public Me()
     {
-      String str = r(paramString, i);
-      i++;
-      if (str == null)
-        continue;
-      ad(str);
-      i += str.length();
+        super(Awt.getPFrame());
+        enableEvents(64L);
+        setModal(true);
+        setLayout(new BorderLayout(5, 5));
+        String s = "yes";
+        String s1 = "no";
+        pText = new Panel(new GridLayout(0, 1));
+        add(pText, "North");
+        bOk = new Button(p(s));
+        bOk.addActionListener(this);
+        bNo = new Button(p(s1));
+        bNo.addActionListener(this);
+        pBotton = new Panel(new FlowLayout(1, 10, 4));
+        pBotton.add(bOk);
+        add(pBotton, "South");
     }
-    Awt.getDef(this);
-    setBackground(new Color(conf.getP("dlg_color_bk", Awt.cBk.getRGB())));
-    setForeground(new Color(conf.getP("dlg_color_text", Awt.cFore.getRGB())));
-    Awt.setDef(this, false);
-    pack();
-    Awt.moveCenter(this);
-  }
 
-  public Label ad(String paramString)
-  {
-    Label localLabel = new Label(paramString);
-    this.pText.add(localLabel);
-    return localLabel;
-  }
-
-  public static void alert(String paramString)
-  {
-    confirm(paramString, false);
-  }
-
-  public static boolean confirm(String paramString, boolean paramBoolean)
-  {
-    isD = true;
-    Me localMe = getMe();
-    try
+    public void actionPerformed(ActionEvent actionevent)
     {
-      localMe.init(paramString, paramBoolean);
-      localMe.setVisible(true);
+        isOk = actionevent.getSource() == bOk || (actionevent.getSource() instanceof TextField);
+        dispose();
     }
-    catch (Throwable localThrowable)
+
+    public void init(String s, boolean flag)
     {
-      localThrowable.printStackTrace();
-    }
-    isD = false;
-    return localMe.isOk;
-  }
+        s = p(s);
+        setConfirm(flag);
+        for(int i = 0; i < s.length();)
+        {
+            String s1 = r(s, i);
+            i++;
+            if(s1 != null)
+            {
+                ad(s1);
+                i += s1.length();
+            }
+        }
 
-  public static String getString(String paramString1, String paramString2)
-  {
-    isD = true;
-    Me localMe = getMe();
-    try
+        Awt.getDef(this);
+        setBackground(new Color(conf.getP("dlg_color_bk", Awt.cBk.getRGB())));
+        setForeground(new Color(conf.getP("dlg_color_text", Awt.cFore.getRGB())));
+        Awt.setDef(this, false);
+        pack();
+        Awt.moveCenter(this);
+    }
+
+    public Label ad(String s)
     {
-      localMe.init(paramString1, true);
-      if (paramString2 == null)
-        paramString2 = "";
-      if (localMe.tText == null)
-        localMe.tText = new TextField(paramString2);
-      else
-        localMe.tText.setText(paramString2);
-      localMe.add(localMe.tText, "Center");
-      localMe.pack();
-      localMe.setVisible(true);
+        Label label = new Label(s);
+        pText.add(label);
+        return label;
     }
-    catch (Throwable localThrowable)
+
+    public static void alert(String s)
     {
-      localThrowable.printStackTrace();
+        confirm(s, false);
     }
-    isD = false;
-    return localMe.isOk ? localMe.tText.getText() : null;
-  }
 
-  public static Me getMe()
-  {
-    Me localMe = new Me();
-    return localMe;
-  }
-
-  public static boolean isDialog()
-  {
-    return isD;
-  }
-
-  protected void processWindowEvent(WindowEvent paramWindowEvent)
-  {
-    if (paramWindowEvent.getID() == 201)
-      paramWindowEvent.getWindow().dispose();
-  }
-
-  private static String r(String paramString, int paramInt)
-  {
-    for (int j = paramInt; j < paramString.length(); j++)
+    public static boolean confirm(String s, boolean flag)
     {
-      int i = paramString.charAt(j);
-      if ((i == 13) || (i == 10))
-        break;
+        isD = true;
+        Me me = getMe();
+        try
+        {
+            me.init(s, flag);
+            me.setVisible(true);
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+        isD = false;
+        return me.isOk;
     }
-    return paramInt == j ? null : paramString.substring(paramInt, j);
-  }
 
-  private static String p(String paramString)
-  {
-    if (res == null)
-      return paramString;
-    return res.res(paramString);
-  }
-
-  private void setConfirm(boolean paramBoolean)
-  {
-    int i = this.pBotton.getComponentCount();
-    if (paramBoolean)
+    public static String getString(String s, String s1)
     {
-      if (i <= 1)
-        this.pBotton.add(this.bNo);
+        isD = true;
+        Me me = getMe();
+        try
+        {
+            me.init(s, true);
+            if(s1 == null)
+            {
+                s1 = "";
+            }
+            if(me.tText == null)
+            {
+                me.tText = new TextField(s1);
+            } else
+            {
+                me.tText.setText(s1);
+            }
+            me.add(me.tText, "Center");
+            me.pack();
+            me.setVisible(true);
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+        isD = false;
+        return me.isOk ? me.tText.getText() : null;
     }
-    else if (i >= 2)
-      this.pBotton.remove(this.bNo);
-  }
+
+    public static Me getMe()
+    {
+        Me me = new Me();
+        return me;
+    }
+
+    public static boolean isDialog()
+    {
+        return isD;
+    }
+
+    protected void processWindowEvent(WindowEvent windowevent)
+    {
+        if(windowevent.getID() == 201)
+        {
+            windowevent.getWindow().dispose();
+        }
+    }
+
+    private static String r(String s, int i)
+    {
+        int j;
+        for(j = i; j < s.length(); j++)
+        {
+            char c = s.charAt(j);
+            if(c == '\r' || c == '\n')
+            {
+                break;
+            }
+        }
+
+        return i != j ? s.substring(i, j) : null;
+    }
+
+    private static String p(String s)
+    {
+        if(res == null)
+        {
+            return s;
+        } else
+        {
+            return res.res(s);
+        }
+    }
+
+    private void setConfirm(boolean flag)
+    {
+        int i = pBotton.getComponentCount();
+        if(flag)
+        {
+            if(i <= 1)
+            {
+                pBotton.add(bNo);
+            }
+        } else
+        if(i >= 2)
+        {
+            pBotton.remove(bNo);
+        }
+    }
+
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_client.Me
- * JD-Core Version:    0.6.0
- */

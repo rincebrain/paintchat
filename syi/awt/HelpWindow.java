@@ -1,159 +1,175 @@
 package syi.awt;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Frame;
-import java.awt.Point;
-import java.awt.Window;
+import java.awt.*;
 import syi.util.ThreadPool;
 
+// Referenced classes of package syi.awt:
+//            TextCanvas, ImageCanvas, HelpWindowContent
+
 public class HelpWindow extends Window
-  implements Runnable
+    implements Runnable
 {
-  private Thread rAdd = null;
-  private HelpWindowContent object = null;
-  private ImageCanvas imageCanvas = null;
-  private TextCanvas textCanvas = null;
-  private boolean isShow = false;
-  private boolean isFront = true;
 
-  public HelpWindow(Frame paramFrame)
-  {
-    super(paramFrame);
-  }
+    private Thread rAdd;
+    private HelpWindowContent object;
+    private ImageCanvas imageCanvas;
+    private TextCanvas textCanvas;
+    private boolean isShow;
+    private boolean isFront;
 
-  public boolean getIsShow()
-  {
-    return this.isShow;
-  }
-
-  public synchronized void reset()
-  {
-    setVisible(false);
-    this.object = null;
-    if (getComponentCount() > 0)
+    public HelpWindow(Frame frame)
     {
-      Component localComponent = getComponent(0);
-      if (localComponent == this.textCanvas)
-        ((TextCanvas)localComponent).reset();
-      else
-        ((ImageCanvas)localComponent).reset();
+        super(frame);
+        rAdd = null;
+        object = null;
+        imageCanvas = null;
+        textCanvas = null;
+        isShow = false;
+        isFront = true;
     }
-    if ((this.rAdd != null) && (this.rAdd != Thread.currentThread()))
-      synchronized (this.rAdd)
-      {
-        this.rAdd.interrupt();
-        this.rAdd.notify();
-        this.rAdd = null;
-      }
-  }
 
-  public void run()
-  {
-    try
+    public boolean getIsShow()
     {
-      Thread localThread = Thread.currentThread();
-      if (this.object.timeStart > 0)
-        synchronized (localThread)
+        return isShow;
+    }
+
+    public synchronized void reset()
+    {
+        setVisible(false);
+        object = null;
+        if(getComponentCount() > 0)
         {
-          localThread.wait(this.object.timeStart);
+            Component component = getComponent(0);
+            if(component == textCanvas)
+            {
+                ((TextCanvas)component).reset();
+            } else
+            {
+                ((ImageCanvas)component).reset();
+            }
         }
-      if (!localThread.isInterrupted())
-      {
-        showHelp(this.object);
-        if (this.object.timeEnd > 0)
-          synchronized (localThread)
-          {
-            localThread.wait(this.object.timeEnd);
-          }
-      }
-      reset();
-    }
-    catch (Throwable localThrowable)
-    {
-    }
-  }
-
-  public void setIsFront(boolean paramBoolean)
-  {
-    this.isFront = paramBoolean;
-  }
-
-  public void setIsShow(boolean paramBoolean)
-  {
-    this.isShow = paramBoolean;
-  }
-
-  private synchronized void showHelp(HelpWindowContent paramHelpWindowContent)
-  {
-    if (paramHelpWindowContent == null)
-      return;
-    Component localComponent;
-    if (paramHelpWindowContent.image != null)
-    {
-      if (this.imageCanvas == null)
-        this.imageCanvas = new ImageCanvas(getBackground(), getForeground());
-      if (getComponentCount() > 0)
-      {
-        localComponent = getComponent(0);
-        if (localComponent != this.imageCanvas)
+        if(rAdd != null && rAdd != Thread.currentThread())
         {
-          remove(localComponent);
-          add(this.imageCanvas);
+            synchronized(rAdd)
+            {
+                rAdd.interrupt();
+                rAdd.notify();
+                rAdd = null;
+            }
         }
-      }
-      else
-      {
-        add(this.imageCanvas);
-      }
-      this.imageCanvas.setImage(paramHelpWindowContent.image);
-      if (paramHelpWindowContent.string != null)
-        this.imageCanvas.setText(paramHelpWindowContent.getText());
     }
-    else
-    {
-      if (this.textCanvas == null)
-      {
-        this.textCanvas = new TextCanvas();
-        this.textCanvas.setBackground(new Color(13421823));
-        this.textCanvas.setForeground(Color.black);
-      }
-      if (getComponentCount() > 0)
-      {
-        localComponent = getComponent(0);
-        if (localComponent != this.textCanvas)
-        {
-          remove(localComponent);
-          add(this.textCanvas);
-        }
-      }
-      else
-      {
-        add(this.textCanvas);
-      }
-      this.textCanvas.setText(paramHelpWindowContent.getText());
-    }
-    pack();
-    getSize();
-    setLocation(paramHelpWindowContent.point.x, paramHelpWindowContent.point.y);
-    setVisible(true);
-    if (this.isFront)
-      toFront();
-  }
 
-  public synchronized void startHelp(HelpWindowContent paramHelpWindowContent)
-  {
-    if (!paramHelpWindowContent.isVisible(this.isShow))
-      return;
-    reset();
-    this.object = paramHelpWindowContent;
-    paramHelpWindowContent.point.y += 15;
-    this.rAdd = ThreadPool.poolStartThread(this, "s");
-  }
+    public void run()
+    {
+        try
+        {
+            Thread thread = Thread.currentThread();
+            if(object.timeStart > 0)
+            {
+                synchronized(thread)
+                {
+                    thread.wait(object.timeStart);
+                }
+            }
+            if(!thread.isInterrupted())
+            {
+                showHelp(object);
+                if(object.timeEnd > 0)
+                {
+                    synchronized(thread)
+                    {
+                        thread.wait(object.timeEnd);
+                    }
+                }
+            }
+            reset();
+        }
+        catch(Throwable _ex) { }
+    }
+
+    public void setIsFront(boolean flag)
+    {
+        isFront = flag;
+    }
+
+    public void setIsShow(boolean flag)
+    {
+        isShow = flag;
+    }
+
+    private synchronized void showHelp(HelpWindowContent helpwindowcontent)
+    {
+        if(helpwindowcontent == null)
+        {
+            return;
+        }
+        if(helpwindowcontent.image != null)
+        {
+            if(imageCanvas == null)
+            {
+                imageCanvas = new ImageCanvas(getBackground(), getForeground());
+            }
+            if(getComponentCount() > 0)
+            {
+                Component component = getComponent(0);
+                if(component != imageCanvas)
+                {
+                    remove(component);
+                    add(imageCanvas);
+                }
+            } else
+            {
+                add(imageCanvas);
+            }
+            imageCanvas.setImage(helpwindowcontent.image);
+            if(helpwindowcontent.string != null)
+            {
+                imageCanvas.setText(helpwindowcontent.getText());
+            }
+        } else
+        {
+            if(textCanvas == null)
+            {
+                textCanvas = new TextCanvas();
+                textCanvas.setBackground(new Color(0xccccff));
+                textCanvas.setForeground(Color.black);
+            }
+            if(getComponentCount() > 0)
+            {
+                Component component1 = getComponent(0);
+                if(component1 != textCanvas)
+                {
+                    remove(component1);
+                    add(textCanvas);
+                }
+            } else
+            {
+                add(textCanvas);
+            }
+            textCanvas.setText(helpwindowcontent.getText());
+        }
+        pack();
+        getSize();
+        setLocation(helpwindowcontent.point.x, helpwindowcontent.point.y);
+        setVisible(true);
+        if(isFront)
+        {
+            toFront();
+        }
+    }
+
+    public synchronized void startHelp(HelpWindowContent helpwindowcontent)
+    {
+        if(!helpwindowcontent.isVisible(isShow))
+        {
+            return;
+        } else
+        {
+            reset();
+            object = helpwindowcontent;
+            helpwindowcontent.point.y += 15;
+            rAdd = ThreadPool.poolStartThread(this, "s");
+            return;
+        }
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.awt.HelpWindow
- * JD-Core Version:    0.6.0
- */

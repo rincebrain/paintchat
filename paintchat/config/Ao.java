@@ -1,820 +1,906 @@
 package paintchat.config;
 
 import java.applet.Applet;
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dialog;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.TextField;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.beans.Beans;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.util.EventObject;
-import java.util.Hashtable;
-import java.util.Random;
+import java.util.*;
 import paintchat.Config;
 import paintchat.Resource;
 import syi.applet.ServerStub;
-import syi.awt.Awt;
-import syi.awt.Gui;
-import syi.awt.HelpWindow;
-import syi.awt.LButton;
+import syi.awt.*;
 import syi.util.PProperties;
 
+// Referenced classes of package paintchat.config:
+//            ConfigApplet
+
 public class Ao extends ConfigApplet
-  implements ActionListener
+    implements ActionListener
 {
-  private String CF_AO_CHATINDEX = "chatIndex";
-  private String CF_AO_SHOW_HTML = "ao_show_html";
-  private Checkbox ivjao_show_html = null;
-  private Button ivjbu_ok = null;
-  private Button ivjButton2 = null;
-  private GridLayout ivjAo2GridLayout = null;
-  private Panel ivjPanel3 = null;
-  private LButton ivjCancel = null;
-  private LButton ivjOk = null;
-  private Panel ivjPanelConfig = null;
-  private Panel ivjPanelContent = null;
-  private TextField ivjadministratorName = null;
-  private TextField ivjchatName = null;
-  private TextField ivjchatUrl = null;
-  private TextField ivjcommentString = null;
-  private TextField ivjhomepageName = null;
-  private TextField ivjhpUrl = null;
-  private TextField ivjinformtionServerAddress = null;
-  private Label ivjLabel1 = null;
-  private Label ivjLabel2 = null;
-  private Label ivjLabel3 = null;
-  private Label ivjLabel4 = null;
-  private Label ivjLabel5 = null;
-  private Label ivjLabel6 = null;
-  private Label ivjLabel7 = null;
-  private Panel ivjleftPanel = null;
-  private GridLayout ivjleftPanelGridLayout = null;
-  private Panel ivjpanelRight = null;
-  private GridLayout ivjpanelRightGridLayout = null;
-  private Checkbox ivjApp_Auto_Lobby = null;
-  private Panel ivjpanelBottom = null;
-  private Label ivjlobby_setup = null;
-  private FlowLayout ivjpanelBottomFlowLayout = null;
 
-  public void actionPerformed(ActionEvent paramActionEvent)
-  {
-    if (paramActionEvent.getSource() == getButton2())
-      connEtoC1(paramActionEvent);
-    if (paramActionEvent.getSource() == getbu_ok())
-      connEtoC2(paramActionEvent);
-    if (paramActionEvent.getSource() == getOk())
+    private String CF_AO_CHATINDEX;
+    private String CF_AO_SHOW_HTML;
+    private Checkbox ivjao_show_html;
+    private Button ivjbu_ok;
+    private Button ivjButton2;
+    private GridLayout ivjAo2GridLayout;
+    private Panel ivjPanel3;
+    private LButton ivjCancel;
+    private LButton ivjOk;
+    private Panel ivjPanelConfig;
+    private Panel ivjPanelContent;
+    private TextField ivjadministratorName;
+    private TextField ivjchatName;
+    private TextField ivjchatUrl;
+    private TextField ivjcommentString;
+    private TextField ivjhomepageName;
+    private TextField ivjhpUrl;
+    private TextField ivjinformtionServerAddress;
+    private Label ivjLabel1;
+    private Label ivjLabel2;
+    private Label ivjLabel3;
+    private Label ivjLabel4;
+    private Label ivjLabel5;
+    private Label ivjLabel6;
+    private Label ivjLabel7;
+    private Panel ivjleftPanel;
+    private GridLayout ivjleftPanelGridLayout;
+    private Panel ivjpanelRight;
+    private GridLayout ivjpanelRightGridLayout;
+    private Checkbox ivjApp_Auto_Lobby;
+    private Panel ivjpanelBottom;
+    private Label ivjlobby_setup;
+    private FlowLayout ivjpanelBottomFlowLayout;
+
+    public Ao()
     {
-      save();
-      m_destroy();
+        CF_AO_CHATINDEX = "chatIndex";
+        CF_AO_SHOW_HTML = "ao_show_html";
+        ivjao_show_html = null;
+        ivjbu_ok = null;
+        ivjButton2 = null;
+        ivjAo2GridLayout = null;
+        ivjPanel3 = null;
+        ivjCancel = null;
+        ivjOk = null;
+        ivjPanelConfig = null;
+        ivjPanelContent = null;
+        ivjadministratorName = null;
+        ivjchatName = null;
+        ivjchatUrl = null;
+        ivjcommentString = null;
+        ivjhomepageName = null;
+        ivjhpUrl = null;
+        ivjinformtionServerAddress = null;
+        ivjLabel1 = null;
+        ivjLabel2 = null;
+        ivjLabel3 = null;
+        ivjLabel4 = null;
+        ivjLabel5 = null;
+        ivjLabel6 = null;
+        ivjLabel7 = null;
+        ivjleftPanel = null;
+        ivjleftPanelGridLayout = null;
+        ivjpanelRight = null;
+        ivjpanelRightGridLayout = null;
+        ivjApp_Auto_Lobby = null;
+        ivjpanelBottom = null;
+        ivjlobby_setup = null;
+        ivjpanelBottomFlowLayout = null;
     }
-    if (paramActionEvent.getSource() == getCancel())
-      m_destroy();
-  }
 
-  public void ao2_Init()
-  {
-  }
-
-  public void ao2_Start()
-  {
-    Awt.setPFrame(Awt.getPFrame());
-    getCancel().addActionListener(this);
-    getOk().addActionListener(this);
-  }
-
-  private void connEtoC1(ActionEvent paramActionEvent)
-  {
-    try
+    public void actionPerformed(ActionEvent actionevent)
     {
-      m_destroy();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC2(ActionEvent paramActionEvent)
-  {
-    try
-    {
-      save();
-      connEtoC3();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC3()
-  {
-    try
-    {
-      m_destroy();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoC4()
-  {
-    try
-    {
-      ao2_Start();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private TextField getadministratorName()
-  {
-    if (this.ivjadministratorName == null)
-      try
-      {
-        this.ivjadministratorName = new TextField();
-        this.ivjadministratorName.setName("administratorName");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjadministratorName;
-  }
-
-  private Checkbox getao_show_html()
-  {
-    if (this.ivjao_show_html == null)
-      try
-      {
-        this.ivjao_show_html = new Checkbox();
-        this.ivjao_show_html.setName("ao_show_html");
-        this.ivjao_show_html.setLabel("ao_show_html");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjao_show_html;
-  }
-
-  private GridLayout getAo2GridLayout()
-  {
-    GridLayout localGridLayout = null;
-    try
-    {
-      localGridLayout = new GridLayout(0, 1);
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-    return localGridLayout;
-  }
-
-  private Checkbox getApp_Auto_Lobby()
-  {
-    if (this.ivjApp_Auto_Lobby == null)
-      try
-      {
-        this.ivjApp_Auto_Lobby = new Checkbox();
-        this.ivjApp_Auto_Lobby.setName("App_Auto_Lobby");
-        this.ivjApp_Auto_Lobby.setLabel("App_Auto_Lobby");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjApp_Auto_Lobby;
-  }
-
-  public String getAppletInfo()
-  {
-    return "paintchat.config.Ao2 は VisualAge for Java を使用して作成されました。";
-  }
-
-  private Button getbu_ok()
-  {
-    if (this.ivjbu_ok == null)
-      try
-      {
-        this.ivjbu_ok = new Button();
-        this.ivjbu_ok.setName("bu_ok");
-        this.ivjbu_ok.setBounds(190, 333, 38, 20);
-        this.ivjbu_ok.setLabel(" OK ");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjbu_ok;
-  }
-
-  private Button getButton2()
-  {
-    if (this.ivjButton2 == null)
-      try
-      {
-        this.ivjButton2 = new Button();
-        this.ivjButton2.setName("Button2");
-        this.ivjButton2.setBounds(235, 359, 50, 20);
-        this.ivjButton2.setLabel("CANCEL");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjButton2;
-  }
-
-  private LButton getCancel()
-  {
-    if (this.ivjCancel == null)
-      try
-      {
-        this.ivjCancel = new LButton();
-        this.ivjCancel.setName("Cancel");
-        this.ivjCancel.setText("Cancel");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjCancel;
-  }
-
-  private TextField getchatName()
-  {
-    if (this.ivjchatName == null)
-      try
-      {
-        this.ivjchatName = new TextField();
-        this.ivjchatName.setName("chatName");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjchatName;
-  }
-
-  private TextField getchatUrl()
-  {
-    if (this.ivjchatUrl == null)
-      try
-      {
-        this.ivjchatUrl = new TextField();
-        this.ivjchatUrl.setName("chatUrl");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjchatUrl;
-  }
-
-  private TextField getcommentString()
-  {
-    if (this.ivjcommentString == null)
-      try
-      {
-        this.ivjcommentString = new TextField();
-        this.ivjcommentString.setName("commentString");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjcommentString;
-  }
-
-  private TextField gethomepageName()
-  {
-    if (this.ivjhomepageName == null)
-      try
-      {
-        this.ivjhomepageName = new TextField();
-        this.ivjhomepageName.setName("homepageName");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjhomepageName;
-  }
-
-  private TextField gethpUrl()
-  {
-    if (this.ivjhpUrl == null)
-      try
-      {
-        this.ivjhpUrl = new TextField();
-        this.ivjhpUrl.setName("hpUrl");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjhpUrl;
-  }
-
-  private TextField getinformtionServerAddress()
-  {
-    if (this.ivjinformtionServerAddress == null)
-      try
-      {
-        this.ivjinformtionServerAddress = new TextField();
-        this.ivjinformtionServerAddress.setName("informtionServerAddress");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjinformtionServerAddress;
-  }
-
-  private Label getLabel1()
-  {
-    if (this.ivjLabel1 == null)
-      try
-      {
-        this.ivjLabel1 = new Label();
-        this.ivjLabel1.setName("Label1");
-        this.ivjLabel1.setText("chatUrl");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjLabel1;
-  }
-
-  private Label getLabel2()
-  {
-    if (this.ivjLabel2 == null)
-      try
-      {
-        this.ivjLabel2 = new Label();
-        this.ivjLabel2.setName("Label2");
-        this.ivjLabel2.setText("administratorName");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjLabel2;
-  }
-
-  private Label getLabel3()
-  {
-    if (this.ivjLabel3 == null)
-      try
-      {
-        this.ivjLabel3 = new Label();
-        this.ivjLabel3.setName("Label3");
-        this.ivjLabel3.setText("chatName");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjLabel3;
-  }
-
-  private Label getLabel4()
-  {
-    if (this.ivjLabel4 == null)
-      try
-      {
-        this.ivjLabel4 = new Label();
-        this.ivjLabel4.setName("Label4");
-        this.ivjLabel4.setText("commentString");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjLabel4;
-  }
-
-  private Label getLabel5()
-  {
-    if (this.ivjLabel5 == null)
-      try
-      {
-        this.ivjLabel5 = new Label();
-        this.ivjLabel5.setName("Label5");
-        this.ivjLabel5.setText("hpUrl");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjLabel5;
-  }
-
-  private Label getLabel6()
-  {
-    if (this.ivjLabel6 == null)
-      try
-      {
-        this.ivjLabel6 = new Label();
-        this.ivjLabel6.setName("Label6");
-        this.ivjLabel6.setText("homepageName");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjLabel6;
-  }
-
-  private Label getLabel7()
-  {
-    if (this.ivjLabel7 == null)
-      try
-      {
-        this.ivjLabel7 = new Label();
-        this.ivjLabel7.setName("Label7");
-        this.ivjLabel7.setText("informtionServerAddress");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjLabel7;
-  }
-
-  private Panel getleftPanel()
-  {
-    if (this.ivjleftPanel == null)
-      try
-      {
-        this.ivjleftPanel = new Panel();
-        this.ivjleftPanel.setName("leftPanel");
-        this.ivjleftPanel.setLayout(getleftPanelGridLayout());
-        getleftPanel().add(getLabel2(), getLabel2().getName());
-        this.ivjleftPanel.add(getLabel1());
-        this.ivjleftPanel.add(getLabel3());
-        this.ivjleftPanel.add(getLabel4());
-        this.ivjleftPanel.add(getLabel5());
-        this.ivjleftPanel.add(getLabel6());
-        this.ivjleftPanel.add(getLabel7());
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjleftPanel;
-  }
-
-  private GridLayout getleftPanelGridLayout()
-  {
-    GridLayout localGridLayout = null;
-    try
-    {
-      localGridLayout = new GridLayout(0, 1);
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-    return localGridLayout;
-  }
-
-  private Label getlobby_setup()
-  {
-    if (this.ivjlobby_setup == null)
-      try
-      {
-        this.ivjlobby_setup = new Label();
-        this.ivjlobby_setup.setName("lobby_setup");
-        this.ivjlobby_setup.setAlignment(1);
-        this.ivjlobby_setup.setText("lobby_setup");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjlobby_setup;
-  }
-
-  private LButton getOk()
-  {
-    if (this.ivjOk == null)
-      try
-      {
-        this.ivjOk = new LButton();
-        this.ivjOk.setName("Ok");
-        this.ivjOk.setText("   OK   ");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjOk;
-  }
-
-  private Panel getPanel3()
-  {
-    if (this.ivjPanel3 == null)
-      try
-      {
-        this.ivjPanel3 = new Panel();
-        this.ivjPanel3.setName("Panel3");
-        this.ivjPanel3.setLayout(new FlowLayout());
-        getPanel3().add(getOk(), getOk().getName());
-        this.ivjPanel3.add(getCancel());
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjPanel3;
-  }
-
-  private Panel getpanelBottom()
-  {
-    if (this.ivjpanelBottom == null)
-      try
-      {
-        this.ivjpanelBottom = new Panel();
-        this.ivjpanelBottom.setName("panelBottom");
-        this.ivjpanelBottom.setLayout(getpanelBottomFlowLayout());
-        getpanelBottom().add(getao_show_html(), getao_show_html().getName());
-        getpanelBottom().add(getApp_Auto_Lobby(), getApp_Auto_Lobby().getName());
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjpanelBottom;
-  }
-
-  private FlowLayout getpanelBottomFlowLayout()
-  {
-    FlowLayout localFlowLayout = null;
-    try
-    {
-      localFlowLayout = new FlowLayout();
-      localFlowLayout.setAlignment(0);
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-    return localFlowLayout;
-  }
-
-  private Panel getPanelConfig()
-  {
-    if (this.ivjPanelConfig == null)
-      try
-      {
-        this.ivjPanelConfig = new Panel();
-        this.ivjPanelConfig.setName("PanelConfig");
-        this.ivjPanelConfig.setLayout(new BorderLayout());
-        getPanelConfig().add(getPanelContent(), "Center");
-        getPanelConfig().add(getPanel3(), "South");
-        getPanelConfig().add(getlobby_setup(), "North");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjPanelConfig;
-  }
-
-  private Panel getPanelContent()
-  {
-    if (this.ivjPanelContent == null)
-      try
-      {
-        this.ivjPanelContent = new Panel();
-        this.ivjPanelContent.setName("PanelContent");
-        this.ivjPanelContent.setLayout(new BorderLayout());
-        getPanelContent().add(getleftPanel(), "West");
-        getPanelContent().add(getpanelRight(), "Center");
-        getPanelContent().add(getpanelBottom(), "South");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjPanelContent;
-  }
-
-  private Panel getpanelRight()
-  {
-    if (this.ivjpanelRight == null)
-      try
-      {
-        this.ivjpanelRight = new Panel();
-        this.ivjpanelRight.setName("panelRight");
-        this.ivjpanelRight.setLayout(getpanelRightGridLayout());
-        getpanelRight().add(getadministratorName(), getadministratorName().getName());
-        getpanelRight().add(getchatUrl(), getchatUrl().getName());
-        getpanelRight().add(getchatName(), getchatName().getName());
-        getpanelRight().add(getcommentString(), getcommentString().getName());
-        getpanelRight().add(gethpUrl(), gethpUrl().getName());
-        getpanelRight().add(gethomepageName(), gethomepageName().getName());
-        getpanelRight().add(getinformtionServerAddress(), getinformtionServerAddress().getName());
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjpanelRight;
-  }
-
-  private GridLayout getpanelRightGridLayout()
-  {
-    GridLayout localGridLayout = null;
-    try
-    {
-      localGridLayout = new GridLayout(0, 1);
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-    return localGridLayout;
-  }
-
-  private void handleException(Throwable paramThrowable)
-  {
-  }
-
-  public void init()
-  {
-    try
-    {
-      setName("Ao2");
-      setLayout(getAo2GridLayout());
-      setBackground(new Color(204, 204, 204));
-      setSize(426, 240);
-      setForeground(Color.black);
-      add(getPanelConfig());
-      initConnections();
-      Gui.giveDef(this);
-      load();
-      initValue();
-      ((Dialog)getParent()).pack();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void initConnections()
-    throws Exception
-  {
-    getOk().addActionListener(this);
-    getCancel().addActionListener(this);
-    setMouseListener(this, this);
-    getButton2().addActionListener(this);
-    getbu_ok().addActionListener(this);
-  }
-
-  private void initValue()
-  {
-    try
-    {
-      this.res = Resource.loadResource("Config");
-      getResource(this.res, this);
-      String str = getParameter("App_ShowHelp");
-      boolean bool = true;
-      if ((str != null) || (str.length() > 0))
-        switch (Character.toLowerCase(str.charAt(0)))
+        if(actionevent.getSource() == getButton2())
         {
-        case '0':
-        case 'f':
-        case 'n':
-          bool = false;
-          break;
-        default:
-          bool = true;
+            connEtoC1(actionevent);
         }
-      getHelp().setIsShow(bool);
-    }
-    catch (Throwable localThrowable)
-    {
-    }
-  }
-
-  private void load()
-  {
-    try
-    {
-      PProperties localPProperties = ((ServerStub)getAppletContext()).getHashTable();
-      this.ivjao_show_html.setState(localPProperties.getBool(this.CF_AO_SHOW_HTML));
-      String str = System.getProperty("user.name", "");
-      getadministratorName().setText(localPProperties.getString(getadministratorName().getName(), str));
-      getchatName().setText(localPProperties.getString(getchatName().getName(), str + "'s chat room"));
-      getchatUrl().setText(localPProperties.getString(getchatUrl().getName()));
-      getcommentString().setText(localPProperties.getString(getcommentString().getName(), "test room"));
-      gethpUrl().setText(localPProperties.getString(gethpUrl().getName()));
-      gethomepageName().setText(localPProperties.getString(gethomepageName().getName()));
-      getinformtionServerAddress().setText(localPProperties.getString(getinformtionServerAddress().getName(), "http://www.ax.sakura.ne.jp/~aotama/paintchat/paintchatexcheange.conf"));
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
-
-  public void m_destroy()
-  {
-    try
-    {
-      getHelp().reset();
-      ((Window)Awt.getParent(this)).dispose();
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
-
-  public static void main(String[] paramArrayOfString)
-  {
-    try
-    {
-      Frame localFrame = new Frame();
-      Class localClass = Class.forName("paintchat.config.Ao");
-      ClassLoader localClassLoader = localClass.getClassLoader();
-      Ao localAo = (Ao)Beans.instantiate(localClassLoader, "paintchat.config.Ao");
-      localFrame.add("Center", localAo);
-      localFrame.setSize(localAo.getSize());
-      localFrame.addWindowListener(new WindowAdapter()
-      {
-        public void windowClosing(WindowEvent paramWindowEvent)
+        if(actionevent.getSource() == getbu_ok())
         {
-          System.exit(0);
+            connEtoC2(actionevent);
         }
-      });
-      localFrame.setVisible(true);
-    }
-    catch (Throwable localThrowable)
-    {
-      System.err.println("java.applet.Applet の main() で例外が発生しました");
-      localThrowable.printStackTrace(System.out);
-    }
-  }
-
-  private void save()
-  {
-    try
-    {
-      Config localConfig = (Config)((ServerStub)getAppletContext()).getHashTable();
-      if (localConfig.getInt(this.CF_AO_CHATINDEX) == 0)
-      {
-        Random localRandom = new Random();
-        long l = 0L;
-        while (l == 0L)
+        if(actionevent.getSource() == getOk())
         {
-          l = localRandom.nextInt();
-          for (int i = 0; i < 100; i++)
-            l += localRandom.nextInt() % 6;
+            save();
+            m_destroy();
         }
-        localConfig.put(this.CF_AO_CHATINDEX, String.valueOf((int)l));
-      }
-      setParameter(this);
-      localConfig.save(new FileOutputStream(localConfig.getString("File_Config", "cnf/paintchat.cf")), Resource.loadResource("Config"));
+        if(actionevent.getSource() == getCancel())
+        {
+            m_destroy();
+        }
     }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
 
-  public void start()
-  {
-    connEtoC4();
-  }
+    public void ao2_Init()
+    {
+    }
+
+    public void ao2_Start()
+    {
+        Awt.setPFrame(Awt.getPFrame());
+        getCancel().addActionListener(this);
+        getOk().addActionListener(this);
+    }
+
+    private void connEtoC1(ActionEvent actionevent)
+    {
+        try
+        {
+            m_destroy();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
+
+    private void connEtoC2(ActionEvent actionevent)
+    {
+        try
+        {
+            save();
+            connEtoC3();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
+
+    private void connEtoC3()
+    {
+        try
+        {
+            m_destroy();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
+
+    private void connEtoC4()
+    {
+        try
+        {
+            ao2_Start();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
+
+    private TextField getadministratorName()
+    {
+        if(ivjadministratorName == null)
+        {
+            try
+            {
+                ivjadministratorName = new TextField();
+                ivjadministratorName.setName("administratorName");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjadministratorName;
+    }
+
+    private Checkbox getao_show_html()
+    {
+        if(ivjao_show_html == null)
+        {
+            try
+            {
+                ivjao_show_html = new Checkbox();
+                ivjao_show_html.setName("ao_show_html");
+                ivjao_show_html.setLabel("ao_show_html");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjao_show_html;
+    }
+
+    private GridLayout getAo2GridLayout()
+    {
+        GridLayout gridlayout = null;
+        try
+        {
+            gridlayout = new GridLayout(0, 1);
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+        return gridlayout;
+    }
+
+    private Checkbox getApp_Auto_Lobby()
+    {
+        if(ivjApp_Auto_Lobby == null)
+        {
+            try
+            {
+                ivjApp_Auto_Lobby = new Checkbox();
+                ivjApp_Auto_Lobby.setName("App_Auto_Lobby");
+                ivjApp_Auto_Lobby.setLabel("App_Auto_Lobby");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjApp_Auto_Lobby;
+    }
+
+    public String getAppletInfo()
+    {
+        return "paintchat.config.Ao2 \u306F VisualAge for Java \u3092\u4F7F\u7528\u3057\u3066\u4F5C" +
+"\u6210\u3055\u308C\u307E\u3057\u305F\u3002"
+;
+    }
+
+    private Button getbu_ok()
+    {
+        if(ivjbu_ok == null)
+        {
+            try
+            {
+                ivjbu_ok = new Button();
+                ivjbu_ok.setName("bu_ok");
+                ivjbu_ok.setBounds(190, 333, 38, 20);
+                ivjbu_ok.setLabel(" OK ");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjbu_ok;
+    }
+
+    private Button getButton2()
+    {
+        if(ivjButton2 == null)
+        {
+            try
+            {
+                ivjButton2 = new Button();
+                ivjButton2.setName("Button2");
+                ivjButton2.setBounds(235, 359, 50, 20);
+                ivjButton2.setLabel("CANCEL");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjButton2;
+    }
+
+    private LButton getCancel()
+    {
+        if(ivjCancel == null)
+        {
+            try
+            {
+                ivjCancel = new LButton();
+                ivjCancel.setName("Cancel");
+                ivjCancel.setText("Cancel");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjCancel;
+    }
+
+    private TextField getchatName()
+    {
+        if(ivjchatName == null)
+        {
+            try
+            {
+                ivjchatName = new TextField();
+                ivjchatName.setName("chatName");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjchatName;
+    }
+
+    private TextField getchatUrl()
+    {
+        if(ivjchatUrl == null)
+        {
+            try
+            {
+                ivjchatUrl = new TextField();
+                ivjchatUrl.setName("chatUrl");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjchatUrl;
+    }
+
+    private TextField getcommentString()
+    {
+        if(ivjcommentString == null)
+        {
+            try
+            {
+                ivjcommentString = new TextField();
+                ivjcommentString.setName("commentString");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjcommentString;
+    }
+
+    private TextField gethomepageName()
+    {
+        if(ivjhomepageName == null)
+        {
+            try
+            {
+                ivjhomepageName = new TextField();
+                ivjhomepageName.setName("homepageName");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjhomepageName;
+    }
+
+    private TextField gethpUrl()
+    {
+        if(ivjhpUrl == null)
+        {
+            try
+            {
+                ivjhpUrl = new TextField();
+                ivjhpUrl.setName("hpUrl");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjhpUrl;
+    }
+
+    private TextField getinformtionServerAddress()
+    {
+        if(ivjinformtionServerAddress == null)
+        {
+            try
+            {
+                ivjinformtionServerAddress = new TextField();
+                ivjinformtionServerAddress.setName("informtionServerAddress");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjinformtionServerAddress;
+    }
+
+    private Label getLabel1()
+    {
+        if(ivjLabel1 == null)
+        {
+            try
+            {
+                ivjLabel1 = new Label();
+                ivjLabel1.setName("Label1");
+                ivjLabel1.setText("chatUrl");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjLabel1;
+    }
+
+    private Label getLabel2()
+    {
+        if(ivjLabel2 == null)
+        {
+            try
+            {
+                ivjLabel2 = new Label();
+                ivjLabel2.setName("Label2");
+                ivjLabel2.setText("administratorName");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjLabel2;
+    }
+
+    private Label getLabel3()
+    {
+        if(ivjLabel3 == null)
+        {
+            try
+            {
+                ivjLabel3 = new Label();
+                ivjLabel3.setName("Label3");
+                ivjLabel3.setText("chatName");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjLabel3;
+    }
+
+    private Label getLabel4()
+    {
+        if(ivjLabel4 == null)
+        {
+            try
+            {
+                ivjLabel4 = new Label();
+                ivjLabel4.setName("Label4");
+                ivjLabel4.setText("commentString");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjLabel4;
+    }
+
+    private Label getLabel5()
+    {
+        if(ivjLabel5 == null)
+        {
+            try
+            {
+                ivjLabel5 = new Label();
+                ivjLabel5.setName("Label5");
+                ivjLabel5.setText("hpUrl");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjLabel5;
+    }
+
+    private Label getLabel6()
+    {
+        if(ivjLabel6 == null)
+        {
+            try
+            {
+                ivjLabel6 = new Label();
+                ivjLabel6.setName("Label6");
+                ivjLabel6.setText("homepageName");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjLabel6;
+    }
+
+    private Label getLabel7()
+    {
+        if(ivjLabel7 == null)
+        {
+            try
+            {
+                ivjLabel7 = new Label();
+                ivjLabel7.setName("Label7");
+                ivjLabel7.setText("informtionServerAddress");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjLabel7;
+    }
+
+    private Panel getleftPanel()
+    {
+        if(ivjleftPanel == null)
+        {
+            try
+            {
+                ivjleftPanel = new Panel();
+                ivjleftPanel.setName("leftPanel");
+                ivjleftPanel.setLayout(getleftPanelGridLayout());
+                getleftPanel().add(getLabel2(), getLabel2().getName());
+                ivjleftPanel.add(getLabel1());
+                ivjleftPanel.add(getLabel3());
+                ivjleftPanel.add(getLabel4());
+                ivjleftPanel.add(getLabel5());
+                ivjleftPanel.add(getLabel6());
+                ivjleftPanel.add(getLabel7());
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjleftPanel;
+    }
+
+    private GridLayout getleftPanelGridLayout()
+    {
+        GridLayout gridlayout = null;
+        try
+        {
+            gridlayout = new GridLayout(0, 1);
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+        return gridlayout;
+    }
+
+    private Label getlobby_setup()
+    {
+        if(ivjlobby_setup == null)
+        {
+            try
+            {
+                ivjlobby_setup = new Label();
+                ivjlobby_setup.setName("lobby_setup");
+                ivjlobby_setup.setAlignment(1);
+                ivjlobby_setup.setText("lobby_setup");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjlobby_setup;
+    }
+
+    private LButton getOk()
+    {
+        if(ivjOk == null)
+        {
+            try
+            {
+                ivjOk = new LButton();
+                ivjOk.setName("Ok");
+                ivjOk.setText("   OK   ");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjOk;
+    }
+
+    private Panel getPanel3()
+    {
+        if(ivjPanel3 == null)
+        {
+            try
+            {
+                ivjPanel3 = new Panel();
+                ivjPanel3.setName("Panel3");
+                ivjPanel3.setLayout(new FlowLayout());
+                getPanel3().add(getOk(), getOk().getName());
+                ivjPanel3.add(getCancel());
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjPanel3;
+    }
+
+    private Panel getpanelBottom()
+    {
+        if(ivjpanelBottom == null)
+        {
+            try
+            {
+                ivjpanelBottom = new Panel();
+                ivjpanelBottom.setName("panelBottom");
+                ivjpanelBottom.setLayout(getpanelBottomFlowLayout());
+                getpanelBottom().add(getao_show_html(), getao_show_html().getName());
+                getpanelBottom().add(getApp_Auto_Lobby(), getApp_Auto_Lobby().getName());
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjpanelBottom;
+    }
+
+    private FlowLayout getpanelBottomFlowLayout()
+    {
+        FlowLayout flowlayout = null;
+        try
+        {
+            flowlayout = new FlowLayout();
+            flowlayout.setAlignment(0);
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+        return flowlayout;
+    }
+
+    private Panel getPanelConfig()
+    {
+        if(ivjPanelConfig == null)
+        {
+            try
+            {
+                ivjPanelConfig = new Panel();
+                ivjPanelConfig.setName("PanelConfig");
+                ivjPanelConfig.setLayout(new BorderLayout());
+                getPanelConfig().add(getPanelContent(), "Center");
+                getPanelConfig().add(getPanel3(), "South");
+                getPanelConfig().add(getlobby_setup(), "North");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjPanelConfig;
+    }
+
+    private Panel getPanelContent()
+    {
+        if(ivjPanelContent == null)
+        {
+            try
+            {
+                ivjPanelContent = new Panel();
+                ivjPanelContent.setName("PanelContent");
+                ivjPanelContent.setLayout(new BorderLayout());
+                getPanelContent().add(getleftPanel(), "West");
+                getPanelContent().add(getpanelRight(), "Center");
+                getPanelContent().add(getpanelBottom(), "South");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjPanelContent;
+    }
+
+    private Panel getpanelRight()
+    {
+        if(ivjpanelRight == null)
+        {
+            try
+            {
+                ivjpanelRight = new Panel();
+                ivjpanelRight.setName("panelRight");
+                ivjpanelRight.setLayout(getpanelRightGridLayout());
+                getpanelRight().add(getadministratorName(), getadministratorName().getName());
+                getpanelRight().add(getchatUrl(), getchatUrl().getName());
+                getpanelRight().add(getchatName(), getchatName().getName());
+                getpanelRight().add(getcommentString(), getcommentString().getName());
+                getpanelRight().add(gethpUrl(), gethpUrl().getName());
+                getpanelRight().add(gethomepageName(), gethomepageName().getName());
+                getpanelRight().add(getinformtionServerAddress(), getinformtionServerAddress().getName());
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjpanelRight;
+    }
+
+    private GridLayout getpanelRightGridLayout()
+    {
+        GridLayout gridlayout = null;
+        try
+        {
+            gridlayout = new GridLayout(0, 1);
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+        return gridlayout;
+    }
+
+    private void handleException(Throwable throwable)
+    {
+    }
+
+    public void init()
+    {
+        try
+        {
+            setName("Ao2");
+            setLayout(getAo2GridLayout());
+            setBackground(new Color(204, 204, 204));
+            setSize(426, 240);
+            setForeground(Color.black);
+            add(getPanelConfig());
+            initConnections();
+            Gui.giveDef(this);
+            load();
+            initValue();
+            ((Dialog)getParent()).pack();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
+
+    private void initConnections()
+        throws Exception
+    {
+        getOk().addActionListener(this);
+        getCancel().addActionListener(this);
+        setMouseListener(this, this);
+        getButton2().addActionListener(this);
+        getbu_ok().addActionListener(this);
+    }
+
+    private void initValue()
+    {
+        try
+        {
+            super.res = Resource.loadResource("Config");
+            getResource(super.res, this);
+            String s = getParameter("App_ShowHelp");
+            boolean flag = true;
+            if(s != null || s.length() > 0)
+            {
+                switch(Character.toLowerCase(s.charAt(0)))
+                {
+                case 48: // '0'
+                case 102: // 'f'
+                case 110: // 'n'
+                    flag = false;
+                    break;
+
+                default:
+                    flag = true;
+                    break;
+                }
+            }
+            getHelp().setIsShow(flag);
+        }
+        catch(Throwable _ex) { }
+    }
+
+    private void load()
+    {
+        try
+        {
+            PProperties pproperties = ((ServerStub)getAppletContext()).getHashTable();
+            ivjao_show_html.setState(pproperties.getBool(CF_AO_SHOW_HTML));
+            String s = System.getProperty("user.name", "");
+            getadministratorName().setText(pproperties.getString(getadministratorName().getName(), s));
+            getchatName().setText(pproperties.getString(getchatName().getName(), s + "'s chat room"));
+            getchatUrl().setText(pproperties.getString(getchatUrl().getName()));
+            getcommentString().setText(pproperties.getString(getcommentString().getName(), "test room"));
+            gethpUrl().setText(pproperties.getString(gethpUrl().getName()));
+            gethomepageName().setText(pproperties.getString(gethomepageName().getName()));
+            getinformtionServerAddress().setText(pproperties.getString(getinformtionServerAddress().getName(), "http://www.ax.sakura.ne.jp/~aotama/paintchat/paintchatexcheange.conf"));
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    public void m_destroy()
+    {
+        try
+        {
+            getHelp().reset();
+            ((Window)Awt.getParent(this)).dispose();
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    public static void main(String args[])
+    {
+        try
+        {
+            Frame frame = new Frame();
+            Class class1 = Class.forName("paintchat.config.Ao");
+            ClassLoader classloader = class1.getClassLoader();
+            Ao ao = (Ao)Beans.instantiate(classloader, "paintchat.config.Ao");
+            frame.add("Center", ao);
+            frame.setSize(ao.getSize());
+            frame.addWindowListener(new WindowAdapter() {
+
+                public void windowClosing(WindowEvent windowevent)
+                {
+                    System.exit(0);
+                }
+
+            });
+            frame.setVisible(true);
+        }
+        catch(Throwable throwable)
+        {
+            System.err.println("java.applet.Applet \u306E main() \u3067\u4F8B\u5916\u304C\u767A\u751F\u3057\u307E" +
+"\u3057\u305F"
+);
+            throwable.printStackTrace(System.out);
+        }
+    }
+
+    private void save()
+    {
+        try
+        {
+            Config config = (Config)((ServerStub)getAppletContext()).getHashTable();
+            if(config.getInt(CF_AO_CHATINDEX) == 0)
+            {
+                Random random = new Random();
+                long l;
+                for(l = 0L; l == 0L;)
+                {
+                    l = random.nextInt();
+                    for(int i = 0; i < 100; i++)
+                    {
+                        l += random.nextInt() % 6;
+                    }
+
+                }
+
+                config.put(CF_AO_CHATINDEX, String.valueOf((int)l));
+            }
+            setParameter(this);
+            config.save(new FileOutputStream(config.getString("File_Config", "cnf/paintchat.cf")), Resource.loadResource("Config"));
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    public void start()
+    {
+        connEtoC4();
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.config.Ao
- * JD-Core Version:    0.6.0
- */

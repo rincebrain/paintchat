@@ -1,402 +1,459 @@
 package syi.util;
 
-import java.awt.Component;
-import java.awt.Image;
-import java.awt.MediaTracker;
-import java.awt.Toolkit;
-import java.io.BufferedReader;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
-import java.io.Reader;
-import java.io.Writer;
+import java.awt.*;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Calendar;
-import java.util.Enumeration;
-import java.util.GregorianCalendar;
-import java.util.Vector;
+import java.util.*;
 
 public class Io
 {
-  public static void close(Object paramObject)
-  {
-    if (paramObject == null)
-      return;
-    try
-    {
-      if ((paramObject instanceof InputStream))
-      {
-        ((InputStream)paramObject).close();
-        return;
-      }
-      if ((paramObject instanceof OutputStream))
-      {
-        ((OutputStream)paramObject).close();
-        return;
-      }
-      if ((paramObject instanceof Reader))
-      {
-        ((Reader)paramObject).close();
-        return;
-      }
-      if ((paramObject instanceof Writer))
-      {
-        ((Writer)paramObject).close();
-        return;
-      }
-      if ((paramObject instanceof RandomAccessFile))
-      {
-        ((RandomAccessFile)paramObject).close();
-        return;
-      }
-    }
-    catch (IOException localIOException)
-    {
-    }
-    try
-    {
-      paramObject.getClass().getMethod("close", new Class[0]).invoke(paramObject, new Object[0]);
-    }
-    catch (NoSuchMethodException localNoSuchMethodException)
-    {
-    }
-    catch (IllegalAccessException localIllegalAccessException)
-    {
-    }
-    catch (InvocationTargetException localInvocationTargetException)
-    {
-    }
-  }
 
-  public static void copyDirectory(File paramFile1, File paramFile2)
-  {
-    copyDirectory(paramFile1, paramFile2, null);
-  }
-
-  public static void copyDirectory(File paramFile1, File paramFile2, Vector paramVector)
-  {
-    if (!paramFile2.isDirectory())
-      paramFile2.mkdirs();
-    String[] arrayOfString = paramFile1.list();
-    for (int i = 0; i < arrayOfString.length; i++)
+    public Io()
     {
-      File localFile = new File(paramFile1, arrayOfString[i]);
-      if (localFile.isFile())
-        copyFile(new File(paramFile1, arrayOfString[i]), paramFile2, paramVector);
-      else
-        copyDirectory(new File(paramFile1, arrayOfString[i]), new File(paramFile2, arrayOfString[i]), paramVector);
     }
-  }
 
-  public static void copy(File paramFile1, File paramFile2, Vector paramVector)
-  {
-    if (paramFile1.isFile())
-      copyFile(paramFile1, paramFile2, paramVector);
-    else if (paramFile1.isDirectory())
-      copyDirectory(paramFile1, paramFile2, paramVector);
-  }
-
-  public static boolean copyFile(File paramFile1, File paramFile2)
-  {
-    try
+    public static void close(Object obj)
     {
-      File localFile = getDirectory(paramFile2);
-      if (!localFile.isDirectory())
-        localFile.mkdirs();
-      if (paramFile2.isDirectory())
-        paramFile2 = new File(paramFile2, getFileName(paramFile1.toString()));
-      byte[] arrayOfByte = new byte[512];
-      FileInputStream localFileInputStream = new FileInputStream(paramFile1);
-      FileOutputStream localFileOutputStream = new FileOutputStream(paramFile2);
-      int i;
-      while ((i = localFileInputStream.read(arrayOfByte)) != -1)
-        localFileOutputStream.write(arrayOfByte, 0, i);
-      localFileOutputStream.flush();
-      localFileOutputStream.close();
-      localFileInputStream.close();
-      return true;
-    }
-    catch (IOException localIOException)
-    {
-      localIOException.printStackTrace();
-    }
-    return false;
-  }
-
-  public static boolean copyFile(File paramFile1, File paramFile2, Vector paramVector)
-  {
-    try
-    {
-      if (paramFile1.isDirectory())
-        throw new IOException("src is directory");
-      if (paramVector != null)
-      {
-        int i = 0;
-        String str1 = getFileName(paramFile1.getCanonicalPath()).toLowerCase();
-        Enumeration localEnumeration = paramVector.elements();
-        while (localEnumeration.hasMoreElements())
+        if(obj == null)
         {
-          String str2 = localEnumeration.nextElement().toString();
-          if ((!str2.endsWith("*")) && (!str1.endsWith(str2)))
-            continue;
-          i = 1;
-          break;
+            return;
         }
-        if (i == 0)
-          return false;
-      }
-      copyFile(paramFile1, paramFile2);
-      return true;
+        try
+        {
+            if(obj instanceof InputStream)
+            {
+                ((InputStream)obj).close();
+                return;
+            }
+            if(obj instanceof OutputStream)
+            {
+                ((OutputStream)obj).close();
+                return;
+            }
+            if(obj instanceof Reader)
+            {
+                ((Reader)obj).close();
+                return;
+            }
+            if(obj instanceof Writer)
+            {
+                ((Writer)obj).close();
+                return;
+            }
+            if(obj instanceof RandomAccessFile)
+            {
+                ((RandomAccessFile)obj).close();
+                return;
+            }
+        }
+        catch(IOException _ex) { }
+        try
+        {
+            obj.getClass().getMethod("close", new Class[0]).invoke(obj, new Object[0]);
+        }
+        catch(NoSuchMethodException _ex) { }
+        catch(IllegalAccessException _ex) { }
+        catch(InvocationTargetException _ex) { }
     }
-    catch (IOException localIOException)
+
+    public static void copyDirectory(File file, File file1)
     {
-      localIOException.printStackTrace();
+        copyDirectory(file, file1, null);
     }
-    return false;
-  }
 
-  public static void copyFiles(File[] paramArrayOfFile, File paramFile)
-  {
-    for (int i = 0; i < paramArrayOfFile.length; i++)
-      copyFile(paramArrayOfFile[i], paramFile);
-  }
-
-  public static void copyFiles(String[] paramArrayOfString, String paramString)
-  {
-    for (int i = 0; i < paramArrayOfString.length; i++)
-      copyFile(new File(paramArrayOfString[i]), new File(paramString));
-  }
-
-  public static String getCurrent()
-  {
-    return System.getProperty("user.dir", "/");
-  }
-
-  public static final String getDateString(String paramString1, String paramString2, String paramString3)
-  {
-    String str1 = '.' + paramString2;
-    String str2 = null;
-    File localFile1 = new File(paramString3);
-    if (!localFile1.isDirectory())
-      localFile1.mkdirs();
-    try
+    public static void copyDirectory(File file, File file1, Vector vector)
     {
-      GregorianCalendar localGregorianCalendar = new GregorianCalendar();
-      String str3 = paramString1 + localGregorianCalendar.get(2) + '-' + localGregorianCalendar.get(5) + '_';
-      for (int i = 0; i < 256; i++)
-      {
-        File localFile2 = new File(paramString3, str3 + i + str1);
-        if (localFile2.isFile())
-          continue;
-        str2 = paramString3 + "/" + str3 + i + str1;
-        break;
-      }
-      if (i >= 32767)
-        str2 = paramString3 + "/" + paramString1 + "over_file255" + str1;
+        if(!file1.isDirectory())
+        {
+            file1.mkdirs();
+        }
+        String as[] = file.list();
+        for(int i = 0; i < as.length; i++)
+        {
+            File file2 = new File(file, as[i]);
+            if(file2.isFile())
+            {
+                copyFile(new File(file, as[i]), file1, vector);
+            } else
+            {
+                copyDirectory(new File(file, as[i]), new File(file1, as[i]), vector);
+            }
+        }
+
     }
-    catch (RuntimeException localRuntimeException)
+
+    public static void copy(File file, File file1, Vector vector)
     {
-      str2 = paramString1 + "." + paramString2;
+        if(file.isFile())
+        {
+            copyFile(file, file1, vector);
+        } else
+        if(file.isDirectory())
+        {
+            copyDirectory(file, file1, vector);
+        }
     }
-    return str2;
-  }
 
-  public static File getDirectory(File paramFile)
-  {
-    try
+    public static boolean copyFile(File file, File file1)
     {
-      return new File(getDirectory(paramFile.getCanonicalPath()));
+        try
+        {
+            File file2 = getDirectory(file1);
+            if(!file2.isDirectory())
+            {
+                file2.mkdirs();
+            }
+            if(file1.isDirectory())
+            {
+                file1 = new File(file1, getFileName(file.toString()));
+            }
+            byte abyte0[] = new byte[512];
+            FileInputStream fileinputstream = new FileInputStream(file);
+            FileOutputStream fileoutputstream = new FileOutputStream(file1);
+            int i;
+            while((i = fileinputstream.read(abyte0)) != -1) 
+            {
+                fileoutputstream.write(abyte0, 0, i);
+            }
+            fileoutputstream.flush();
+            fileoutputstream.close();
+            fileinputstream.close();
+            return true;
+        }
+        catch(IOException ioexception)
+        {
+            ioexception.printStackTrace();
+        }
+        return false;
     }
-    catch (IOException localIOException)
+
+    public static boolean copyFile(File file, File file1, Vector vector)
     {
-    }
-    return null;
-  }
+        try
+        {
+            if(file.isDirectory())
+            {
+                throw new IOException("src is directory");
+            }
+            if(vector != null)
+            {
+                boolean flag = false;
+                String s = getFileName(file.getCanonicalPath()).toLowerCase();
+                for(Enumeration enumeration = vector.elements(); enumeration.hasMoreElements();)
+                {
+                    String s1 = enumeration.nextElement().toString();
+                    if(s1.endsWith("*") || s.endsWith(s1))
+                    {
+                        flag = true;
+                        break;
+                    }
+                }
 
-  public static String getDirectory(String paramString)
-  {
-    if ((paramString == null) || (paramString.length() <= 0))
-      return "./";
-    if (paramString.indexOf('\\') >= 0)
-      paramString = paramString.replace('\\', '/');
-    int i = paramString.lastIndexOf('/');
-    if (i < 0)
-      return "./";
-    int j = paramString.indexOf('.', i);
-    if (j < i)
+                if(!flag)
+                {
+                    return false;
+                }
+            }
+            copyFile(file, file1);
+            return true;
+        }
+        catch(IOException ioexception)
+        {
+            ioexception.printStackTrace();
+        }
+        return false;
+    }
+
+    public static void copyFiles(File afile[], File file)
     {
-      if (paramString.charAt(paramString.length() - 1) != '/')
-        paramString = paramString + '/';
+        for(int i = 0; i < afile.length; i++)
+        {
+            copyFile(afile[i], file);
+        }
+
     }
-    else
-      paramString = paramString.substring(0, i + 1);
-    return paramString;
-  }
 
-  public static String getFileName(String paramString)
-  {
-    if (paramString.lastIndexOf('.') < 0)
-      return "";
-    int i = paramString.lastIndexOf('/');
-    if (i < 0)
-      i = paramString.lastIndexOf('\\');
-    if (i < 0)
-      return paramString;
-    return paramString.substring(i + 1);
-  }
-
-  public static void initFile(File paramFile)
-  {
-    try
+    public static void copyFiles(String as[], String s)
     {
-      File localFile = getDirectory(paramFile);
-      if (!localFile.isDirectory())
-        localFile.mkdirs();
+        for(int i = 0; i < as.length; i++)
+        {
+            copyFile(new File(as[i]), new File(s));
+        }
+
     }
-    catch (RuntimeException localRuntimeException)
+
+    public static String getCurrent()
     {
+        return System.getProperty("user.dir", "/");
     }
-  }
 
-  public static Image loadImageNow(Component paramComponent, String paramString)
-  {
-    Image localImage = null;
-    try
+    public static final String getDateString(String s, String s1, String s2)
     {
-      localImage = paramComponent.getToolkit().getImage(paramString);
-      MediaTracker localMediaTracker = new MediaTracker(paramComponent);
-      localMediaTracker.addImage(localImage, 0);
-      localMediaTracker.waitForID(0, 10000L);
-      localMediaTracker.removeImage(localImage);
-      localMediaTracker = null;
+        String s3 = '.' + s1;
+        String s4 = null;
+        File file = new File(s2);
+        if(!file.isDirectory())
+        {
+            file.mkdirs();
+        }
+        try
+        {
+            GregorianCalendar gregoriancalendar = new GregorianCalendar();
+            String s5 = s + gregoriancalendar.get(2) + '-' + gregoriancalendar.get(5) + '_';
+            int i;
+            for(i = 0; i < 256; i++)
+            {
+                File file1 = new File(s2, s5 + i + s3);
+                if(file1.isFile())
+                {
+                    continue;
+                }
+                s4 = s2 + "/" + s5 + i + s3;
+                break;
+            }
+
+            if(i >= 32767)
+            {
+                s4 = s2 + "/" + s + "over_file255" + s3;
+            }
+        }
+        catch(RuntimeException _ex)
+        {
+            s4 = s + "." + s1;
+        }
+        return s4;
     }
-    catch (Exception localException)
+
+    public static File getDirectory(File file)
     {
-      localException.printStackTrace();
+        try
+        {
+            return new File(getDirectory(file.getCanonicalPath()));
+        }
+        catch(IOException _ex)
+        {
+            return null;
+        }
     }
-    return localImage;
-  }
 
-  public static String loadString(File paramFile)
-    throws IOException
-  {
-    StringBuffer localStringBuffer = new StringBuffer();
-    BufferedReader localBufferedReader = new BufferedReader(new FileReader(paramFile));
-    int i;
-    while ((i = localBufferedReader.read()) != -1)
-      localStringBuffer.append((char)i);
-    localBufferedReader.close();
-    return localStringBuffer.toString();
-  }
-
-  public static File makeFile(String paramString1, String paramString2)
-  {
-    File localFile = toDir(paramString1);
-    if (!localFile.exists())
-      localFile.mkdirs();
-    return new File(localFile, paramString2);
-  }
-
-  public static final void moveFile(File paramFile1, File paramFile2)
-    throws Throwable
-  {
-    if (!paramFile1.renameTo(paramFile2))
+    public static String getDirectory(String s)
     {
-      copyFile(paramFile1, paramFile2);
-      paramFile1.delete();
+        if(s == null || s.length() <= 0)
+        {
+            return "./";
+        }
+        if(s.indexOf('\\') >= 0)
+        {
+            s = s.replace('\\', '/');
+        }
+        int i = s.lastIndexOf('/');
+        if(i < 0)
+        {
+            return "./";
+        }
+        int j = s.indexOf('.', i);
+        if(j < i)
+        {
+            if(s.charAt(s.length() - 1) != '/')
+            {
+                s = s + '/';
+            }
+        } else
+        {
+            s = s.substring(0, i + 1);
+        }
+        return s;
     }
-  }
 
-  public static final int r(InputStream paramInputStream)
-    throws IOException
-  {
-    int i = paramInputStream.read();
-    if (i == -1)
-      throw new EOFException();
-    return i;
-  }
-
-  public static final int readInt(InputStream paramInputStream)
-    throws IOException
-  {
-    int i = paramInputStream.read();
-    int j = paramInputStream.read();
-    int k = paramInputStream.read();
-    int m = paramInputStream.read();
-    if ((i | j | k | m) < 0)
-      throw new EOFException();
-    return (i << 24) + (j << 16) + (k << 8) + m;
-  }
-
-  public static final short readShort(InputStream paramInputStream)
-    throws IOException
-  {
-    int i = paramInputStream.read();
-    int j = paramInputStream.read();
-    if ((i | j) < 0)
-      throw new EOFException();
-    return (short)((i << 8) + j);
-  }
-
-  public static final int readUShort(InputStream paramInputStream)
-    throws IOException
-  {
-    int i = paramInputStream.read();
-    int j = paramInputStream.read();
-    if ((i | j) < 0)
-      throw new EOFException();
-    return (i << 8) + j;
-  }
-
-  public static final void rFull(InputStream paramInputStream, byte[] paramArrayOfByte, int paramInt1, int paramInt2)
-    throws EOFException, IOException
-  {
-    paramInt2 += paramInt1;
-    while (paramInt1 < paramInt2)
+    public static String getFileName(String s)
     {
-      int i = paramInputStream.read(paramArrayOfByte, paramInt1, paramInt2 - paramInt1);
-      if (i == -1)
-        throw new EOFException();
-      paramInt1 += i;
+        if(s.lastIndexOf('.') < 0)
+        {
+            return "";
+        }
+        int i = s.lastIndexOf('/');
+        if(i < 0)
+        {
+            i = s.lastIndexOf('\\');
+        }
+        if(i < 0)
+        {
+            return s;
+        } else
+        {
+            return s.substring(i + 1);
+        }
     }
-  }
 
-  public static File toDir(String paramString)
-  {
-    if ((paramString == null) || (paramString.length() <= 0))
-      return new File("./");
-    if (paramString.indexOf('\\') >= 0)
-      paramString = paramString.replace('\\', '/');
-    if (paramString.charAt(paramString.length() - 1) != '/')
-      paramString = paramString + '/';
-    return new File(paramString);
-  }
+    public static void initFile(File file)
+    {
+        try
+        {
+            File file1 = getDirectory(file);
+            if(!file1.isDirectory())
+            {
+                file1.mkdirs();
+            }
+        }
+        catch(RuntimeException _ex) { }
+    }
 
-  public static final void wInt(OutputStream paramOutputStream, int paramInt)
-    throws IOException
-  {
-    paramOutputStream.write(paramInt >>> 24);
-    paramOutputStream.write(paramInt >>> 16 & 0xFF);
-    paramOutputStream.write(paramInt >>> 8 & 0xFF);
-    paramOutputStream.write(paramInt & 0xFF);
-  }
+    public static Image loadImageNow(Component component, String s)
+    {
+        Image image = null;
+        try
+        {
+            image = component.getToolkit().getImage(s);
+            MediaTracker mediatracker = new MediaTracker(component);
+            mediatracker.addImage(image, 0);
+            mediatracker.waitForID(0, 10000L);
+            mediatracker.removeImage(image);
+            mediatracker = null;
+        }
+        catch(Exception exception)
+        {
+            exception.printStackTrace();
+        }
+        return image;
+    }
 
-  public static final void wShort(OutputStream paramOutputStream, int paramInt)
-    throws IOException
-  {
-    paramOutputStream.write(paramInt >>> 8 & 0xFF);
-    paramOutputStream.write(paramInt & 0xFF);
-  }
+    public static String loadString(File file)
+        throws IOException
+    {
+        StringBuffer stringbuffer = new StringBuffer();
+        BufferedReader bufferedreader = new BufferedReader(new FileReader(file));
+        int i;
+        while((i = bufferedreader.read()) != -1) 
+        {
+            stringbuffer.append((char)i);
+        }
+        bufferedreader.close();
+        return stringbuffer.toString();
+    }
+
+    public static File makeFile(String s, String s1)
+    {
+        File file = toDir(s);
+        if(!file.exists())
+        {
+            file.mkdirs();
+        }
+        return new File(file, s1);
+    }
+
+    public static final void moveFile(File file, File file1)
+        throws Throwable
+    {
+        if(!file.renameTo(file1))
+        {
+            copyFile(file, file1);
+            file.delete();
+        }
+    }
+
+    public static final int r(InputStream inputstream)
+        throws IOException
+    {
+        int i = inputstream.read();
+        if(i == -1)
+        {
+            throw new EOFException();
+        } else
+        {
+            return i;
+        }
+    }
+
+    public static final int readInt(InputStream inputstream)
+        throws IOException
+    {
+        int i = inputstream.read();
+        int j = inputstream.read();
+        int k = inputstream.read();
+        int l = inputstream.read();
+        if((i | j | k | l) < 0)
+        {
+            throw new EOFException();
+        } else
+        {
+            return (i << 24) + (j << 16) + (k << 8) + l;
+        }
+    }
+
+    public static final short readShort(InputStream inputstream)
+        throws IOException
+    {
+        int i = inputstream.read();
+        int j = inputstream.read();
+        if((i | j) < 0)
+        {
+            throw new EOFException();
+        } else
+        {
+            return (short)((i << 8) + j);
+        }
+    }
+
+    public static final int readUShort(InputStream inputstream)
+        throws IOException
+    {
+        int i = inputstream.read();
+        int j = inputstream.read();
+        if((i | j) < 0)
+        {
+            throw new EOFException();
+        } else
+        {
+            return (i << 8) + j;
+        }
+    }
+
+    public static final void rFull(InputStream inputstream, byte abyte0[], int i, int j)
+        throws EOFException, IOException
+    {
+        int k;
+        for(j += i; i < j; i += k)
+        {
+            k = inputstream.read(abyte0, i, j - i);
+            if(k == -1)
+            {
+                throw new EOFException();
+            }
+        }
+
+    }
+
+    public static File toDir(String s)
+    {
+        if(s == null || s.length() <= 0)
+        {
+            return new File("./");
+        }
+        if(s.indexOf('\\') >= 0)
+        {
+            s = s.replace('\\', '/');
+        }
+        if(s.charAt(s.length() - 1) != '/')
+        {
+            s = s + '/';
+        }
+        return new File(s);
+    }
+
+    public static final void wInt(OutputStream outputstream, int i)
+        throws IOException
+    {
+        outputstream.write(i >>> 24);
+        outputstream.write(i >>> 16 & 0xff);
+        outputstream.write(i >>> 8 & 0xff);
+        outputstream.write(i & 0xff);
+    }
+
+    public static final void wShort(OutputStream outputstream, int i)
+        throws IOException
+    {
+        outputstream.write(i >>> 8 & 0xff);
+        outputstream.write(i & 0xff);
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.util.Io
- * JD-Core Version:    0.6.0
- */

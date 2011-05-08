@@ -1,1333 +1,1543 @@
 package paintchat_client;
 
 import java.applet.Applet;
-import java.awt.AWTEvent;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.TextField;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import paintchat.LO;
-import paintchat.M;
-import paintchat.M.Info;
-import paintchat.M.User;
-import paintchat.Res;
+import paintchat.*;
 import syi.awt.Awt;
 import syi.awt.LComponent;
 
+// Referenced classes of package paintchat_client:
+//            Me, IMi
+
 public class Mi extends LComponent
-  implements ActionListener
+    implements ActionListener
 {
-  private LComponent tab;
-  private Method mGet;
-  private Method mPoll;
-  private IMi imi;
-  private Res res;
-  private boolean isRight = false;
-  public TextField text;
-  private boolean isText;
-  private M m;
-  public M.Info info;
-  public M.User user;
-  private M mgInfo;
-  public boolean isEnable = false;
-  private int[] ps = new int[5];
-  private int psCount = -1;
-  private Graphics primary;
-  private Graphics primary2;
-  private int oldX = 0;
-  private int oldY = 0;
-  private boolean isIn = false;
-  private int nowCur = -1;
-  private Cursor[] cursors;
-  private Image imCopy = null;
-  private boolean isSpace = false;
-  private boolean isScroll = false;
-  private boolean isDrag = false;
-  private Point poS = new Point();
-  private int[] rS = new int[20];
-  private int sizeBar = 20;
-  private Color[] cls;
-  private Color cPre = Color.black;
 
-  public Mi(IMi paramIMi, Res paramRes)
-    throws Exception
-  {
-    this.imi = paramIMi;
-    this.res = paramRes;
-    this.isRepaint = false;
-    this.isHide = false;
-    this.isGUI = false;
-    this.iGap = 2;
-    Me.res = paramRes;
-  }
+    private LComponent tab;
+    private Method mGet;
+    private Method mPoll;
+    private IMi imi;
+    private Res res;
+    private boolean isRight;
+    public TextField text;
+    private boolean isText;
+    private M m;
+    public paintchat.M.Info info;
+    public paintchat.M.User user;
+    private M mgInfo;
+    public boolean isEnable;
+    private int ps[];
+    private int psCount;
+    private Graphics primary;
+    private Graphics primary2;
+    private int oldX;
+    private int oldY;
+    private boolean isIn;
+    private int nowCur;
+    private Cursor cursors[];
+    private Image imCopy;
+    private boolean isSpace;
+    private boolean isScroll;
+    private boolean isDrag;
+    private Point poS;
+    private int rS[];
+    private int sizeBar;
+    private Color cls[];
+    private Color cPre;
 
-  public void actionPerformed(ActionEvent paramActionEvent)
-  {
-    if (this.text != null)
+    public Mi(IMi imi1, Res res1)
+        throws Exception
     {
-      addText(paramActionEvent.getActionCommand());
-      if (this.isText)
-        this.text.setVisible(false);
+        isRight = false;
+        isEnable = false;
+        ps = new int[5];
+        psCount = -1;
+        oldX = 0;
+        oldY = 0;
+        isIn = false;
+        nowCur = -1;
+        imCopy = null;
+        isSpace = false;
+        isScroll = false;
+        isDrag = false;
+        poS = new Point();
+        rS = new int[20];
+        sizeBar = 20;
+        cPre = Color.black;
+        imi = imi1;
+        res = res1;
+        super.isRepaint = false;
+        super.isHide = false;
+        super.isGUI = false;
+        super.iGap = 2;
+        Me.res = res1;
     }
-  }
 
-  public void addText(String paramString)
-  {
-    try
+    public void actionPerformed(ActionEvent actionevent)
     {
-      if (!this.mgInfo.isText())
-        return;
-      setM();
-      byte[] arrayOfByte = ('\000' + paramString).getBytes("UTF8");
-      this.m.setRetouch(this.ps, arrayOfByte, arrayOfByte.length, true);
-      this.m.draw();
-      send(this.m);
-    }
-    catch (Exception localException)
-    {
-    }
-  }
-
-  public boolean alert(String paramString, boolean paramBoolean)
-  {
-    try
-    {
-      return Me.confirm(paramString, paramBoolean);
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-    return true;
-  }
-
-  private boolean b(int paramInt1, int paramInt2)
-    throws Throwable
-  {
-    if (!in(paramInt1, paramInt2))
-      return false;
-    Dimension localDimension = this.info.getSize();
-    int i = localDimension.width;
-    int j = localDimension.height;
-    if (this.isSpace)
-    {
-      this.isIn = false;
-      this.imi.scroll(true, 0, 0);
-      this.isScroll = true;
-      this.poS.setLocation(paramInt1, paramInt2);
-      return true;
-    }
-    if ((paramInt1 > i) || (paramInt2 > j))
-    {
-      if (paramInt1 < this.sizeBar)
-      {
-        scaleChange(this.isRight ? -1 : 1, false);
-        this.isDrag = false;
-      }
-      else if (paramInt2 < this.sizeBar)
-      {
-        if (this.tab == null)
-          try
-          {
-            Class localClass = Class.forName("syi.awt.Tab");
-            this.tab = ((LComponent)localClass.getConstructors()[0].newInstance(new Object[] { getParent(), this.info }));
-            this.mGet = localClass.getMethod("strange", null);
-            this.mPoll = localClass.getMethod("poll", null);
-          }
-          catch (Throwable localThrowable)
-          {
-            this.tab = this;
-          }
-        else
-          this.tab.setVisible(true);
-        this.isDrag = false;
-      }
-      else if ((paramInt1 > i) && (paramInt2 > j))
-      {
-        scaleChange(this.isRight ? 1 : -1, false);
-        this.isDrag = false;
-      }
-      else
-      {
-        this.isIn = false;
-        this.imi.scroll(true, 0, 0);
-        this.isScroll = true;
-        this.poS.setLocation(paramInt1, paramInt2);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  private void cursor(int paramInt1, int paramInt2, int paramInt3)
-  {
-    if (paramInt1 != 503)
-      return;
-    Dimension localDimension = this.info.getSize();
-    int i = this.sizeBar;
-    int j = localDimension.width;
-    int k = localDimension.height;
-    int n;
-    if ((paramInt2 > j) || (paramInt3 >= k))
-      n = (paramInt2 > j) && (paramInt3 > k) ? 3 : paramInt3 < i ? 0 : paramInt2 < i ? 2 : 1;
-    else
-      n = 0;
-    if (this.nowCur != n)
-    {
-      this.nowCur = n;
-      setCursor(this.cursors[n]);
-    }
-  }
-
-  private void dBz(int paramInt1, int paramInt2, int paramInt3)
-  {
-    try
-    {
-      if (this.psCount <= 0)
-      {
-        if (paramInt1 != 502)
+        if(text != null)
         {
-          dLine(paramInt1, paramInt2, paramInt3);
+            addText(actionevent.getActionCommand());
+            if(isText)
+            {
+                text.setVisible(false);
+            }
         }
-        else
-        {
-          this.primary2.drawLine(this.ps[0] >> 16, (short)this.ps[0], this.ps[1] >> 16, (short)this.ps[1]);
-          this.user.setRect(0, 0, 0, 0);
-          p(3, paramInt2, paramInt3);
-          this.ps[1] = this.ps[0];
-          this.ps[2] = this.ps[0];
-          this.psCount = 1;
-          dPreB(false);
-        }
-        return;
-      }
-      ePre();
-      dPreB(true);
-      switch (paramInt1)
-      {
-      case 503:
-      case 506:
-        p(this.psCount, paramInt2, paramInt3);
-        p(2, paramInt2, paramInt3);
-        break;
-      case 502:
-        p(this.psCount++, paramInt2, paramInt3);
-        if (this.psCount >= 3)
-        {
-          this.psCount -= 1;
-          this.psCount = -1;
-          this.m.reset(true);
-          this.m.setRetouch(this.ps, null, 0, true);
-          this.m.draw();
-          dEnd(false);
-          return;
-        }
-        p(this.psCount, paramInt2, paramInt3);
-      case 504:
-      case 505:
-      }
-      dPreB(false);
     }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
 
-  private void dClear()
-    throws InterruptedException
-  {
-    if (!alert("kakunin_1", true))
-      return;
-    setM();
-    this.m.setRetouch(null, null, 0, true);
-    this.m.draw();
-    dEnd(false);
-  }
-
-  private void dCopy(int paramInt1, int paramInt2, int paramInt3)
-    throws InterruptedException
-  {
-    if (this.psCount <= 1)
+    public void addText(String s)
     {
-      if (paramInt1 == 502)
-      {
-        if (this.psCount <= 0)
-          return;
-        this.psCount = 2;
-        p(1, paramInt2, paramInt3);
-        if (!transRect())
+        try
         {
-          this.psCount = -1;
+            if(!mgInfo.isText())
+            {
+                return;
+            }
+            setM();
+            byte abyte0[] = ('\0' + s).getBytes("UTF8");
+            m.setRetouch(ps, abyte0, abyte0.length, true);
+            m.draw();
+            send(m);
         }
-        else
+        catch(Exception _ex) { }
+    }
+
+    public boolean alert(String s, boolean flag)
+    {
+        try
         {
-          this.ps[0] = this.user.points[0];
-          this.ps[1] = this.user.points[1];
-          this.ps[2] = this.ps[0];
+            return Me.confirm(s, flag);
         }
-        this.ps[4] = this.mgInfo.iLayer;
-      }
-      else
-      {
-        dRect(paramInt1, paramInt2, paramInt3);
-      }
-      return;
-    }
-    int i = this.ps[2] >> 16;
-    int j = (short)this.ps[2];
-    int k = (this.ps[1] >> 16) - (this.ps[0] >> 16);
-    int n = (short)this.ps[1] - (short)this.ps[0];
-    switch (paramInt1)
-    {
-    case 501:
-      if (this.imCopy != null)
-        this.imCopy.flush();
-      this.imCopy = this.m.getImage(this.ps[4], i, j, k, n);
-      p(3, paramInt2, paramInt3);
-      break;
-    case 506:
-      m_paint(i, j, k, n);
-      i += paramInt2 - (this.ps[3] >> 16);
-      j += paramInt3 - (short)this.ps[3];
-      p(2, i, j);
-      p(3, paramInt2, paramInt3);
-      this.primary2.setPaintMode();
-      this.primary2.drawImage(this.imCopy, i, j, k, n, Color.white, null);
-      this.primary2.setXORMode(Color.white);
-      break;
-    case 502:
-      i += paramInt2 - (this.ps[3] >> 16);
-      j += paramInt3 - (short)this.ps[3];
-      p(2, i, j);
-      this.m.set(this.mgInfo);
-      this.m.iLayerSrc = this.ps[4];
-      this.m.setRetouch(this.ps, null, 0, true);
-      this.m.draw();
-      dEnd(false);
-      this.psCount = -1;
-    case 503:
-    case 504:
-    case 505:
-    }
-  }
-
-  private void dEnd(boolean paramBoolean)
-    throws InterruptedException
-  {
-    M localM = this.m;
-    if ((localM.iHint != 10) && (localM.iPen == 20) && (localM.iHint != 14))
-    {
-      int i = this.user.wait;
-      this.user.wait = -2;
-      if (paramBoolean)
-        localM.dEnd();
-      int j = localM.iLayer;
-      for (int k = j + 1; k < this.info.L; k++)
-      {
-        if (this.info.layers[k].iAlpha == 0.0F)
-          continue;
-        localM.iLayerSrc = k;
-        setA();
-        localM.draw();
-        send(localM);
-      }
-      for (k = j - 1; k >= 0; k--)
-      {
-        if (this.info.layers[k].iAlpha == 0.0F)
-          continue;
-        localM.iLayerSrc = k;
-        setA();
-        localM.draw();
-        send(localM);
-      }
-      this.user.wait = i;
-      mPaint(null);
-    }
-    else
-    {
-      if (paramBoolean)
-        localM.dEnd();
-      send(localM);
-    }
-  }
-
-  private void dFLine(int paramInt1, int paramInt2, int paramInt3)
-  {
-    try
-    {
-      switch (paramInt1)
-      {
-      case 501:
-        poll();
-        setM();
-        this.m.dStart(paramInt2, paramInt3, getS(), true, true);
-        this.oldX = 0;
-        this.oldY = 0;
-        this.psCount = 1;
-        p(0, paramInt2, paramInt3);
-        break;
-      case 506:
-        if ((this.psCount < 0) || (!isOKPo(paramInt2, paramInt3)))
-          break;
-        this.psCount = 0;
-        this.m.dNext(paramInt2, paramInt3, getS(), 0);
-        p(this.psCount, paramInt2, paramInt3);
-        this.psCount += 1;
-        break;
-      case 502:
-        if (this.psCount < 0)
-          break;
-        if (this.m.iHint == 11)
-          this.m.dNext(paramInt2, paramInt3, getS(), 0);
-        dEnd(true);
-        this.psCount = -1;
-      case 503:
-      case 504:
-      case 505:
-      }
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
-
-  private void dLine(int paramInt1, int paramInt2, int paramInt3)
-  {
-    try
-    {
-      int i;
-      switch (paramInt1)
-      {
-      case 501:
-        setM();
-        for (i = 0; i < 4; i++)
-          p(i, paramInt2, paramInt3);
-        this.psCount = 0;
-        this.primary2.setColor(new Color(this.m.iColor));
-        this.primary2.drawLine(paramInt2, paramInt3, paramInt2, paramInt3);
-        break;
-      case 506:
-        if (this.psCount < 0)
-          break;
-        this.primary2.drawLine(this.ps[0] >> 16, (short)this.ps[0], this.ps[1] >> 16, (short)this.ps[1]);
-        this.primary2.drawLine(this.ps[0] >> 16, (short)this.ps[0], paramInt2, paramInt3);
-        p(1, paramInt2, paramInt3);
-        break;
-      case 502:
-        if (this.psCount < 0)
-          break;
-        i = this.ps[0] >> 16;
-        int j = (short)this.ps[0];
-        int k = this.m.iSize;
-        int n = paramInt2 - i;
-        int i1 = paramInt3 - j;
-        int i2 = Math.max(Math.abs(n), Math.abs(i1));
-        if (i2 > 0)
+        catch(Throwable throwable)
         {
-          this.m.dStart(i, j, k, true, true);
-          this.m.dNext(paramInt2, paramInt3, k, 0);
-          dEnd(true);
+            throwable.printStackTrace();
         }
-        else
-        {
-          mPaint(null);
-        }
-        this.psCount = -1;
-      case 503:
-      case 504:
-      case 505:
-      }
+        return true;
     }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
 
-  private final void dPre(int paramInt1, int paramInt2, boolean paramBoolean)
-  {
-    if ((this.mgInfo == null) || (this.mgInfo.isText()) || (this.primary2 == null) || (this.psCount >= 0))
-      return;
-    int i = this.mgInfo.iHint;
-    if ((i >= 3) && (i <= 6))
-      return;
-    try
+    private boolean b(int i, int j)
+        throws Throwable
     {
-      int j = this.info.getPenSize(this.mgInfo) * this.info.scale / this.info.Q;
-      if (j <= 5)
-        return;
-      int k = j >>> 1;
-      Graphics localGraphics = this.primary2;
-      Color localColor = this.cPre;
-      localColor = (localColor.getRGB() & 0xFFFFFF) != this.mgInfo.iColor >>> 1 ? new Color(this.mgInfo.iColor >>> 1) : localColor;
-      this.cPre = localColor;
-      localGraphics.setColor(localColor.getRGB() == 16777215 ? Color.red : (this.mgInfo.iPen == 4) || (this.mgInfo.iPen == 5) ? Color.cyan : localColor);
-      if (j <= this.info.scale * 2)
-      {
-        if (paramBoolean)
-          localGraphics.fillRect(this.oldX - k, this.oldY - k, j, j);
-        localGraphics.fillRect(paramInt1 - k, paramInt2 - k, j, j);
-      }
-      else
-      {
-        if (paramBoolean)
-          localGraphics.drawOval(this.oldX - k, this.oldY - k, j, j);
-        localGraphics.drawOval(paramInt1 - k, paramInt2 - k, j, j);
-      }
-      this.oldX = paramInt1;
-      this.oldY = paramInt2;
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-    }
-  }
-
-  private void dPreB(boolean paramBoolean)
-    throws InterruptedException
-  {
-    if (!paramBoolean)
-    {
-      long l = this.user.getRect();
-      this.m.reset(false);
-      this.user.isPre = true;
-      this.m.setRetouch(this.ps, null, 0, true);
-      this.m.draw();
-      this.user.addRect((int)(l >>> 48), (int)(l >>> 32) & 0xFFFF, (int)(l >>> 16) & 0xFFFF, (int)(l & 0xFFFF));
-      this.m.dBuffer();
-      this.user.isPre = false;
-    }
-    Graphics localGraphics = this.primary2;
-    int i = this.psCount + 1;
-    for (int j = 0; j < (i - 2 + 1) * 2; j += 2)
-      localGraphics.drawLine(this.ps[j] >> 16, (short)this.ps[j], this.ps[(j + 1)] >> 16, (short)this.ps[(j + 1)]);
-    j = 7;
-    int k = j / 2;
-    for (int n = 1; n < i; n++)
-      localGraphics.drawOval((this.ps[n] >> 16) - k, (short)this.ps[n] - k, j, j);
-  }
-
-  public void drawScroll(Graphics paramGraphics)
-  {
-    try
-    {
-      if (paramGraphics == null)
-        paramGraphics = this.primary;
-      if (paramGraphics == null)
-        return;
-      float f = this.info.scale;
-      int j = this.sizeBar;
-      int k = this.info.scaleX;
-      int n = this.info.scaleY;
-      int i1 = this.info.imW;
-      int i2 = this.info.imH;
-      Dimension localDimension = this.info.getSize();
-      int i3 = (int)(localDimension.width / f);
-      int i4 = (int)(localDimension.height / f);
-      if (k + i3 >= i1)
-      {
-        k = Math.max(0, i1 - i3);
-        this.info.scaleX = k;
-      }
-      if (n + i4 - 1 >= i2)
-      {
-        n = Math.max(0, i2 - i4);
-        this.info.scaleY = n;
-      }
-      int i5 = localDimension.width - j;
-      int i6 = localDimension.height - j;
-      int i7 = Math.min((int)(i3 / i1 * i5), i5);
-      int i8 = Math.min((int)(i4 / i2 * i6), i6);
-      int i9 = (int)(k / i1 * i5);
-      int i10 = (int)(n / i2 * i6);
-      int[] arrayOfInt = this.rS;
-      paramGraphics.setColor(this.cls[0]);
-      for (int i = 0; i < 20; i += 4)
-        paramGraphics.drawRect(arrayOfInt[i], arrayOfInt[(i + 1)], arrayOfInt[(i + 2)], arrayOfInt[(i + 3)]);
-      if (i9 > 0)
-      {
-        paramGraphics.setColor(this.cls[2]);
-        paramGraphics.drawRect(arrayOfInt[0] + 1, arrayOfInt[1] + 1, i9 - 2, arrayOfInt[3] - 2);
-        paramGraphics.setColor(this.cls[1]);
-        paramGraphics.fillRect(arrayOfInt[0] + 2, arrayOfInt[1] + 2, i9 - 2, arrayOfInt[3] - 3);
-      }
-      paramGraphics.setColor(this.cls[2]);
-      paramGraphics.drawRect(arrayOfInt[0] + i9 + i7, arrayOfInt[1] + 1, arrayOfInt[2] - i9 - i7 - 1, arrayOfInt[3] - 2);
-      paramGraphics.setColor(this.cls[1]);
-      paramGraphics.fillRect(arrayOfInt[0] + 1 + i9 + i7, arrayOfInt[1] + 2, arrayOfInt[2] - i9 - i7 - 2, arrayOfInt[3] - 3);
-      paramGraphics.setColor(this.cls[1]);
-      if (i10 > 0)
-      {
-        paramGraphics.setColor(this.cls[2]);
-        paramGraphics.drawRect(arrayOfInt[4] + 1, arrayOfInt[5] + 1, arrayOfInt[6] - 2, i10 - 1);
-        paramGraphics.setColor(this.cls[1]);
-        paramGraphics.fillRect(arrayOfInt[4] + 2, arrayOfInt[5] + 2, arrayOfInt[6] - 3, i10 - 1);
-      }
-      paramGraphics.setColor(this.cls[2]);
-      paramGraphics.drawRect(arrayOfInt[4] + 1, arrayOfInt[5] + i10 + i8, arrayOfInt[6] - 2, arrayOfInt[7] - i10 - i8 - 1);
-      paramGraphics.setColor(this.cls[1]);
-      paramGraphics.fillRect(arrayOfInt[4] + 2, arrayOfInt[5] + i10 + i8, arrayOfInt[6] - 3, arrayOfInt[7] - i10 - i8 - 1);
-      for (i = 8; i < 20; i += 4)
-      {
-        for (i11 = 0; i11 < 2; i11++)
+        if(!in(i, j))
         {
-          paramGraphics.setColor(this.cls[(2 - i11)]);
-          if (i11 == 0)
-            paramGraphics.drawRect(arrayOfInt[i] + 1, arrayOfInt[(i + 1)] + 1, arrayOfInt[(i + 2)] - 2, arrayOfInt[(i + 3)] - 2);
-          else
-            paramGraphics.fillRect(arrayOfInt[i] + 2, arrayOfInt[(i + 1)] + 2, arrayOfInt[(i + 2)] - 3, arrayOfInt[(i + 3)] - 3);
+            return false;
         }
-        paramGraphics.setColor(this.cls[3]);
-        i11 = arrayOfInt[(i + 2)] / 2;
-        i12 = arrayOfInt[(i + 3)] / 2;
-        if (i == 16)
+        Dimension dimension = info.getSize();
+        int k = dimension.width;
+        int l = dimension.height;
+        if(isSpace)
         {
-          i13 = arrayOfInt[i] + i11 / 2;
-          i14 = arrayOfInt[(i + 1)] + i12 / 2;
-          i12 /= 2;
-          paramGraphics.drawRect(i13, i14, i11, i12);
-          paramGraphics.fillRect(i13, i14 + i12, 1, i12);
+            isIn = false;
+            imi.scroll(true, 0, 0);
+            isScroll = true;
+            poS.setLocation(i, j);
+            return true;
         }
-        else
+        if(i > k || j > l)
         {
-          paramGraphics.fillRect(arrayOfInt[i] + i11 / 2, arrayOfInt[(i + 1)] + i12, i11 + 1, 1);
-          if (i != 8)
-            continue;
-          paramGraphics.fillRect(arrayOfInt[i] + i11, arrayOfInt[(i + 1)] + i12 / 2, 1, i12);
+            if(i < sizeBar)
+            {
+                scaleChange(isRight ? -1 : 1, false);
+                isDrag = false;
+            } else
+            if(j < sizeBar)
+            {
+                if(tab == null)
+                {
+                    try
+                    {
+                        Class class1 = Class.forName("syi.awt.Tab");
+                        tab = (LComponent)class1.getConstructors()[0].newInstance(new Object[] {
+                            getParent(), info
+                        });
+                        mGet = class1.getMethod("strange", null);
+                        mPoll = class1.getMethod("poll", null);
+                    }
+                    catch(Throwable _ex)
+                    {
+                        tab = this;
+                    }
+                } else
+                {
+                    tab.setVisible(true);
+                }
+                isDrag = false;
+            } else
+            if(i > k && j > l)
+            {
+                scaleChange(isRight ? 1 : -1, false);
+                isDrag = false;
+            } else
+            {
+                isIn = false;
+                imi.scroll(true, 0, 0);
+                isScroll = true;
+                poS.setLocation(i, j);
+            }
+            return true;
+        } else
+        {
+            return false;
         }
-      }
-      int i11 = arrayOfInt[0] + i9;
-      int i12 = arrayOfInt[1] + 1;
-      int i13 = arrayOfInt[4] + 1;
-      int i14 = arrayOfInt[5] + i10;
-      paramGraphics.setColor(this.cls[0]);
-      paramGraphics.drawRect(i11, i12, i7, arrayOfInt[3] - 2);
-      paramGraphics.drawRect(i13, i14, arrayOfInt[6] - 2, i8 + 1);
-      paramGraphics.setColor(this.cls[3]);
-      paramGraphics.fillRect(i11 + 2, i12 + 2, i7 - 3, arrayOfInt[3] - 5);
-      paramGraphics.fillRect(i13 + 2, i14 + 2, arrayOfInt[6] - 5, i8 - 2);
-      paramGraphics.setColor(this.cls[4]);
-      paramGraphics.fillRect(i11 + 1, i12 + 1, i7 - 2, 1);
-      paramGraphics.fillRect(i11 + 1, i12 + 2, 1, arrayOfInt[3] - 5);
-      paramGraphics.fillRect(i13 + 1, i14 + 1, arrayOfInt[6] - 4, 1);
-      paramGraphics.fillRect(i13 + 1, i14 + 2, 1, i8 - 2);
-      paramGraphics.setColor(this.cls[5]);
-      paramGraphics.fillRect(i11 + i7 - 1, i12 + 1, 1, arrayOfInt[3] - 4);
-      paramGraphics.fillRect(i11 + 1, i12 + arrayOfInt[3] - 3, i7 - 1, 1);
-      paramGraphics.fillRect(i13 + arrayOfInt[6] - 3, i14 + 1, 1, i8 - 1);
-      paramGraphics.fillRect(i13 + 1, i14 + i8, arrayOfInt[6] - 3, 1);
     }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
 
-  private void dRect(int paramInt1, int paramInt2, int paramInt3)
-  {
-    try
+    private void cursor(int i, int j, int k)
     {
-      int[] arrayOfInt = this.user.points;
-      switch (paramInt1)
-      {
-      case 501:
-        setM();
-        p(0, paramInt2, paramInt3);
-        this.m.memset(arrayOfInt, 0);
-        this.psCount = 1;
-        break;
-      case 506:
-        if (this.psCount != 1)
-          break;
-        int i = arrayOfInt[0];
-        int j = arrayOfInt[1];
-        int k = i >> 16;
-        int n = (short)i;
-        this.primary2.drawRect(k, n, (j >> 16) - k - 1, (short)j - n - 1);
-        p(1, paramInt2, paramInt3);
-        transRect();
-        i = arrayOfInt[0];
-        j = arrayOfInt[1];
-        k = i >> 16;
-        n = (short)i;
-        this.primary2.drawRect(k, n, (j >> 16) - k - 1, (short)j - n - 1);
-        break;
-      case 502:
-        if (this.psCount > 0)
+        if(i != 503)
         {
-          p(1, paramInt2, paramInt3);
-          if (transRect())
-          {
-            this.ps[0] = arrayOfInt[0];
-            this.ps[1] = arrayOfInt[1];
-            this.m.setRetouch(this.ps, null, 0, true);
-            if (this.m.iPen != 20)
-              this.m.draw();
+            return;
+        }
+        Dimension dimension = info.getSize();
+        int l = sizeBar;
+        int i1 = dimension.width;
+        int j1 = dimension.height;
+        int k1;
+        if(j > i1 || k >= j1)
+        {
+            k1 = j >= l ? ((int) (k >= l ? ((int) (j <= i1 || k <= j1 ? 1 : 3)) : 0)) : 2;
+        } else
+        {
+            k1 = 0;
+        }
+        if(nowCur != k1)
+        {
+            nowCur = k1;
+            setCursor(cursors[k1]);
+        }
+    }
+
+    private void dBz(int i, int j, int k)
+    {
+        try
+        {
+            if(psCount <= 0)
+            {
+                if(i != 502)
+                {
+                    dLine(i, j, k);
+                } else
+                {
+                    primary2.drawLine(ps[0] >> 16, (short)ps[0], ps[1] >> 16, (short)ps[1]);
+                    user.setRect(0, 0, 0, 0);
+                    p(3, j, k);
+                    ps[1] = ps[0];
+                    ps[2] = ps[0];
+                    psCount = 1;
+                    dPreB(false);
+                }
+                return;
+            }
+            ePre();
+            dPreB(true);
+            switch(i)
+            {
+            case 504: 
+            case 505: 
+            default:
+                break;
+
+            case 503: 
+            case 506: 
+                p(psCount, j, k);
+                p(2, j, k);
+                break;
+
+            case 502: 
+                p(psCount++, j, k);
+                if(psCount >= 3)
+                {
+                    psCount--;
+                    psCount = -1;
+                    m.reset(true);
+                    m.setRetouch(ps, null, 0, true);
+                    m.draw();
+                    dEnd(false);
+                    return;
+                }
+                p(psCount, j, k);
+                break;
+            }
+            dPreB(false);
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    private void dClear()
+        throws InterruptedException
+    {
+        if(!alert("kakunin_1", true))
+        {
+            return;
+        } else
+        {
+            setM();
+            m.setRetouch(null, null, 0, true);
+            m.draw();
             dEnd(false);
-          }
+            return;
         }
-        this.psCount = -1;
-      case 503:
-      case 504:
-      case 505:
-      }
     }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
 
-  public void dScroll(MouseEvent paramMouseEvent, int paramInt1, int paramInt2)
-  {
-    if ((paramInt1 != 0) || (paramInt2 != 0))
+    private void dCopy(int i, int j, int k)
+        throws InterruptedException
     {
-      scroll(paramInt1, paramInt2);
-      return;
-    }
-    int i = paramMouseEvent.getID();
-    Point localPoint = paramMouseEvent.getPoint();
-    if ((i == 502) || (i == 506))
-    {
-      scroll(this.isSpace ? this.poS.x - localPoint.x : localPoint.x - this.poS.x, this.isSpace ? this.poS.y - localPoint.y : localPoint.y - this.poS.y);
-      this.poS = localPoint;
-    }
-    else if (i == 501)
-    {
-      this.poS = localPoint;
-    }
-  }
-
-  public void dText(int paramInt1, int paramInt2, int paramInt3)
-  {
-    switch (paramInt1)
-    {
-    case 501:
-      break;
-    case 502:
-      setM();
-      if (this.text == null)
-      {
-        this.text = new TextField(16);
-        this.text.addActionListener(this);
-        this.isText = true;
-        getParent().add(this.text, 0);
-      }
-      if (!this.isText)
-      {
-        this.primary.setColor(new Color(this.mgInfo.iColor));
-        this.primary.fillRect(paramInt2 - 1, paramInt3 - 1, this.mgInfo.iSize + 1, 1);
-        this.primary.fillRect(paramInt2 - 1, paramInt3, 1, this.mgInfo.iSize);
-      }
-      else
-      {
-        this.text.setFont(this.m.getFont(this.m.iSize * this.info.scale / this.info.Q));
-        this.text.setSize(this.text.getPreferredSize());
-        Point localPoint = getLocation();
-        this.text.setLocation(paramInt2 + localPoint.x, paramInt3 + localPoint.y + 2);
-        this.text.setVisible(true);
-      }
-      p(0, paramInt2, paramInt3);
-    }
-  }
-
-  private void ePre()
-  {
-    dPre(this.oldX, this.oldY, false);
-    this.oldX = -1000;
-    this.oldY = -1000;
-  }
-
-  private final int getS()
-  {
-    try
-    {
-      if ((this.tab == null) || (this.tab == this))
-        return 255;
-      return ((Integer)this.mGet.invoke(this.tab, null)).intValue();
-    }
-    catch (Throwable localThrowable)
-    {
-      this.tab = this;
-    }
-    return 255;
-  }
-
-  private final boolean in(int paramInt1, int paramInt2)
-  {
-    Dimension localDimension = getSize();
-    return (paramInt1 >= 0) && (paramInt2 >= 0) && (paramInt1 < localDimension.width) && (paramInt2 < localDimension.height);
-  }
-
-  public void init(Applet paramApplet, Res paramRes, int paramInt1, int paramInt2, int paramInt3, int paramInt4, Cursor[] paramArrayOfCursor)
-    throws IOException
-  {
-    String str = "color_";
-    this.cursors = paramArrayOfCursor;
-    this.cls = new Color[6];
-    this.cls[0] = new Color(paramRes.getP(str + "frame", 5263480));
-    this.cls[1] = new Color(paramRes.getP(str + "icon", 13421823));
-    this.cls[2] = new Color(paramRes.getP(str + "bar_hl", 16777215));
-    this.cls[3] = new Color(paramRes.getP(str + "bar", 7303086));
-    this.cls[4] = new Color(paramRes.getP(str + "bar_hl", 15658751));
-    this.cls[5] = new Color(paramRes.getP(str + "bar_shadow", 11184810));
-    setBackground(Color.white);
-    this.m = new M();
-    this.user = this.m.newUser(this);
-    M.Info localInfo = this.m.newInfo(paramApplet, this, paramRes);
-    localInfo.setSize(paramInt1, paramInt2, paramInt3);
-    localInfo.setL(paramInt4);
-    this.info = localInfo;
-    this.mgInfo = localInfo.m;
-  }
-
-  private final boolean isOKPo(int paramInt1, int paramInt2)
-  {
-    int i = this.ps[(this.psCount - 1)];
-    return Math.max(Math.abs(paramInt1 - (i >> 16)), Math.abs(paramInt2 - (short)i)) >= this.info.scale;
-  }
-
-  public void m_paint(int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    Dimension localDimension = this.info.getSize();
-    if (this.m == null)
-    {
-      this.primary.setColor(Color.white);
-      this.primary.fillRect(0, 0, localDimension.width, localDimension.height);
-      return;
-    }
-    if ((paramInt1 == 0) && (paramInt2 == 0) && (paramInt3 == 0) && (paramInt4 == 0))
-    {
-      paramInt1 = paramInt2 = 0;
-      paramInt3 = localDimension.width;
-      paramInt4 = localDimension.height;
-    }
-    else
-    {
-      paramInt1 = Math.max(paramInt1, 0);
-      paramInt2 = Math.max(paramInt2, 0);
-      paramInt3 = Math.min(paramInt3, localDimension.width);
-      paramInt4 = Math.min(paramInt4, localDimension.height);
-    }
-    this.m.m_paint(paramInt1, paramInt2, paramInt3, paramInt4);
-  }
-
-  public void m_paint(Rectangle paramRectangle)
-  {
-    if (paramRectangle == null)
-      m_paint(0, 0, 0, 0);
-    else
-      m_paint(paramRectangle.x, paramRectangle.y, paramRectangle.width, paramRectangle.height);
-  }
-
-  private void mPaint(Graphics paramGraphics)
-  {
-    if (paramGraphics == null)
-      paramGraphics = this.primary;
-    drawScroll(paramGraphics);
-    if (!this.isPaint)
-      return;
-    m_paint(paramGraphics == this.primary ? null : paramGraphics.getClipBounds());
-  }
-
-  private final void p(int paramInt1, int paramInt2, int paramInt3)
-  {
-    this.ps[paramInt1] = (paramInt2 << 16 | paramInt3 & 0xFFFF);
-  }
-
-  public void paint2(Graphics paramGraphics)
-  {
-    try
-    {
-      Rectangle localRectangle = paramGraphics.getClipBounds();
-      int i = (this.info == null ? 0 : this.info.scale) * 2;
-      paramGraphics.setClip(localRectangle.x - i, localRectangle.y - i, localRectangle.width + i * 2, localRectangle.height + i * 2);
-      mPaint(paramGraphics);
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
-
-  public void pMouse(MouseEvent paramMouseEvent)
-  {
-    try
-    {
-      int i = paramMouseEvent.getID();
-      int j = this.info.scale;
-      int k = paramMouseEvent.getX() / j * j;
-      int n = paramMouseEvent.getY() / j * j;
-      int i1 = i == 501 ? 1 : 0;
-      int i2 = i == 506 ? 1 : 0;
-      boolean bool = this.isRight;
-      if ((paramMouseEvent.isAltDown()) && (paramMouseEvent.isControlDown()))
-      {
-        if (this.psCount >= 0)
-          reset();
-        if (i1 != 0)
+        if(psCount <= 1)
         {
-          this.poS.y = n;
-          this.poS.x = this.mgInfo.iSize;
-          m_paint(null);
+            if(i == 502)
+            {
+                if(psCount <= 0)
+                {
+                    return;
+                }
+                psCount = 2;
+                p(1, j, k);
+                if(!transRect())
+                {
+                    psCount = -1;
+                } else
+                {
+                    ps[0] = user.points[0];
+                    ps[1] = user.points[1];
+                    ps[2] = ps[0];
+                }
+                ps[4] = mgInfo.iLayer;
+            } else
+            {
+                dRect(i, j, k);
+            }
+            return;
         }
-        if (i2 != 0)
+        int l = ps[2] >> 16;
+        int i1 = (short)ps[2];
+        int j1 = (ps[1] >> 16) - (ps[0] >> 16);
+        int k1 = (short)ps[1] - (short)ps[0];
+        switch(i)
         {
-          Dimension localDimension = getSize();
-          int i3 = localDimension.width / 2;
-          int i4 = localDimension.height / 2;
-          int i5 = this.info.getPenSize(this.mgInfo) * this.info.scale;
-          m_paint(i3 - i5, i4 - i5, i5 * 2, i5 * 2);
-          this.imi.setLineSize((n - this.poS.y) / 4 + this.poS.x);
-          dPre(i3, i4, false);
-        }
-        return;
-      }
-      if (i1 != 0)
-      {
-        if ((this.text == null) || (!this.text.isVisible()))
-          requestFocus();
-        bool = this.isRight = Awt.isR(paramMouseEvent);
-        if (!this.isDrag)
-          dPre(this.oldX, this.oldY, false);
-        this.isDrag = true;
-        if (b(k, n))
-          return;
-        if ((this.isText) && (this.text != null) && (this.text.isVisible()))
-          this.text.setVisible(false);
-      }
-      if (i == 502)
-      {
-        if (!this.isDrag)
-          return;
-        this.isRight = false;
-        this.isDrag = false;
-        this.isPaint = true;
-        if (this.isScroll)
-        {
-          this.isScroll = false;
-          this.imi.scroll(false, 0, 0);
-          if (this.info.scale < 1)
-            m_paint(null);
-          return;
-        }
-      }
-      if ((this.isRight) && (this.isDrag))
-      {
-        if (this.psCount >= 0)
-        {
-          reset();
-          this.isRight = false;
-          this.isDrag = false;
-          this.isPaint = true;
-        }
-        else
-        {
-          this.imi.setARGB(this.user.getPixel(k / this.info.scale + this.info.scaleX, n / this.info.scale + this.info.scaleY) & 0xFFFFFF | this.info.m.iAlpha << 24);
-        }
-        return;
-      }
-      if (!this.isDrag)
-      {
-        cursor(i, k, n);
-        switch (i)
-        {
-        case 504:
-          getS();
-          break;
-        case 503:
-          dPre(k, n, this.isIn);
-          this.isIn = true;
-          break;
-        case 505:
-          if (!this.isIn)
-            break;
-          this.isIn = false;
-          dPre(this.oldX, this.oldY, false);
-        }
-      }
-      if (this.isScroll)
-      {
-        dScroll(paramMouseEvent, 0, 0);
-        return;
-      }
-      if ((this.isEnable) && ((this.mgInfo.iLayer + 1 & this.info.permission) != 0L) && (!bool) && ((this.mgInfo.iHint == 10) || (this.info.layers[this.mgInfo.iLayer].iAlpha > 0.0F)))
-        switch (this.mgInfo.iHint)
-        {
-        case 0:
-        case 11:
-          dFLine(i, k, n);
-          break;
-        case 1:
-          dLine(i, k, n);
-          break;
-        case 2:
-          dBz(i, k, n);
-          break;
-        case 8:
-        case 12:
-          dText(i, k, n);
-          break;
-        case 9:
-          dCopy(i, k, n);
-          break;
-        case 10:
-          if ((!this.info.isClean) || (i1 == 0))
-            break;
-          dClear();
-          break;
-        case 7:
-          if ((i1 == 0) || (!this.info.isFill))
-            break;
-          this.m.set(this.info.m);
-          p(0, k, n);
-          p(1, k + 1024, n + 1024);
-          transRect();
-          this.m.setRetouch(this.user.points, null, 0, true);
-          this.m.draw();
-          send();
-          break;
-        case 3:
-        case 4:
-        case 5:
-        case 6:
+        case 503: 
+        case 504: 
+        case 505: 
         default:
-          dRect(i, k, n);
-        }
-      if ((i == 502) && (this.isIn))
-      {
-        dPre(k, n, false);
-        this.isDrag = false;
-      }
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
-
-  private final void poll()
-  {
-    if ((this.tab == null) || (this.tab == this))
-      return;
-    try
-    {
-      if (((Boolean)this.mPoll.invoke(this.tab, null)).booleanValue())
-        return;
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-    this.mgInfo.iSOB = 0;
-  }
-
-  protected void processKeyEvent(KeyEvent paramKeyEvent)
-  {
-    try
-    {
-      int i = (!paramKeyEvent.isControlDown()) && (!paramKeyEvent.isShiftDown()) ? 0 : 1;
-      boolean bool1 = paramKeyEvent.isAltDown();
-      boolean bool2 = true;
-      switch (paramKeyEvent.getID())
-      {
-      case 401:
-        switch (paramKeyEvent.getKeyCode())
-        {
-        case 32:
-          this.isSpace = true;
-          break;
-        case 39:
-          scroll(5, 0);
-          break;
-        case 38:
-          scroll(0, -5);
-          break;
-        case 40:
-          scroll(0, 5);
-          break;
-        case 37:
-          scroll(-5, 0);
-          break;
-        case 107:
-          scaleChange(1, false);
-          break;
-        case 109:
-          scaleChange(-1, false);
-          break;
-        case 82:
-        case 89:
-          bool2 = false;
-        case 90:
-          if (bool1)
-            bool2 = false;
-          if (i == 0)
             break;
-          this.imi.undo(bool2);
-          break;
-        case 66:
-          this.imi.setARGB(this.mgInfo.iAlpha << 24 | this.mgInfo.iColor);
-          break;
-        case 69:
-          this.imi.setARGB(16777215);
+
+        case 501: 
+            if(imCopy != null)
+            {
+                imCopy.flush();
+            }
+            imCopy = m.getImage(ps[4], l, i1, j1, k1);
+            p(3, j, k);
+            break;
+
+        case 506: 
+            m_paint(l, i1, j1, k1);
+            l += j - (ps[3] >> 16);
+            i1 += k - (short)ps[3];
+            p(2, l, i1);
+            p(3, j, k);
+            primary2.setPaintMode();
+            primary2.drawImage(imCopy, l, i1, j1, k1, Color.white, null);
+            primary2.setXORMode(Color.white);
+            break;
+
+        case 502: 
+            l += j - (ps[3] >> 16);
+            i1 += k - (short)ps[3];
+            p(2, l, i1);
+            m.set(mgInfo);
+            m.iLayerSrc = ps[4];
+            m.setRetouch(ps, null, 0, true);
+            m.draw();
+            dEnd(false);
+            psCount = -1;
+            break;
         }
-        break;
-      case 402:
-        switch (paramKeyEvent.getKeyCode())
+    }
+
+    private void dEnd(boolean flag)
+        throws InterruptedException
+    {
+        M m1 = m;
+        if(m1.iHint != 10 && m1.iPen == 20 && m1.iHint != 14)
         {
-        case 32:
-          this.isSpace = false;
+            int i = user.wait;
+            user.wait = -2;
+            if(flag)
+            {
+                m1.dEnd();
+            }
+            int j = m1.iLayer;
+            for(int k = j + 1; k < info.L; k++)
+            {
+                if(info.layers[k].iAlpha != 0.0F)
+                {
+                    m1.iLayerSrc = k;
+                    setA();
+                    m1.draw();
+                    send(m1);
+                }
+            }
+
+            for(int l = j - 1; l >= 0; l--)
+            {
+                if(info.layers[l].iAlpha != 0.0F)
+                {
+                    m1.iLayerSrc = l;
+                    setA();
+                    m1.draw();
+                    send(m1);
+                }
+            }
+
+            user.wait = i;
+            mPaint(null);
+        } else
+        {
+            if(flag)
+            {
+                m1.dEnd();
+            }
+            send(m1);
         }
-      }
     }
-    catch (Throwable localThrowable)
+
+    private void dFLine(int i, int j, int k)
     {
-      localThrowable.printStackTrace();
-    }
-  }
+        try
+        {
+            switch(i)
+            {
+            case 503: 
+            case 504: 
+            case 505: 
+            default:
+                break;
 
-  public void reset()
-  {
-    if (this.psCount >= 0)
+            case 501: 
+                poll();
+                setM();
+                m.dStart(j, k, getS(), true, true);
+                oldX = 0;
+                oldY = 0;
+                psCount = 1;
+                p(0, j, k);
+                break;
+
+            case 506: 
+                if(psCount >= 0 && isOKPo(j, k))
+                {
+                    psCount = 0;
+                    m.dNext(j, k, getS(), 0);
+                    p(psCount, j, k);
+                    psCount++;
+                }
+                break;
+
+            case 502: 
+                if(psCount < 0)
+                {
+                    break;
+                }
+                if(m.iHint == 11)
+                {
+                    m.dNext(j, k, getS(), 0);
+                }
+                dEnd(true);
+                psCount = -1;
+                break;
+            }
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    private void dLine(int i, int j, int k)
     {
-      this.psCount = -1;
-      switch (this.mgInfo.iHint)
-      {
-      case 0:
-      case 11:
-        this.m.reset(true);
-        break;
-      default:
-        this.m.reset(false);
-        m_paint(null);
-      }
-    }
-  }
+        try
+        {
+            switch(i)
+            {
+            case 503: 
+            case 504: 
+            case 505: 
+            default:
+                break;
 
-  public synchronized void resetGraphics()
-  {
-    if (this.primary != null)
-      this.primary.dispose();
-    if (this.primary2 != null)
-      this.primary2.dispose();
-    Dimension localDimension = getSize();
-    int i = localDimension.width - this.sizeBar;
-    int j = localDimension.height - this.sizeBar;
-    this.primary = getGraphics();
-    if (this.primary != null)
+            case 501: 
+                setM();
+                for(int l = 0; l < 4; l++)
+                {
+                    p(l, j, k);
+                }
+
+                psCount = 0;
+                primary2.setColor(new Color(m.iColor));
+                primary2.drawLine(j, k, j, k);
+                break;
+
+            case 506: 
+                if(psCount >= 0)
+                {
+                    primary2.drawLine(ps[0] >> 16, (short)ps[0], ps[1] >> 16, (short)ps[1]);
+                    primary2.drawLine(ps[0] >> 16, (short)ps[0], j, k);
+                    p(1, j, k);
+                }
+                break;
+
+            case 502: 
+                if(psCount < 0)
+                {
+                    break;
+                }
+                int i1 = ps[0] >> 16;
+                short word0 = (short)ps[0];
+                int j1 = m.iSize;
+                int k1 = j - i1;
+                int l1 = k - word0;
+                int i2 = Math.max(Math.abs(k1), Math.abs(l1));
+                if(i2 > 0)
+                {
+                    m.dStart(i1, word0, j1, true, true);
+                    m.dNext(j, k, j1, 0);
+                    dEnd(true);
+                } else
+                {
+                    mPaint(null);
+                }
+                psCount = -1;
+                break;
+            }
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    private final void dPre(int i, int j, boolean flag)
     {
-      this.primary.translate(getGapX(), getGapY());
-      this.primary2 = this.primary.create(0, 0, i, j);
-      this.primary2.setXORMode(Color.white);
-      this.info.setComponent(this, this.primary, i, j);
+        if(mgInfo == null || mgInfo.isText() || primary2 == null || psCount >= 0)
+        {
+            return;
+        }
+        int k = mgInfo.iHint;
+        if(k >= 3 && k <= 6)
+        {
+            return;
+        }
+        try
+        {
+            int l = (info.getPenSize(mgInfo) * info.scale) / info.Q;
+            if(l <= 5)
+            {
+                return;
+            }
+            int i1 = l >>> 1;
+            Graphics g = primary2;
+            Color color = cPre;
+            color = (color.getRGB() & 0xffffff) == mgInfo.iColor >>> 1 ? color : new Color(mgInfo.iColor >>> 1);
+            cPre = color;
+            g.setColor(mgInfo.iPen != 4 && mgInfo.iPen != 5 ? color.getRGB() != 0xffffff ? color : Color.red : Color.cyan);
+            if(l <= info.scale * 2)
+            {
+                if(flag)
+                {
+                    g.fillRect(oldX - i1, oldY - i1, l, l);
+                }
+                g.fillRect(i - i1, j - i1, l, l);
+            } else
+            {
+                if(flag)
+                {
+                    g.drawOval(oldX - i1, oldY - i1, l, l);
+                }
+                g.drawOval(i - i1, j - i1, l, l);
+            }
+            oldX = i;
+            oldY = j;
+        }
+        catch(RuntimeException _ex) { }
     }
-    int[] arrayOfInt = this.rS;
-    int k = this.sizeBar;
-    localDimension = this.info.getSize();
-    for (int n = 0; n < 20; n++)
-      arrayOfInt[n] = k;
-    arrayOfInt[1] = localDimension.height;
-    arrayOfInt[2] = (localDimension.width - k);
-    arrayOfInt[4] = localDimension.width;
-    arrayOfInt[7] = (localDimension.height - k);
-    arrayOfInt[8] = 0;
-    arrayOfInt[9] = localDimension.height;
-    arrayOfInt[12] = localDimension.width;
-    arrayOfInt[13] = localDimension.height;
-    arrayOfInt[16] = localDimension.width;
-    arrayOfInt[17] = 0;
-  }
 
-  public void scaleChange(int paramInt, boolean paramBoolean)
-  {
-    if (this.isIn)
-      ePre();
-    if ((this.info.addScale(paramInt, paramBoolean)) && (!this.isGUI))
+    private void dPreB(boolean flag)
+        throws InterruptedException
     {
-      float f = this.info.scale;
-      int i = (int)(this.info.imW * f) + this.sizeBar;
-      int j = (int)(this.info.imH * f) + this.sizeBar;
-      Dimension localDimension = getSize();
-      int k = localDimension.width;
-      int n = localDimension.height;
-      if ((i != localDimension.width) || (j != localDimension.height))
-        setSize(i, j);
-      localDimension = getSize();
-      if ((localDimension.width == k) && (localDimension.height == n))
-        mPaint(null);
-      else
-        this.imi.changeSize();
-    }
-  }
+        if(!flag)
+        {
+            int _tmp = user.wait;
+            long l = user.getRect();
+            m.reset(false);
+            user.isPre = true;
+            m.setRetouch(ps, null, 0, true);
+            m.draw();
+            user.addRect((int)(l >>> 48), (int)(l >>> 32) & 0xffff, (int)(l >>> 16) & 0xffff, (int)(l & 65535L));
+            m.dBuffer();
+            user.isPre = false;
+        }
+        Graphics g = primary2;
+        int i = psCount + 1;
+        for(int j = 0; j < ((i - 2) + 1) * 2; j += 2)
+        {
+            g.drawLine(ps[j] >> 16, (short)ps[j], ps[j + 1] >> 16, (short)ps[j + 1]);
+        }
 
-  public void scroll(int paramInt1, int paramInt2)
-  {
-    if (this.info == null)
-      return;
-    Dimension localDimension = this.info.getSize();
-    int i = this.info.imW;
-    int j = this.info.imH;
-    float f1 = this.info.scale;
-    int k = this.info.scaleX;
-    int n = this.info.scaleY;
-    float f2 = paramInt1 * (i / localDimension.width);
-    if (f1 < 1.0F)
-      f2 /= f1;
-    if (f2 != 0.0F)
-      f2 = (f2 <= 0.0F) && (f2 >= -1.0F) ? -1.0F : (f2 >= 0.0F) && (f2 <= 1.0F) ? 1.0F : f2;
-    int i1 = (int)f2;
-    f2 = paramInt2 * (j / localDimension.height);
-    if (f2 != 0.0F)
-      f2 = (f2 <= 0.0F) && (f2 >= -1.0F) ? -1.0F : (f2 >= 0.0F) && (f2 <= 1.0F) ? 1.0F : f2;
-    if (f1 < 1.0F)
-      f2 /= f1;
-    int i2 = (int)f2;
-    Graphics localGraphics = this.primary;
-    this.info.scaleX = Math.max(k + i1, 0);
-    this.info.scaleY = Math.max(n + i2, 0);
-    drawScroll(localGraphics);
-    this.poS.translate(paramInt1, paramInt2);
-    int i3 = (int)((this.info.scaleX - k) * f1);
-    int i4 = (int)((this.info.scaleY - n) * f1);
-    i1 = localDimension.width - Math.abs(i3);
-    i2 = localDimension.height - Math.abs(i4);
-    try
+        byte byte0 = 7;
+        int k = byte0 / 2;
+        for(int i1 = 1; i1 < i; i1++)
+        {
+            g.drawOval((ps[i1] >> 16) - k, (short)ps[i1] - k, byte0, byte0);
+        }
+
+    }
+
+    public void drawScroll(Graphics g)
     {
-      localGraphics.copyArea(Math.max(i3, 0), Math.max(i4, 0), i1, i2, -i3, -i4);
-      if (f1 >= 1.0F)
-      {
-        if (i3 != 0)
-          if (i3 > 0)
-            m_paint(localDimension.width - i3, 0, i3, localDimension.height);
-          else
-            m_paint(0, 0, -i3, localDimension.height);
-        if (i4 != 0)
-          if (i4 > 0)
-            m_paint(0, localDimension.height - i4, localDimension.width, i4);
-          else
-            m_paint(0, 0, localDimension.width, -i4);
-      }
-      else
-      {
-        if (i3 != 0)
-          if (i3 > 0)
-            localGraphics.clearRect(localDimension.width - i3, 0, i3, localDimension.height);
-          else
-            localGraphics.clearRect(0, 0, -i3, localDimension.height);
-        if (i4 != 0)
-          if (i3 > 0)
-            localGraphics.clearRect(0, localDimension.height - i4, localDimension.width, i4);
-          else
-            localGraphics.clearRect(0, 0, localDimension.width, -i4);
-      }
-      this.imi.scroll(true, i3, i4);
+        try
+        {
+            if(g == null)
+            {
+                g = primary;
+            }
+            if(g == null)
+            {
+                return;
+            }
+            float f = info.scale;
+            int k = sizeBar;
+            int l = info.scaleX;
+            int i1 = info.scaleY;
+            int j1 = info.imW;
+            int k1 = info.imH;
+            Dimension dimension = info.getSize();
+            int l1 = (int)((float)dimension.width / f);
+            int i2 = (int)((float)dimension.height / f);
+            if(l + l1 >= j1)
+            {
+                l = Math.max(0, j1 - l1);
+                info.scaleX = l;
+            }
+            if((i1 + i2) - 1 >= k1)
+            {
+                i1 = Math.max(0, k1 - i2);
+                info.scaleY = i1;
+            }
+            int j2 = dimension.width - k;
+            int k2 = dimension.height - k;
+            int l2 = Math.min((int)(((float)l1 / (float)j1) * (float)j2), j2);
+            int i3 = Math.min((int)(((float)i2 / (float)k1) * (float)k2), k2);
+            int j3 = (int)(((float)l / (float)j1) * (float)j2);
+            int k3 = (int)(((float)i1 / (float)k1) * (float)k2);
+            int ai[] = rS;
+            g.setColor(cls[0]);
+            for(int i = 0; i < 20; i += 4)
+            {
+                g.drawRect(ai[i], ai[i + 1], ai[i + 2], ai[i + 3]);
+            }
+
+            if(j3 > 0)
+            {
+                g.setColor(cls[2]);
+                g.drawRect(ai[0] + 1, ai[1] + 1, j3 - 2, ai[3] - 2);
+                g.setColor(cls[1]);
+                g.fillRect(ai[0] + 2, ai[1] + 2, j3 - 2, ai[3] - 3);
+            }
+            g.setColor(cls[2]);
+            g.drawRect(ai[0] + j3 + l2, ai[1] + 1, ai[2] - j3 - l2 - 1, ai[3] - 2);
+            g.setColor(cls[1]);
+            g.fillRect(ai[0] + 1 + j3 + l2, ai[1] + 2, ai[2] - j3 - l2 - 2, ai[3] - 3);
+            g.setColor(cls[1]);
+            if(k3 > 0)
+            {
+                g.setColor(cls[2]);
+                g.drawRect(ai[4] + 1, ai[5] + 1, ai[6] - 2, k3 - 1);
+                g.setColor(cls[1]);
+                g.fillRect(ai[4] + 2, ai[5] + 2, ai[6] - 3, k3 - 1);
+            }
+            g.setColor(cls[2]);
+            g.drawRect(ai[4] + 1, ai[5] + k3 + i3, ai[6] - 2, ai[7] - k3 - i3 - 1);
+            g.setColor(cls[1]);
+            g.fillRect(ai[4] + 2, ai[5] + k3 + i3, ai[6] - 3, ai[7] - k3 - i3 - 1);
+            for(int j = 8; j < 20; j += 4)
+            {
+                for(int l3 = 0; l3 < 2; l3++)
+                {
+                    g.setColor(cls[2 - l3]);
+                    if(l3 == 0)
+                    {
+                        g.drawRect(ai[j] + 1, ai[j + 1] + 1, ai[j + 2] - 2, ai[j + 3] - 2);
+                    } else
+                    {
+                        g.fillRect(ai[j] + 2, ai[j + 1] + 2, ai[j + 2] - 3, ai[j + 3] - 3);
+                    }
+                }
+
+                g.setColor(cls[3]);
+                int i4 = ai[j + 2] / 2;
+                int k4 = ai[j + 3] / 2;
+                if(j == 16)
+                {
+                    int i5 = ai[j] + i4 / 2;
+                    int k5 = ai[j + 1] + k4 / 2;
+                    k4 /= 2;
+                    g.drawRect(i5, k5, i4, k4);
+                    g.fillRect(i5, k5 + k4, 1, k4);
+                } else
+                {
+                    g.fillRect(ai[j] + i4 / 2, ai[j + 1] + k4, i4 + 1, 1);
+                    if(j == 8)
+                    {
+                        g.fillRect(ai[j] + i4, ai[j + 1] + k4 / 2, 1, k4);
+                    }
+                }
+            }
+
+            int j4 = ai[0] + j3;
+            int l4 = ai[1] + 1;
+            int j5 = ai[4] + 1;
+            int l5 = ai[5] + k3;
+            g.setColor(cls[0]);
+            g.drawRect(j4, l4, l2, ai[3] - 2);
+            g.drawRect(j5, l5, ai[6] - 2, i3 + 1);
+            g.setColor(cls[3]);
+            g.fillRect(j4 + 2, l4 + 2, l2 - 3, ai[3] - 5);
+            g.fillRect(j5 + 2, l5 + 2, ai[6] - 5, i3 - 2);
+            g.setColor(cls[4]);
+            g.fillRect(j4 + 1, l4 + 1, l2 - 2, 1);
+            g.fillRect(j4 + 1, l4 + 2, 1, ai[3] - 5);
+            g.fillRect(j5 + 1, l5 + 1, ai[6] - 4, 1);
+            g.fillRect(j5 + 1, l5 + 2, 1, i3 - 2);
+            g.setColor(cls[5]);
+            g.fillRect((j4 + l2) - 1, l4 + 1, 1, ai[3] - 4);
+            g.fillRect(j4 + 1, (l4 + ai[3]) - 3, l2 - 1, 1);
+            g.fillRect((j5 + ai[6]) - 3, l5 + 1, 1, i3 - 1);
+            g.fillRect(j5 + 1, l5 + i3, ai[6] - 3, 1);
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
     }
-    catch (Throwable localThrowable)
+
+    private void dRect(int i, int j, int k)
     {
-      localThrowable.printStackTrace();
+        try
+        {
+            int ai[] = user.points;
+            switch(i)
+            {
+            case 503: 
+            case 504: 
+            case 505: 
+            default:
+                break;
+
+            case 501: 
+                setM();
+                p(0, j, k);
+                m.memset(ai, 0);
+                psCount = 1;
+                break;
+
+            case 506: 
+                if(psCount == 1)
+                {
+                    int l = ai[0];
+                    int i1 = ai[1];
+                    int j1 = l >> 16;
+                    short word0 = (short)l;
+                    primary2.drawRect(j1, word0, (i1 >> 16) - j1 - 1, (short)i1 - word0 - 1);
+                    p(1, j, k);
+                    transRect();
+                    l = ai[0];
+                    i1 = ai[1];
+                    j1 = l >> 16;
+                    word0 = (short)l;
+                    primary2.drawRect(j1, word0, (i1 >> 16) - j1 - 1, (short)i1 - word0 - 1);
+                }
+                break;
+
+            case 502: 
+                if(psCount > 0)
+                {
+                    p(1, j, k);
+                    if(transRect())
+                    {
+                        ps[0] = ai[0];
+                        ps[1] = ai[1];
+                        m.setRetouch(ps, null, 0, true);
+                        if(m.iPen != 20)
+                        {
+                            m.draw();
+                        }
+                        dEnd(false);
+                    }
+                }
+                psCount = -1;
+                break;
+            }
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
     }
-  }
 
-  private void send()
-  {
-    this.imi.send(this.m);
-  }
-
-  public void send(String paramString)
-  {
-    try
+    public void dScroll(MouseEvent mouseevent, int i, int j)
     {
-      M localM = new M(this.info, this.user);
-      localM.set(paramString);
-      localM.draw();
-      send(localM);
+        if(i != 0 || j != 0)
+        {
+            scroll(i, j);
+            return;
+        }
+        int k = mouseevent.getID();
+        Point point = mouseevent.getPoint();
+        if(k == 502 || k == 506)
+        {
+            scroll(isSpace ? poS.x - point.x : point.x - poS.x, isSpace ? poS.y - point.y : point.y - poS.y);
+            poS = point;
+        } else
+        if(k == 501)
+        {
+            poS = point;
+        }
     }
-    catch (Throwable localThrowable)
+
+    public void dText(int i, int j, int k)
     {
+        switch(i)
+        {
+        case 502: 
+            setM();
+            if(text == null)
+            {
+                text = new TextField(16);
+                text.addActionListener(this);
+                isText = true;
+                getParent().add(text, 0);
+            }
+            if(!isText)
+            {
+                primary.setColor(new Color(mgInfo.iColor));
+                primary.fillRect(j - 1, k - 1, mgInfo.iSize + 1, 1);
+                primary.fillRect(j - 1, k, 1, mgInfo.iSize);
+            } else
+            {
+                text.setFont(m.getFont((m.iSize * info.scale) / info.Q));
+                text.setSize(text.getPreferredSize());
+                Point point = getLocation();
+                text.setLocation(j + point.x, k + point.y + 2);
+                text.setVisible(true);
+            }
+            p(0, j, k);
+            break;
+        }
     }
-  }
 
-  public void send(M paramM)
-    throws InterruptedException
-  {
-    this.imi.send(paramM);
-  }
-
-  public void setA()
-  {
-    this.m.iAlpha2 = ((int)(this.info.layers[this.m.iLayer].iAlpha * 255.0F) << 8 | (int)(this.info.layers[this.m.iLayerSrc].iAlpha * 255.0F));
-  }
-
-  private final void setM()
-  {
-    this.m.set(this.mgInfo);
-    if (this.m.iPen == 20)
-      this.m.iLayerSrc = this.m.iLayer;
-    setA();
-  }
-
-  public void setSize(Dimension paramDimension)
-  {
-    setSize(paramDimension.width, paramDimension.height);
-  }
-
-  public void setSize(int paramInt1, int paramInt2)
-  {
-    if (this.info == null)
+    private void ePre()
     {
-      super.setSize(paramInt1, paramInt2);
+        dPre(oldX, oldY, false);
+        oldX = -1000;
+        oldY = -1000;
     }
-    else
+
+    private final int getS()
     {
-      int i = this.info.imW * this.info.scale + this.sizeBar;
-      int j = this.info.imH * this.info.scale + this.sizeBar;
-      super.setSize(Math.min(paramInt1 - getGapW(), i), Math.min(paramInt2 - getGapW(), j));
+        try
+        {
+            if(tab == null || tab == this)
+            {
+                return 255;
+            } else
+            {
+                return ((Integer)mGet.invoke(tab, null)).intValue();
+            }
+        }
+        catch(Throwable _ex)
+        {
+            tab = this;
+        }
+        return 255;
     }
-    repaint();
-  }
 
-  public final boolean transRect()
-  {
-    int i = this.ps[0];
-    int j = i >> 16;
-    int k = (short)i;
-    i = this.ps[1];
-    int n = i >> 16;
-    int i1 = (short)i;
-    int i2 = Math.max(Math.min(j, n), 0);
-    int i3 = Math.min(Math.max(j, n), this.info.imW * this.info.scale);
-    int i4 = Math.max(Math.min(k, i1), 0);
-    int i5 = Math.min(Math.max(k, i1), this.info.imH * this.info.scale);
-    if ((i3 - i2 < this.info.scale) || (i5 - i4 < this.info.scale))
-      return false;
-    this.user.points[0] = (i2 << 16 | i4 & 0xFFFF);
-    this.user.points[1] = (i3 << 16 | i5 & 0xFFFF);
-    return true;
-  }
+    private final boolean in(int i, int j)
+    {
+        Dimension dimension = getSize();
+        return i >= 0 && j >= 0 && i < dimension.width && j < dimension.height;
+    }
 
-  public void up()
-  {
-    if (this.tab != null)
-      this.tab.repaint();
-  }
+    public void init(Applet applet, Res res1, int i, int j, int k, int l, Cursor acursor[])
+        throws IOException
+    {
+        String s = "color_";
+        cursors = acursor;
+        cls = new Color[6];
+        cls[0] = new Color(res1.getP(s + "frame", 0x505078));
+        cls[1] = new Color(res1.getP(s + "icon", 0xccccff));
+        cls[2] = new Color(res1.getP(s + "bar_hl", 0xffffff));
+        cls[3] = new Color(res1.getP(s + "bar", 0x6f6fae));
+        cls[4] = new Color(res1.getP(s + "bar_hl", 0xeeeeff));
+        cls[5] = new Color(res1.getP(s + "bar_shadow", 0xaaaaaa));
+        setBackground(Color.white);
+        m = new M();
+        user = m.newUser(this);
+        paintchat.M.Info info1 = m.newInfo(applet, this, res1);
+        info1.setSize(i, j, k);
+        info1.setL(l);
+        info = info1;
+        mgInfo = info1.m;
+    }
+
+    private final boolean isOKPo(int i, int j)
+    {
+        int k = ps[psCount - 1];
+        return Math.max(Math.abs(i - (k >> 16)), Math.abs(j - (short)k)) >= info.scale;
+    }
+
+    public void m_paint(int i, int j, int k, int l)
+    {
+        Dimension dimension = info.getSize();
+        if(m == null)
+        {
+            primary.setColor(Color.white);
+            primary.fillRect(0, 0, dimension.width, dimension.height);
+            return;
+        }
+        if(i == 0 && j == 0 && k == 0 && l == 0)
+        {
+            i = j = 0;
+            k = dimension.width;
+            l = dimension.height;
+        } else
+        {
+            i = Math.max(i, 0);
+            j = Math.max(j, 0);
+            k = Math.min(k, dimension.width);
+            l = Math.min(l, dimension.height);
+        }
+        m.m_paint(i, j, k, l);
+    }
+
+    public void m_paint(Rectangle rectangle)
+    {
+        if(rectangle == null)
+        {
+            m_paint(0, 0, 0, 0);
+        } else
+        {
+            m_paint(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        }
+    }
+
+    private void mPaint(Graphics g)
+    {
+        if(g == null)
+        {
+            g = primary;
+        }
+        drawScroll(g);
+        if(!super.isPaint)
+        {
+            return;
+        } else
+        {
+            m_paint(g != primary ? g.getClipBounds() : null);
+            return;
+        }
+    }
+
+    private final void p(int i, int j, int k)
+    {
+        ps[i] = j << 16 | k & 0xffff;
+    }
+
+    public void paint2(Graphics g)
+    {
+        try
+        {
+            Rectangle rectangle = g.getClipBounds();
+            int i = (info != null ? info.scale : 0) * 2;
+            g.setClip(rectangle.x - i, rectangle.y - i, rectangle.width + i * 2, rectangle.height + i * 2);
+            mPaint(g);
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    public void pMouse(MouseEvent mouseevent)
+    {
+        try
+        {
+            int i = mouseevent.getID();
+            int j = info.scale;
+            int k = (mouseevent.getX() / j) * j;
+            int l = (mouseevent.getY() / j) * j;
+            boolean flag = i == 501;
+            boolean flag1 = i == 506;
+            boolean flag2 = isRight;
+            if(mouseevent.isAltDown() && mouseevent.isControlDown())
+            {
+                if(psCount >= 0)
+                {
+                    reset();
+                }
+                if(flag)
+                {
+                    poS.y = l;
+                    poS.x = mgInfo.iSize;
+                    m_paint(null);
+                }
+                if(flag1)
+                {
+                    Dimension dimension = getSize();
+                    int i1 = dimension.width / 2;
+                    int j1 = dimension.height / 2;
+                    int k1 = info.getPenSize(mgInfo) * info.scale;
+                    m_paint(i1 - k1, j1 - k1, k1 * 2, k1 * 2);
+                    imi.setLineSize((l - poS.y) / 4 + poS.x);
+                    dPre(i1, j1, false);
+                }
+                return;
+            }
+            if(flag)
+            {
+                if(text == null || !text.isVisible())
+                {
+                    requestFocus();
+                }
+                flag2 = isRight = Awt.isR(mouseevent);
+                if(!isDrag)
+                {
+                    dPre(oldX, oldY, false);
+                }
+                isDrag = true;
+                if(b(k, l))
+                {
+                    return;
+                }
+                if(isText && text != null && text.isVisible())
+                {
+                    text.setVisible(false);
+                }
+            }
+            if(i == 502)
+            {
+                if(!isDrag)
+                {
+                    return;
+                }
+                isRight = false;
+                isDrag = false;
+                super.isPaint = true;
+                if(isScroll)
+                {
+                    isScroll = false;
+                    imi.scroll(false, 0, 0);
+                    if(info.scale < 1)
+                    {
+                        m_paint(null);
+                    }
+                    return;
+                }
+            }
+            if(isRight && isDrag)
+            {
+                if(psCount >= 0)
+                {
+                    reset();
+                    isRight = false;
+                    isDrag = false;
+                    super.isPaint = true;
+                } else
+                {
+                    imi.setARGB(user.getPixel(k / info.scale + info.scaleX, l / info.scale + info.scaleY) & 0xffffff | info.m.iAlpha << 24);
+                }
+                return;
+            }
+            if(!isDrag)
+            {
+                cursor(i, k, l);
+                switch(i)
+                {
+                default:
+                    break;
+
+                case 504: 
+                    getS();
+                    break;
+
+                case 503: 
+                    dPre(k, l, isIn);
+                    isIn = true;
+                    break;
+
+                case 505: 
+                    if(isIn)
+                    {
+                        isIn = false;
+                        dPre(oldX, oldY, false);
+                    }
+                    break;
+                }
+            }
+            if(isScroll)
+            {
+                dScroll(mouseevent, 0, 0);
+                return;
+            }
+            if(isEnable && ((long)(mgInfo.iLayer + 1) & info.permission) != 0L && !flag2 && (mgInfo.iHint == 10 || info.layers[mgInfo.iLayer].iAlpha > 0.0F))
+            {
+                switch(mgInfo.iHint)
+                {
+                case 0: // '\0'
+                case 11: // '\013'
+                    dFLine(i, k, l);
+                    break;
+
+                case 1: // '\001'
+                    dLine(i, k, l);
+                    break;
+
+                case 2: // '\002'
+                    dBz(i, k, l);
+                    break;
+
+                case 8: // '\b'
+                case 12: // '\f'
+                    dText(i, k, l);
+                    break;
+
+                case 9: // '\t'
+                    dCopy(i, k, l);
+                    break;
+
+                case 10: // '\n'
+                    if(info.isClean && flag)
+                    {
+                        dClear();
+                    }
+                    break;
+
+                case 7: // '\007'
+                    if(flag && info.isFill)
+                    {
+                        m.set(info.m);
+                        p(0, k, l);
+                        p(1, k + 1024, l + 1024);
+                        transRect();
+                        m.setRetouch(user.points, null, 0, true);
+                        m.draw();
+                        send();
+                    }
+                    break;
+
+                case 3: // '\003'
+                case 4: // '\004'
+                case 5: // '\005'
+                case 6: // '\006'
+                default:
+                    dRect(i, k, l);
+                    break;
+                }
+            }
+            if(i == 502 && isIn)
+            {
+                dPre(k, l, false);
+                isDrag = false;
+            }
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    private final void poll()
+    {
+        if(tab == null || tab == this)
+        {
+            return;
+        }
+        try
+        {
+            if(((Boolean)mPoll.invoke(tab, null)).booleanValue())
+            {
+                return;
+            }
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+        mgInfo.iSOB = 0;
+    }
+
+    protected void processKeyEvent(KeyEvent keyevent)
+    {
+        try
+        {
+            boolean flag = keyevent.isControlDown() || keyevent.isShiftDown();
+            boolean flag1 = keyevent.isAltDown();
+            boolean flag2 = true;
+            switch(keyevent.getID())
+            {
+            default:
+                break;
+
+            case 401: 
+                switch(keyevent.getKeyCode())
+                {
+                case 32: // ' '
+                    isSpace = true;
+                    break;
+
+                case 39: // '\''
+                    scroll(5, 0);
+                    break;
+
+                case 38: // '&'
+                    scroll(0, -5);
+                    break;
+
+                case 40: // '('
+                    scroll(0, 5);
+                    break;
+
+                case 37: // '%'
+                    scroll(-5, 0);
+                    break;
+
+                case 107: // 'k'
+                    scaleChange(1, false);
+                    break;
+
+                case 109: // 'm'
+                    scaleChange(-1, false);
+                    break;
+
+                case 82: // 'R'
+                case 89: // 'Y'
+                    flag2 = false;
+                    // fall through
+
+                case 90: // 'Z'
+                    if(flag1)
+                    {
+                        flag2 = false;
+                    }
+                    if(flag)
+                    {
+                        imi.undo(flag2);
+                    }
+                    break;
+
+                case 66: // 'B'
+                    imi.setARGB(mgInfo.iAlpha << 24 | mgInfo.iColor);
+                    break;
+
+                case 69: // 'E'
+                    imi.setARGB(0xffffff);
+                    break;
+                }
+                break;
+
+            case 402: 
+                switch(keyevent.getKeyCode())
+                {
+                case 32: // ' '
+                    isSpace = false;
+                    break;
+                }
+                break;
+            }
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    public void reset()
+    {
+        if(psCount >= 0)
+        {
+            psCount = -1;
+            switch(mgInfo.iHint)
+            {
+            case 0: // '\0'
+            case 11: // '\013'
+                m.reset(true);
+                break;
+
+            default:
+                m.reset(false);
+                m_paint(null);
+                break;
+            }
+        }
+    }
+
+    public synchronized void resetGraphics()
+    {
+        if(primary != null)
+        {
+            primary.dispose();
+        }
+        if(primary2 != null)
+        {
+            primary2.dispose();
+        }
+        Dimension dimension = getSize();
+        int i = dimension.width - sizeBar;
+        int j = dimension.height - sizeBar;
+        primary = getGraphics();
+        if(primary != null)
+        {
+            primary.translate(getGapX(), getGapY());
+            primary2 = primary.create(0, 0, i, j);
+            primary2.setXORMode(Color.white);
+            info.setComponent(this, primary, i, j);
+        }
+        int ai[] = rS;
+        int k = sizeBar;
+        dimension = info.getSize();
+        for(int l = 0; l < 20; l++)
+        {
+            ai[l] = k;
+        }
+
+        ai[1] = dimension.height;
+        ai[2] = dimension.width - k;
+        ai[4] = dimension.width;
+        ai[7] = dimension.height - k;
+        ai[8] = 0;
+        ai[9] = dimension.height;
+        ai[12] = dimension.width;
+        ai[13] = dimension.height;
+        ai[16] = dimension.width;
+        ai[17] = 0;
+    }
+
+    public void scaleChange(int i, boolean flag)
+    {
+        if(isIn)
+        {
+            ePre();
+        }
+        if(info.addScale(i, flag) && !super.isGUI)
+        {
+            float f = info.scale;
+            int j = (int)((float)info.imW * f) + sizeBar;
+            int k = (int)((float)info.imH * f) + sizeBar;
+            Dimension dimension = getSize();
+            int l = dimension.width;
+            int i1 = dimension.height;
+            if(j != dimension.width || k != dimension.height)
+            {
+                setSize(j, k);
+            }
+            dimension = getSize();
+            if(dimension.width == l && dimension.height == i1)
+            {
+                mPaint(null);
+            } else
+            {
+                imi.changeSize();
+            }
+        }
+    }
+
+    public void scroll(int i, int j)
+    {
+        if(info == null)
+        {
+            return;
+        }
+        Dimension dimension = info.getSize();
+        int k = info.imW;
+        int l = info.imH;
+        float f = info.scale;
+        int i1 = info.scaleX;
+        int j1 = info.scaleY;
+        float f1 = (float)i * ((float)k / (float)dimension.width);
+        if(f < 1.0F)
+        {
+            f1 /= f;
+        }
+        if(f1 != 0.0F)
+        {
+            f1 = f1 < 0.0F || f1 > 1.0F ? f1 > 0.0F || f1 < -1F ? f1 : -1F : 1.0F;
+        }
+        int k1 = (int)f1;
+        f1 = (float)j * ((float)l / (float)dimension.height);
+        if(f1 != 0.0F)
+        {
+            f1 = f1 < 0.0F || f1 > 1.0F ? f1 > 0.0F || f1 < -1F ? f1 : -1F : 1.0F;
+        }
+        if(f < 1.0F)
+        {
+            f1 /= f;
+        }
+        int l1 = (int)f1;
+        Graphics g = primary;
+        info.scaleX = Math.max(i1 + k1, 0);
+        info.scaleY = Math.max(j1 + l1, 0);
+        drawScroll(g);
+        poS.translate(i, j);
+        int i2 = (int)((float)(info.scaleX - i1) * f);
+        int j2 = (int)((float)(info.scaleY - j1) * f);
+        k1 = dimension.width - Math.abs(i2);
+        l1 = dimension.height - Math.abs(j2);
+        try
+        {
+            g.copyArea(Math.max(i2, 0), Math.max(j2, 0), k1, l1, -i2, -j2);
+            if(f >= 1.0F)
+            {
+                if(i2 != 0)
+                {
+                    if(i2 > 0)
+                    {
+                        m_paint(dimension.width - i2, 0, i2, dimension.height);
+                    } else
+                    {
+                        m_paint(0, 0, -i2, dimension.height);
+                    }
+                }
+                if(j2 != 0)
+                {
+                    if(j2 > 0)
+                    {
+                        m_paint(0, dimension.height - j2, dimension.width, j2);
+                    } else
+                    {
+                        m_paint(0, 0, dimension.width, -j2);
+                    }
+                }
+            } else
+            {
+                if(i2 != 0)
+                {
+                    if(i2 > 0)
+                    {
+                        g.clearRect(dimension.width - i2, 0, i2, dimension.height);
+                    } else
+                    {
+                        g.clearRect(0, 0, -i2, dimension.height);
+                    }
+                }
+                if(j2 != 0)
+                {
+                    if(i2 > 0)
+                    {
+                        g.clearRect(0, dimension.height - j2, dimension.width, j2);
+                    } else
+                    {
+                        g.clearRect(0, 0, dimension.width, -j2);
+                    }
+                }
+            }
+            imi.scroll(true, i2, j2);
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    private void send()
+    {
+        imi.send(m);
+    }
+
+    public void send(String s)
+    {
+        try
+        {
+            M m1 = new M(info, user);
+            m1.set(s);
+            m1.draw();
+            send(m1);
+        }
+        catch(Throwable _ex) { }
+    }
+
+    public void send(M m1)
+        throws InterruptedException
+    {
+        imi.send(m1);
+    }
+
+    public void setA()
+    {
+        m.iAlpha2 = (int)(info.layers[m.iLayer].iAlpha * 255F) << 8 | (int)(info.layers[m.iLayerSrc].iAlpha * 255F);
+    }
+
+    private final void setM()
+    {
+        m.set(mgInfo);
+        if(m.iPen == 20)
+        {
+            m.iLayerSrc = m.iLayer;
+        }
+        setA();
+    }
+
+    public void setSize(Dimension dimension)
+    {
+        setSize(dimension.width, dimension.height);
+    }
+
+    public void setSize(int i, int j)
+    {
+        if(info == null)
+        {
+            super.setSize(i, j);
+        } else
+        {
+            int k = info.imW * info.scale + sizeBar;
+            int l = info.imH * info.scale + sizeBar;
+            super.setSize(Math.min(i - getGapW(), k), Math.min(j - getGapW(), l));
+        }
+        repaint();
+    }
+
+    public final boolean transRect()
+    {
+        int i = ps[0];
+        int j = i >> 16;
+        short word0 = (short)i;
+        i = ps[1];
+        int k = i >> 16;
+        short word1 = (short)i;
+        int l = Math.max(Math.min(j, k), 0);
+        int i1 = Math.min(Math.max(j, k), info.imW * info.scale);
+        int j1 = Math.max(Math.min(word0, word1), 0);
+        int k1 = Math.min(Math.max(word0, word1), info.imH * info.scale);
+        if(i1 - l < info.scale || k1 - j1 < info.scale)
+        {
+            return false;
+        } else
+        {
+            user.points[0] = l << 16 | j1 & 0xffff;
+            user.points[1] = i1 << 16 | k1 & 0xffff;
+            return true;
+        }
+    }
+
+    public void up()
+    {
+        if(tab != null)
+        {
+            tab.repaint();
+        }
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_client.Mi
- * JD-Core Version:    0.6.0
- */

@@ -1,9 +1,6 @@
 package paintchat.admin;
 
-import B;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Enumeration;
@@ -13,104 +10,99 @@ import syi.util.Io;
 
 public class LocalAdmin
 {
-  private Res status;
-  private InetAddress addr;
-  private int iPort;
-  private byte[] bRes;
 
-  public LocalAdmin(Res paramRes, InetAddress paramInetAddress, int paramInt)
-  {
-    this.status = paramRes;
-    if (paramRes != null)
-      paramRes.put("local_admin", "t");
-    this.addr = paramInetAddress;
-    this.iPort = (paramInt <= 0 ? 41411 : paramInt);
-  }
+    private Res status;
+    private InetAddress addr;
+    private int iPort;
+    private byte bRes[];
 
-  private void doConnect(String paramString)
-  {
-    InputStream localInputStream = null;
-    OutputStream localOutputStream = null;
-    Socket localSocket = null;
-    this.bRes = null;
-    try
+    public LocalAdmin(Res res, InetAddress inetaddress, int i)
     {
-      StringBuffer localStringBuffer = new StringBuffer();
-      Object localObject = this.status.keys();
-      while (((Enumeration)localObject).hasMoreElements())
-      {
-        String str = ((Enumeration)localObject).nextElement().toString();
-        if (str.length() <= 0)
-          continue;
-        localStringBuffer.append(str);
-        localStringBuffer.append('=');
-        localStringBuffer.append(this.status.get(str));
-        localStringBuffer.append('\n');
-      }
-      localStringBuffer.append("request=");
-      localStringBuffer.append(paramString);
-      localObject = localStringBuffer.toString().getBytes("UTF8");
-      localStringBuffer = null;
-      localSocket = new Socket(this.addr, this.iPort);
-      localInputStream = localSocket.getInputStream();
-      localOutputStream = localSocket.getOutputStream();
-      localOutputStream.write(98);
-      Io.wShort(localOutputStream, localObject.length);
-      localOutputStream.write(localObject);
-      localOutputStream.flush();
-      localObject = (byte[])null;
-      int i = Io.readUShort(localInputStream);
-      if (i > 0)
-      {
-        localObject = new byte[i];
-        Io.rFull(localInputStream, localObject, 0, i);
-      }
-      try
-      {
-        localInputStream.close();
-        localOutputStream.close();
-        localSocket.close();
-      }
-      catch (IOException localIOException1)
-      {
-      }
-      this.bRes = ((B)localObject);
+        status = res;
+        if(res != null)
+        {
+            res.put("local_admin", "t");
+        }
+        addr = inetaddress;
+        iPort = i > 0 ? i : 41411;
     }
-    catch (IOException localIOException2)
-    {
-    }
-  }
 
-  public String getString(String paramString)
-  {
-    try
+    private void doConnect(String s)
     {
-      doConnect(paramString);
-      return (this.bRes != null) && (this.bRes.length > 0) ? new String(this.bRes, "UTF8") : "";
-    }
-    catch (Exception localException)
-    {
-      localException.printStackTrace();
-    }
-    return "";
-  }
+        Object obj = null;
+        Object obj1 = null;
+        Object obj2 = null;
+        bRes = null;
+        try
+        {
+            StringBuffer stringbuffer = new StringBuffer();
+            for(Enumeration enumeration = status.keys(); enumeration.hasMoreElements();)
+            {
+                String s1 = enumeration.nextElement().toString();
+                if(s1.length() > 0)
+                {
+                    stringbuffer.append(s1);
+                    stringbuffer.append('=');
+                    stringbuffer.append(status.get(s1));
+                    stringbuffer.append('\n');
+                }
+            }
 
-  public byte[] getBytes(String paramString)
-  {
-    try
-    {
-      doConnect(paramString);
-      return this.bRes;
+            stringbuffer.append("request=");
+            stringbuffer.append(s);
+            byte abyte0[] = stringbuffer.toString().getBytes("UTF8");
+            stringbuffer = null;
+            Socket socket = new Socket(addr, iPort);
+            InputStream inputstream = socket.getInputStream();
+            OutputStream outputstream = socket.getOutputStream();
+            outputstream.write(98);
+            Io.wShort(outputstream, abyte0.length);
+            outputstream.write(abyte0);
+            outputstream.flush();
+            abyte0 = (byte[])null;
+            int i = Io.readUShort(inputstream);
+            if(i > 0)
+            {
+                abyte0 = new byte[i];
+                Io.rFull(inputstream, abyte0, 0, i);
+            }
+            try
+            {
+                inputstream.close();
+                outputstream.close();
+                socket.close();
+            }
+            catch(IOException _ex) { }
+            bRes = abyte0;
+        }
+        catch(IOException _ex) { }
     }
-    catch (Exception localException)
+
+    public String getString(String s)
     {
-      localException.printStackTrace();
+        try
+        {
+            doConnect(s);
+            return bRes == null || bRes.length <= 0 ? "" : new String(bRes, "UTF8");
+        }
+        catch(Exception exception)
+        {
+            exception.printStackTrace();
+        }
+        return "";
     }
-    return null;
-  }
+
+    public byte[] getBytes(String s)
+    {
+        try
+        {
+            doConnect(s);
+            return bRes;
+        }
+        catch(Exception exception)
+        {
+            exception.printStackTrace();
+        }
+        return null;
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.admin.LocalAdmin
- * JD-Core Version:    0.6.0
- */

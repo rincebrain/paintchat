@@ -1,91 +1,91 @@
 package syi.awt;
 
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.*;
 import syi.util.Io;
 
 public class ImageCanvas extends Canvas
 {
-  private Image image = null;
-  private String string = null;
-  private int imW = 0;
-  private int imH = 0;
 
-  public ImageCanvas(Color paramColor1, Color paramColor2)
-  {
-    setBackground(paramColor1);
-  }
+    private Image image;
+    private String string;
+    private int imW;
+    private int imH;
 
-  public Dimension getPreferredSize()
-  {
-    return new Dimension(this.imW + 2, this.imH + 2);
-  }
-
-  public void paint(Graphics paramGraphics)
-  {
-    try
+    public ImageCanvas(Color color, Color color1)
     {
-      Dimension localDimension = getSize();
-      paramGraphics.drawRect(0, 0, localDimension.width - 1, localDimension.height - 1);
-      if (this.image != null)
-        paramGraphics.drawImage(this.image, 1, 1, null);
-      else
-        paramGraphics.clearRect(1, 1, localDimension.width - 2, localDimension.height - 2);
-      if (this.string != null)
-      {
-        FontMetrics localFontMetrics = paramGraphics.getFontMetrics();
-        paramGraphics.drawString(this.string, 10, localFontMetrics.getMaxAscent() + 10);
-      }
+        image = null;
+        string = null;
+        imW = 0;
+        imH = 0;
+        setBackground(color);
     }
-    catch (RuntimeException localRuntimeException)
+
+    public Dimension getPreferredSize()
     {
+        return new Dimension(imW + 2, imH + 2);
     }
-  }
 
-  public synchronized void reset()
-  {
-    if (this.image != null)
+    public void paint(Graphics g)
     {
-      this.image.flush();
-      this.image = null;
-      this.imW = 0;
-      this.imH = 0;
+        try
+        {
+            Dimension dimension = getSize();
+            g.drawRect(0, 0, dimension.width - 1, dimension.height - 1);
+            if(image != null)
+            {
+                g.drawImage(image, 1, 1, null);
+            } else
+            {
+                g.clearRect(1, 1, dimension.width - 2, dimension.height - 2);
+            }
+            if(string != null)
+            {
+                FontMetrics fontmetrics = g.getFontMetrics();
+                g.drawString(string, 10, fontmetrics.getMaxAscent() + 10);
+            }
+        }
+        catch(RuntimeException _ex) { }
     }
-    this.string = null;
-  }
 
-  public void setImage(Image paramImage)
-  {
-    this.image = paramImage;
-    this.imW = paramImage.getWidth(null);
-    this.imH = paramImage.getHeight(null);
-    setSize(this.imW + 2, this.imH + 2);
-  }
+    public synchronized void reset()
+    {
+        if(image != null)
+        {
+            image.flush();
+            image = null;
+            imW = 0;
+            imH = 0;
+        }
+        string = null;
+    }
 
-  public void setImage(String paramString)
-  {
-    if ((paramString == null) || (paramString.length() <= 0))
-      return;
-    setImage(Io.loadImageNow(this, paramString));
-  }
+    public void setImage(Image image1)
+    {
+        image = image1;
+        imW = image1.getWidth(null);
+        imH = image1.getHeight(null);
+        setSize(imW + 2, imH + 2);
+    }
 
-  public void setText(String paramString)
-  {
-    this.string = paramString;
-  }
+    public void setImage(String s)
+    {
+        if(s == null || s.length() <= 0)
+        {
+            return;
+        } else
+        {
+            setImage(Io.loadImageNow(this, s));
+            return;
+        }
+    }
 
-  public void update(Graphics paramGraphics)
-  {
-    paint(paramGraphics);
-  }
+    public void setText(String s)
+    {
+        string = s;
+    }
+
+    public void update(Graphics g)
+    {
+        paint(g);
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.awt.ImageCanvas
- * JD-Core Version:    0.6.0
- */

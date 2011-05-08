@@ -1,615 +1,710 @@
 package paintchat;
 
+
+// Referenced classes of package paintchat:
+//            M
+
 public class LO
 {
-  public int W;
-  public int H;
-  int offX = 0;
-  int offY = 0;
-  public int[] offset = null;
-  public String name;
-  public int iCopy = 0;
-  public float iAlpha = 1.0F;
-  public boolean isDraw = false;
-  public static int iL = 0;
 
-  public static LO getLO(int paramInt1, int paramInt2)
-  {
-    LO localLO = new LO(paramInt1, paramInt2);
-    return localLO;
-  }
+    public int W;
+    public int H;
+    int offX;
+    int offY;
+    public int offset[];
+    public String name;
+    public int iCopy;
+    public float iAlpha;
+    public boolean isDraw;
+    public static int iL = 0;
 
-  public LO()
-  {
-    this(0, 0);
-  }
-
-  public LO(int paramInt1, int paramInt2)
-  {
-    this.W = paramInt1;
-    this.H = paramInt2;
-  }
-
-  public void setSize(int paramInt1, int paramInt2)
-  {
-    if (((paramInt1 != this.W) || (paramInt2 != this.H)) && (this.offset != null))
+    public static LO getLO(int i, int j)
     {
-      int i = Math.min(paramInt1, this.W);
-      int j = Math.min(paramInt2, this.H);
-      int[] arrayOfInt = new int[paramInt1 * paramInt2];
-      for (int k = 0; k < arrayOfInt.length; k++)
-        arrayOfInt[k] = 16777215;
-      for (k = 0; k < j; k++)
-        System.arraycopy(this.offset, k * this.W, arrayOfInt, k * paramInt1, i);
-      this.offset = arrayOfInt;
+        LO lo = new LO(i, j);
+        return lo;
     }
-    this.W = paramInt1;
-    this.H = paramInt2;
-  }
 
-  public void reserve()
-  {
-    if (this.offset == null)
+    public LO()
     {
-      int i = this.W * this.H;
-      this.offset = new int[i];
-      clear();
+        this(0, 0);
     }
-  }
 
-  public final void draw(int[] paramArrayOfInt, int paramInt1, int paramInt2, int paramInt3, int paramInt4, int paramInt5)
-  {
-    if ((this.offset == null) || (this.iAlpha <= 0.0F))
-      return;
-    float[] arrayOfFloat = M.getb255();
-    float f2 = this.iAlpha;
-    int n = this.W;
-    paramInt1 = Math.max(paramInt1, 0);
-    paramInt2 = Math.max(paramInt2, 0);
-    paramInt3 = Math.min(this.W, paramInt3);
-    paramInt4 = Math.min(this.H, paramInt4);
-    int i1 = paramInt3 - paramInt1;
-    int i2 = paramInt4 - paramInt2;
-    int i3 = 0;
-    int i4 = paramInt2 * n + paramInt1;
-    int i;
-    int j;
-    int k;
-    int m;
-    float f1;
-    int i5;
-    int i6;
-    int i7;
-    switch (this.iCopy)
+    public LO(int i, int j)
     {
-    case 1:
-      for (i = 0; i < i2; i++)
-      {
-        for (j = 0; j < i1; j++)
+        offX = 0;
+        offY = 0;
+        offset = null;
+        iCopy = 0;
+        iAlpha = 1.0F;
+        isDraw = false;
+        W = i;
+        H = j;
+    }
+
+    public void setSize(int i, int j)
+    {
+        if((i != W || j != H) && offset != null)
         {
-          k = this.offset[(i4 + j)];
-          m = paramArrayOfInt[(i3 + j)];
-          f1 = arrayOfFloat[(k >>> 24)] * f2;
-          i5 = m >>> 16 & 0xFF;
-          i6 = m >>> 8 & 0xFF;
-          i7 = m & 0xFF;
-          if (f1 <= 0.0F)
-            continue;
-          paramArrayOfInt[(i3 + j)] = (((m >>> 16 & 0xFF) - (int)(arrayOfFloat[(m >>> 16 & 0xFF)] * ((k >>> 16 & 0xFF ^ 0xFF) * f1)) << 16) + ((m >>> 8 & 0xFF) - (int)(arrayOfFloat[(m >>> 8 & 0xFF)] * ((k >>> 8 & 0xFF ^ 0xFF) * f1)) << 8) + ((m & 0xFF) - (int)(arrayOfFloat[(m & 0xFF)] * ((k & 0xFF ^ 0xFF) * f1))));
+            int k = Math.min(i, W);
+            int l = Math.min(j, H);
+            int ai[] = new int[i * j];
+            for(int i1 = 0; i1 < ai.length; i1++)
+            {
+                ai[i1] = 0xffffff;
+            }
+
+            for(int j1 = 0; j1 < l; j1++)
+            {
+                System.arraycopy(offset, j1 * W, ai, j1 * i, k);
+            }
+
+            offset = ai;
         }
-        i3 += paramInt5;
-        i4 += n;
-      }
-      break;
-    case 2:
-      for (i = 0; i < i2; i++)
-      {
-        for (j = 0; j < i1; j++)
+        W = i;
+        H = j;
+    }
+
+    public void reserve()
+    {
+        if(offset == null)
         {
-          k = this.offset[(i4 + j)] ^ 0xFFFFFF;
-          m = paramArrayOfInt[(i3 + j)];
-          f1 = arrayOfFloat[(k >>> 24)] * f2;
-          if (f1 <= 0.0F)
-            continue;
-          i5 = m >>> 16 & 0xFF;
-          i6 = m >>> 8 & 0xFF;
-          i7 = m & 0xFF;
-          paramArrayOfInt[(i3 + j)] = (f1 == 1.0F ? k : i5 + (int)(((k >>> 16 & 0xFF) - i5) * f1) << 16 | i6 + (int)(((k >>> 8 & 0xFF) - i6) * f1) << 8 | i7 + (int)(((k & 0xFF) - i7) * f1));
+            int i = W * H;
+            offset = new int[i];
+            clear();
         }
-        i3 += paramInt5;
-        i4 += n;
-      }
-      break;
-    default:
-      for (i = 0; i < i2; i++)
-      {
-        for (j = 0; j < i1; j++)
+    }
+
+    public final void draw(int ai[], int i, int j, int k, int l, int i1)
+    {
+        if(offset == null || iAlpha <= 0.0F)
         {
-          k = this.offset[(i4 + j)];
-          m = paramArrayOfInt[(i3 + j)];
-          f1 = arrayOfFloat[(k >>> 24)] * f2;
-          if (f1 <= 0.0F)
-            continue;
-          i5 = m >>> 16 & 0xFF;
-          i6 = m >>> 8 & 0xFF;
-          i7 = m & 0xFF;
-          paramArrayOfInt[(i3 + j)] = (f1 == 1.0F ? k : i5 + (int)(((k >>> 16 & 0xFF) - i5) * f1) << 16 | i6 + (int)(((k >>> 8 & 0xFF) - i6) * f1) << 8 | i7 + (int)(((k & 0xFF) - i7) * f1));
+            return;
         }
-        i3 += paramInt5;
-        i4 += n;
-      }
-    }
-  }
-
-  public void drawAlpha(int[] paramArrayOfInt, int paramInt1, int paramInt2, int paramInt3, int paramInt4, int paramInt5)
-  {
-    if ((this.offset == null) || (this.iAlpha <= 0.0F))
-      return;
-    float[] arrayOfFloat = M.getb255();
-    float f = this.iAlpha;
-    int n = this.W;
-    paramInt1 = Math.max(paramInt1, 0);
-    paramInt2 = Math.max(paramInt2, 0);
-    paramInt3 = Math.min(this.W, paramInt3);
-    paramInt4 = Math.min(this.H, paramInt4);
-    int i1 = paramInt3 - paramInt1;
-    int i2 = paramInt4 - paramInt2;
-    int i3 = 0;
-    int i4 = paramInt2 * n + paramInt1;
-    int[] arrayOfInt = this.offset;
-    for (int i = 0; i < i2; i++)
-    {
-      for (int j = 0; j < i1; j++)
-      {
-        int k = (int)((arrayOfInt[(i4 + j)] >>> 24) * f);
-        int m = (int)((paramArrayOfInt[(i3 + j)] >>> 24) * arrayOfFloat[(255 - k)]);
-        paramArrayOfInt[(i3 + j)] = (k + m << 24 | paramArrayOfInt[(i3 + j)] & 0xFFFFFF);
-      }
-      i3 += paramInt5;
-      i4 += n;
-    }
-  }
-
-  public void dAdd(int[] paramArrayOfInt1, int paramInt1, int paramInt2, int paramInt3, int paramInt4, int[] paramArrayOfInt2)
-  {
-    if (this.offset == null)
-      return;
-    float[] arrayOfFloat = M.getb255();
-    int[] arrayOfInt = this.offset;
-    int i3 = this.W;
-    int i4 = i3;
-    paramInt1 = Math.max(paramInt1, 0);
-    paramInt2 = Math.max(paramInt2, 0);
-    paramInt3 = Math.min(this.W, paramInt3);
-    paramInt4 = Math.min(this.H, paramInt4);
-    int i5 = paramInt3 - paramInt1;
-    int i6 = paramInt4 - paramInt2;
-    int i7 = paramInt2 * i4 + paramInt1;
-    int i8 = paramInt2 * i3 + paramInt1;
-    int i9 = 0;
-    int i;
-    int j;
-    int k;
-    int m;
-    int n;
-    int i1;
-    int i2;
-    int i10;
-    int i11;
-    int i12;
-    float f;
-    switch (this.iCopy)
-    {
-    case 1:
-      for (i = 0; i < i6; i++)
-      {
-        for (j = 0; j < i5; j++)
+        float af[] = M.getb255();
+        float f3 = iAlpha;
+        int j4 = W;
+        i = Math.max(i, 0);
+        j = Math.max(j, 0);
+        k = Math.min(W, k);
+        l = Math.min(H, l);
+        int k4 = k - i;
+        int l4 = l - j;
+        int i5 = 0;
+        int j5 = j * j4 + i;
+        switch(iCopy)
         {
-          k = arrayOfInt[(i8 + j)];
-          m = paramArrayOfInt1[(i7 + j)];
-          n = k >>> 24;
-          i1 = m >>> 24;
-          i2 = n + (int)(i1 * arrayOfFloat[(255 - n)]);
-          int i13 = paramArrayOfInt2[(i9 + j)] & 0xFFFFFF;
-          i10 = m >>> 16 & 0xFF;
-          i11 = m >>> 8 & 0xFF;
-          i12 = m & 0xFF;
-          f = 1.0F - i1 / i2;
-          i10 += (int)(((i13 >>> 16 & 0xFF) - i10) * f);
-          i11 += (int)(((i13 >>> 8 & 0xFF) - i11) * f);
-          i12 += (int)(((i13 & 0xFF) - i12) * f);
-          m = i10 << 16 | i11 << 8 | i12;
-          if (i1 <= 0)
-          {
-            paramArrayOfInt1[(i7 + j)] = k;
-          }
-          else
-          {
-            f = arrayOfFloat[n] + arrayOfFloat[(255 - n)] * arrayOfFloat[(255 - i1)];
-            paramArrayOfInt1[(i7 + j)] = (i2 << 24 | (m >>> 16 & 0xFF) - (int)(arrayOfFloat[(m >>> 16 & 0xFF)] * ((k >>> 16 & 0xFF ^ 0xFF) * f)) << 16 | (m >>> 8 & 0xFF) - (int)(arrayOfFloat[(m >>> 8 & 0xFF)] * ((k >>> 8 & 0xFF ^ 0xFF) * f)) << 8 | (m & 0xFF) - (int)(arrayOfFloat[(m & 0xFF)] * ((k & 0xFF ^ 0xFF) * f)));
-          }
+        case 1: // '\001'
+            for(int j1 = 0; j1 < l4; j1++)
+            {
+                for(int i2 = 0; i2 < k4; i2++)
+                {
+                    int l2 = offset[j5 + i2];
+                    int k3 = ai[i5 + i2];
+                    float f = af[l2 >>> 24] * f3;
+                    int k5 = k3 >>> 16 & 0xff;
+                    int j6 = k3 >>> 8 & 0xff;
+                    int i7 = k3 & 0xff;
+                    if(f > 0.0F)
+                    {
+                        ai[i5 + i2] = ((k3 >>> 16 & 0xff) - (int)(af[k3 >>> 16 & 0xff] * ((float)(l2 >>> 16 & 0xff ^ 0xff) * f)) << 16) + ((k3 >>> 8 & 0xff) - (int)(af[k3 >>> 8 & 0xff] * ((float)(l2 >>> 8 & 0xff ^ 0xff) * f)) << 8) + ((k3 & 0xff) - (int)(af[k3 & 0xff] * ((float)(l2 & 0xff ^ 0xff) * f)));
+                    }
+                }
+
+                i5 += i1;
+                j5 += j4;
+            }
+
+            break;
+
+        case 2: // '\002'
+            for(int k1 = 0; k1 < l4; k1++)
+            {
+                for(int j2 = 0; j2 < k4; j2++)
+                {
+                    int i3 = offset[j5 + j2] ^ 0xffffff;
+                    int l3 = ai[i5 + j2];
+                    float f1 = af[i3 >>> 24] * f3;
+                    if(f1 > 0.0F)
+                    {
+                        int l5 = l3 >>> 16 & 0xff;
+                        int k6 = l3 >>> 8 & 0xff;
+                        int j7 = l3 & 0xff;
+                        ai[i5 + j2] = f1 != 1.0F ? l5 + (int)((float)((i3 >>> 16 & 0xff) - l5) * f1) << 16 | k6 + (int)((float)((i3 >>> 8 & 0xff) - k6) * f1) << 8 | j7 + (int)((float)((i3 & 0xff) - j7) * f1) : i3;
+                    }
+                }
+
+                i5 += i1;
+                j5 += j4;
+            }
+
+            break;
+
+        default:
+            for(int l1 = 0; l1 < l4; l1++)
+            {
+                for(int k2 = 0; k2 < k4; k2++)
+                {
+                    int j3 = offset[j5 + k2];
+                    int i4 = ai[i5 + k2];
+                    float f2 = af[j3 >>> 24] * f3;
+                    if(f2 > 0.0F)
+                    {
+                        int i6 = i4 >>> 16 & 0xff;
+                        int l6 = i4 >>> 8 & 0xff;
+                        int k7 = i4 & 0xff;
+                        ai[i5 + k2] = f2 != 1.0F ? i6 + (int)((float)((j3 >>> 16 & 0xff) - i6) * f2) << 16 | l6 + (int)((float)((j3 >>> 8 & 0xff) - l6) * f2) << 8 | k7 + (int)((float)((j3 & 0xff) - k7) * f2) : j3;
+                    }
+                }
+
+                i5 += i1;
+                j5 += j4;
+            }
+
+            break;
         }
-        i7 += i4;
-        i8 += i3;
-        i9 += i4;
-      }
-      break;
-    case 2:
-      for (i = 0; i < i6; i++)
-      {
-        for (j = 0; j < i5; j++)
+    }
+
+    public void drawAlpha(int ai[], int i, int j, int k, int l, int i1)
+    {
+        if(offset == null || iAlpha <= 0.0F)
         {
-          k = arrayOfInt[(i8 + j)];
-          m = paramArrayOfInt1[(i7 + j)];
-          n = k >>> 24;
-          i1 = (int)((m >>> 24) * arrayOfFloat[(255 - n)]);
-          i2 = n + i1;
-          k ^= 16777215;
-          if (i2 == 0)
-          {
-            paramArrayOfInt1[(i7 + j)] = 16777215;
-          }
-          else
-          {
-            f = n / i2;
-            i10 = m >>> 16 & 0xFF;
-            i11 = m >>> 8 & 0xFF;
-            i12 = m & 0xFF;
-            paramArrayOfInt1[(i7 + j)] = (f == 1.0F ? k : i2 << 24 | i10 + (int)(((k >>> 16 & 0xFF) - i10) * f) << 16 | i11 + (int)(((k >>> 8 & 0xFF) - i11) * f) << 8 | i12 + (int)(((k & 0xFF) - i12) * f));
-          }
+            return;
         }
-        i7 += i4;
-        i8 += i3;
-      }
-      break;
-    default:
-      for (i = 0; i < i6; i++)
-      {
-        for (j = 0; j < i5; j++)
+        float af[] = M.getb255();
+        float f = iAlpha;
+        int j2 = W;
+        i = Math.max(i, 0);
+        j = Math.max(j, 0);
+        k = Math.min(W, k);
+        l = Math.min(H, l);
+        int k2 = k - i;
+        int l2 = l - j;
+        int i3 = 0;
+        int j3 = j * j2 + i;
+        int ai1[] = offset;
+        for(int j1 = 0; j1 < l2; j1++)
         {
-          k = arrayOfInt[(i8 + j)];
-          m = paramArrayOfInt1[(i7 + j)];
-          n = k >>> 24;
-          i1 = (int)((m >>> 24) * arrayOfFloat[(255 - n)]);
-          i2 = n + i1;
-          if (i2 == 0)
-          {
-            paramArrayOfInt1[(i7 + j)] = 16777215;
-          }
-          else
-          {
-            f = n / i2;
-            i10 = m >>> 16 & 0xFF;
-            i11 = m >>> 8 & 0xFF;
-            i12 = m & 0xFF;
-            paramArrayOfInt1[(i7 + j)] = (f == 1.0F ? k : i2 << 24 | i10 + (int)(((k >>> 16 & 0xFF) - i10) * f) << 16 | i11 + (int)(((k >>> 8 & 0xFF) - i11) * f) << 8 | i12 + (int)(((k & 0xFF) - i12) * f));
-          }
+            for(int k1 = 0; k1 < k2; k1++)
+            {
+                int l1 = (int)((float)(ai1[j3 + k1] >>> 24) * f);
+                int i2 = (int)((float)(ai[i3 + k1] >>> 24) * af[255 - l1]);
+                ai[i3 + k1] = l1 + i2 << 24 | ai[i3 + k1] & 0xffffff;
+            }
+
+            i3 += i1;
+            j3 += j2;
         }
-        i7 += i4;
-        i8 += i3;
-      }
+
     }
-  }
 
-  public void normalize(float paramFloat)
-  {
-    normalize(paramFloat, 0, 0, this.W, this.H);
-  }
-
-  public void normalize(float paramFloat, int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    if (this.offset == null)
-      return;
-    int i = paramInt3 - paramInt1;
-    while (paramInt2 < paramInt4)
+    public void dAdd(int ai[], int i, int j, int k, int l, int ai1[])
     {
-      int m = paramInt2 * this.W + paramInt1;
-      for (int k = 0; k < i; k++)
-      {
-        int j = this.offset[m];
-        this.offset[m] = ((int)((j >>> 24) * paramFloat) << 24 | j & 0xFFFFFF);
-        m++;
-      }
-      paramInt2++;
-    }
-  }
-
-  public final int getPixel(int paramInt1, int paramInt2)
-  {
-    if ((this.offset == null) || (paramInt1 < 0) || (paramInt2 < 0) || (paramInt1 >= this.W) || (paramInt2 >= this.H))
-      return 16777215;
-    return this.offset[(paramInt2 * this.W + paramInt1)];
-  }
-
-  public final void setPixel(int paramInt1, int paramInt2, int paramInt3)
-  {
-    if ((paramInt2 < 0) || (paramInt3 < 0) || (paramInt2 >= this.W) || (paramInt3 >= this.H) || (this.offset == null))
-      return;
-    this.offset[(paramInt3 * this.W + paramInt2)] = paramInt1;
-  }
-
-  public final void clear()
-  {
-    clear(0, 0, this.W, this.H);
-  }
-
-  public void clear(int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    if (this.offset == null)
-      return;
-    int i = paramInt2 * this.W + paramInt1;
-    int j = paramInt3 - paramInt1;
-    for (int k = 0; k < j; k++)
-      this.offset[(i + k)] = 16777215;
-    i += this.W;
-    paramInt2++;
-    while (paramInt2 < paramInt4)
-    {
-      System.arraycopy(this.offset, i - this.W, this.offset, i, j);
-      i += this.W;
-      paramInt2++;
-    }
-  }
-
-  public void copyTo(int paramInt1, int paramInt2, int paramInt3, int paramInt4, LO paramLO, int paramInt5, int paramInt6, int[] paramArrayOfInt)
-  {
-    int[] arrayOfInt = paramLO.offset;
-    if ((this.offset == null) && (arrayOfInt == null))
-      return;
-    if (arrayOfInt == null)
-    {
-      paramLO.reserve();
-      arrayOfInt = paramLO.offset;
-    }
-    copyTo(paramInt1, paramInt2, paramInt3, paramInt4, arrayOfInt, paramInt5, paramInt6, paramLO.W, paramLO.H, paramArrayOfInt);
-  }
-
-  public final void copyTo(int paramInt1, int paramInt2, int paramInt3, int paramInt4, int[] paramArrayOfInt1, int paramInt5, int paramInt6, int paramInt7, int paramInt8, int[] paramArrayOfInt2)
-  {
-    paramInt1 = Math.max(paramInt1, 0);
-    paramInt2 = Math.max(paramInt2, 0);
-    paramInt3 = Math.min(paramInt3, this.W);
-    paramInt4 = Math.min(paramInt4, this.H);
-    int i = Math.min(paramInt3 - paramInt1, paramInt7);
-    int j = Math.min(paramInt4 - paramInt2, paramInt8);
-    if (paramInt5 < 0)
-    {
-      i += paramInt5;
-      paramInt1 -= paramInt5;
-      paramInt5 = 0;
-    }
-    if (paramInt6 < 0)
-    {
-      j += paramInt6;
-      paramInt2 -= paramInt6;
-      paramInt6 = 0;
-    }
-    if (paramInt5 + i >= paramInt7)
-      i = paramInt7 - paramInt5;
-    if (paramInt6 + j >= paramInt8)
-      j = paramInt8 - paramInt6;
-    if ((i <= 0) || (j <= 0))
-      return;
-    int m;
-    int k;
-    int n;
-    if (this.offset == null)
-    {
-      for (m = paramInt6; m < paramInt6 + j; m++)
-      {
-        k = m * paramInt7 + paramInt5;
-        for (n = 0; n < i; n++)
-          paramArrayOfInt1[(k++)] = 16777215;
-      }
-    }
-    else
-    {
-      k = paramInt2 * this.W + paramInt1;
-      if (this.offset != paramArrayOfInt1)
-      {
-        m = paramInt6 * paramInt7 + paramInt5;
-        for (n = 0; n < j; n++)
+        if(offset == null)
         {
-          System.arraycopy(this.offset, k, paramArrayOfInt1, m, i);
-          k += this.W;
-          m += paramInt7;
+            return;
         }
-      }
-      else
-      {
-        m = i * j;
-        if ((paramArrayOfInt2 == null) || (paramArrayOfInt2.length < m))
-          paramArrayOfInt2 = new int[m];
-        for (n = 0; n < j; n++)
+        float af[] = M.getb255();
+        int ai2[] = offset;
+        int j6 = W;
+        int k6 = j6;
+        i = Math.max(i, 0);
+        j = Math.max(j, 0);
+        k = Math.min(W, k);
+        l = Math.min(H, l);
+        int l6 = k - i;
+        int i7 = l - j;
+        int j7 = j * k6 + i;
+        int k7 = j * j6 + i;
+        int l7 = 0;
+        switch(iCopy)
         {
-          System.arraycopy(this.offset, k, paramArrayOfInt2, n * i, i);
-          k += this.W;
+        case 1: // '\001'
+            for(int i1 = 0; i1 < i7; i1++)
+            {
+                for(int l1 = 0; l1 < l6; l1++)
+                {
+                    int k2 = ai2[k7 + l1];
+                    int j3 = ai[j7 + l1];
+                    int i4 = k2 >>> 24;
+                    int l4 = j3 >>> 24;
+                    int k5 = i4 + (int)((float)l4 * af[255 - i4]);
+                    int j10 = ai1[l7 + l1] & 0xffffff;
+                    int i8 = j3 >>> 16 & 0xff;
+                    int l8 = j3 >>> 8 & 0xff;
+                    int k9 = j3 & 0xff;
+                    float f = 1.0F - (float)l4 / (float)k5;
+                    i8 += (int)((float)((j10 >>> 16 & 0xff) - i8) * f);
+                    l8 += (int)((float)((j10 >>> 8 & 0xff) - l8) * f);
+                    k9 += (int)((float)((j10 & 0xff) - k9) * f);
+                    j3 = i8 << 16 | l8 << 8 | k9;
+                    if(l4 <= 0)
+                    {
+                        ai[j7 + l1] = k2;
+                    } else
+                    {
+                        float f1 = af[i4] + af[255 - i4] * af[255 - l4];
+                        ai[j7 + l1] = k5 << 24 | (j3 >>> 16 & 0xff) - (int)(af[j3 >>> 16 & 0xff] * ((float)(k2 >>> 16 & 0xff ^ 0xff) * f1)) << 16 | (j3 >>> 8 & 0xff) - (int)(af[j3 >>> 8 & 0xff] * ((float)(k2 >>> 8 & 0xff ^ 0xff) * f1)) << 8 | (j3 & 0xff) - (int)(af[j3 & 0xff] * ((float)(k2 & 0xff ^ 0xff) * f1));
+                    }
+                }
+
+                j7 += k6;
+                k7 += j6;
+                l7 += k6;
+            }
+
+            break;
+
+        case 2: // '\002'
+            for(int j1 = 0; j1 < i7; j1++)
+            {
+                for(int i2 = 0; i2 < l6; i2++)
+                {
+                    int l2 = ai2[k7 + i2];
+                    int k3 = ai[j7 + i2];
+                    int j4 = l2 >>> 24;
+                    int i5 = (int)((float)(k3 >>> 24) * af[255 - j4]);
+                    int l5 = j4 + i5;
+                    l2 ^= 0xffffff;
+                    if(l5 == 0)
+                    {
+                        ai[j7 + i2] = 0xffffff;
+                    } else
+                    {
+                        float f2 = (float)j4 / (float)l5;
+                        int j8 = k3 >>> 16 & 0xff;
+                        int i9 = k3 >>> 8 & 0xff;
+                        int l9 = k3 & 0xff;
+                        ai[j7 + i2] = f2 != 1.0F ? l5 << 24 | j8 + (int)((float)((l2 >>> 16 & 0xff) - j8) * f2) << 16 | i9 + (int)((float)((l2 >>> 8 & 0xff) - i9) * f2) << 8 | l9 + (int)((float)((l2 & 0xff) - l9) * f2) : l2;
+                    }
+                }
+
+                j7 += k6;
+                k7 += j6;
+            }
+
+            break;
+
+        default:
+            for(int k1 = 0; k1 < i7; k1++)
+            {
+                for(int j2 = 0; j2 < l6; j2++)
+                {
+                    int i3 = ai2[k7 + j2];
+                    int l3 = ai[j7 + j2];
+                    int k4 = i3 >>> 24;
+                    int j5 = (int)((float)(l3 >>> 24) * af[255 - k4]);
+                    int i6 = k4 + j5;
+                    if(i6 == 0)
+                    {
+                        ai[j7 + j2] = 0xffffff;
+                    } else
+                    {
+                        float f3 = (float)k4 / (float)i6;
+                        int k8 = l3 >>> 16 & 0xff;
+                        int j9 = l3 >>> 8 & 0xff;
+                        int i10 = l3 & 0xff;
+                        ai[j7 + j2] = f3 != 1.0F ? i6 << 24 | k8 + (int)((float)((i3 >>> 16 & 0xff) - k8) * f3) << 16 | j9 + (int)((float)((i3 >>> 8 & 0xff) - j9) * f3) << 8 | i10 + (int)((float)((i3 & 0xff) - i10) * f3) : i3;
+                    }
+                }
+
+                j7 += k6;
+                k7 += j6;
+            }
+
+            break;
         }
-        k = paramInt6 * paramInt7 + paramInt5;
-        for (n = 0; n < j; n++)
+    }
+
+    public void normalize(float f)
+    {
+        normalize(f, 0, 0, W, H);
+    }
+
+    public void normalize(float f, int i, int j, int k, int l)
+    {
+        if(offset == null)
         {
-          System.arraycopy(paramArrayOfInt2, n * i, paramArrayOfInt1, k, i);
-          k += paramInt7;
+            return;
         }
-      }
+        int i1 = k - i;
+        for(; j < l; j++)
+        {
+            int l1 = j * W + i;
+            for(int k1 = 0; k1 < i1; k1++)
+            {
+                int j1 = offset[l1];
+                offset[l1] = (int)((float)(j1 >>> 24) * f) << 24 | j1 & 0xffffff;
+                l1++;
+            }
+
+        }
+
     }
-  }
 
-  public void setLayer(LO paramLO)
-  {
-    setField(paramLO);
-    setImage(paramLO);
-  }
-
-  public void setImage(LO paramLO)
-  {
-    int i = paramLO.W;
-    int j = paramLO.H;
-    int k = i * j;
-    if ((this.offset == null) && (paramLO.offset == null))
-      return;
-    reserve();
-    if (paramLO.offset == null)
-      for (int m = 0; m < k; m++)
-        this.offset[m] = 16777215;
-    else
-      System.arraycopy(paramLO.offset, 0, this.offset, 0, k);
-    this.W = i;
-    this.H = j;
-  }
-
-  public void setField(LO paramLO)
-  {
-    this.name = paramLO.name;
-    this.iAlpha = paramLO.iAlpha;
-    this.iCopy = paramLO.iCopy;
-    this.offX = paramLO.offX;
-    this.offY = paramLO.offY;
-    this.isDraw = paramLO.isDraw;
-  }
-
-  public void makeName(String paramString)
-  {
-    this.name = (paramString + iL++);
-  }
-
-  public void toCopy(int paramInt1, int paramInt2, int[] paramArrayOfInt, int paramInt3, int paramInt4)
-  {
-    if (this.offset == null)
-      reserve();
-    int i = 0;
-    int j = 0;
-    int k = paramInt1;
-    if (paramInt3 < 0)
+    public final int getPixel(int i, int j)
     {
-      i = -paramInt3;
-      paramInt1 += paramInt3;
-      paramInt3 = 0;
+        if(offset == null || i < 0 || j < 0 || i >= W || j >= H)
+        {
+            return 0xffffff;
+        } else
+        {
+            return offset[j * W + i];
+        }
     }
-    if (paramInt3 + paramInt1 > this.W)
-      paramInt1 = this.W - paramInt3;
-    if (paramInt4 < 0)
-    {
-      j = -paramInt4;
-      paramInt2 += paramInt4;
-      paramInt4 = 0;
-    }
-    if (paramInt4 + paramInt2 > this.H)
-      paramInt2 = this.H - paramInt4;
-    if ((paramInt1 <= 0) || (paramInt2 <= 0))
-      return;
-    int m = j * k + i;
-    int n = paramInt4 * this.W + paramInt3;
-    for (int i1 = 0; i1 < paramInt2; i1++)
-    {
-      System.arraycopy(paramArrayOfInt, m, this.offset, n, paramInt1);
-      m += paramInt1;
-      n += this.W;
-    }
-  }
 
-  public void dLR(int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    if (this.offset == null)
-      return;
-    while (paramInt2 < paramInt4)
+    public final void setPixel(int i, int j, int k)
     {
-      int k = paramInt3 - 1;
-      for (int j = paramInt1; j < k; j++)
-      {
-        int i = getPixel(j, paramInt2);
-        setPixel(getPixel(k, paramInt2), j, paramInt2);
-        setPixel(i, k, paramInt2);
-        k--;
-        if (j + 1 >= k)
-          break;
-      }
-      paramInt2++;
+        if(j < 0 || k < 0 || j >= W || k >= H || offset == null)
+        {
+            return;
+        } else
+        {
+            offset[k * W + j] = i;
+            return;
+        }
     }
-  }
 
-  public void dUD(int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    if (this.offset == null)
-      return;
-    while (paramInt1 < paramInt3)
+    public final void clear()
     {
-      int k = paramInt4 - 1;
-      for (int j = paramInt2; j < k; j++)
-      {
-        int i = getPixel(paramInt1, j);
-        setPixel(getPixel(paramInt1, k), paramInt1, j);
-        setPixel(i, paramInt1, k);
-        k--;
-        if (j + 1 >= k)
-          break;
-      }
-      paramInt1++;
+        clear(0, 0, W, H);
     }
-  }
 
-  public void dR(int paramInt1, int paramInt2, int paramInt3, int paramInt4, int[] paramArrayOfInt)
-  {
-    if (this.offset == null)
-      return;
-    int i = this.W;
-    int j = this.H;
-    int k = paramInt3 - paramInt1;
-    int m = paramInt4 - paramInt2;
-    Math.max(k, m);
-    int i2 = paramInt2 * i + paramInt1;
-    int i3 = k * m;
-    if ((paramArrayOfInt == null) || (paramArrayOfInt.length < i3))
-      paramArrayOfInt = new int[i3];
-    for (int i4 = 0; i4 < m; i4++)
-      System.arraycopy(this.offset, i2 + i * i4, paramArrayOfInt, k * i4, k);
-    for (i4 = 0; i4 < k; i4++)
-      this.offset[(i2 + i4)] = 16777215;
-    for (i4 = 1; i4 < m; i4++)
-      System.arraycopy(this.offset, i2, this.offset, i2 + i4 * i, k);
-    i3 = i * j;
-    for (int i5 = 0; i5 < m; i5++)
+    public void clear(int i, int j, int k, int l)
     {
-      int n = k * i5;
-      int i1 = i2 + m - i5;
-      for (int i6 = 0; i6 < k; i6++)
-      {
-        int i7 = i6 + paramInt1;
-        if ((i7 <= i) && (i7 >= 0) && (i1 < i3))
-          this.offset[i1] = paramArrayOfInt[n];
-        i1 += i;
-        n++;
-      }
-    }
-  }
+        if(offset == null)
+        {
+            return;
+        }
+        int i1 = j * W + i;
+        int j1 = k - i;
+        for(int k1 = 0; k1 < j1; k1++)
+        {
+            offset[i1 + k1] = 0xffffff;
+        }
 
-  public void swap(LO paramLO)
-  {
-    LO localLO = new LO(this.W, this.H);
-    localLO.setField(this);
-    setField(paramLO);
-    paramLO.setField(localLO);
-    int[] arrayOfInt1 = this.offset;
-    int[] arrayOfInt2 = paramLO.offset;
-    if ((arrayOfInt1 != null) && (arrayOfInt2 != null))
-    {
-      int i = this.W * this.H;
-      for (int k = 0; k < i; k++)
-      {
-        int j = arrayOfInt1[k];
-        arrayOfInt1[k] = arrayOfInt2[k];
-        arrayOfInt2[k] = j;
-      }
+        i1 += W;
+        for(j++; j < l; j++)
+        {
+            System.arraycopy(offset, i1 - W, offset, i1, j1);
+            i1 += W;
+        }
+
     }
-    else
+
+    public void copyTo(int i, int j, int k, int l, LO lo, int i1, int j1, 
+            int ai[])
     {
-      this.offset = arrayOfInt2;
-      paramLO.offset = arrayOfInt1;
+        int ai1[] = lo.offset;
+        if(offset == null && ai1 == null)
+        {
+            return;
+        }
+        if(ai1 == null)
+        {
+            lo.reserve();
+            ai1 = lo.offset;
+        }
+        copyTo(i, j, k, l, ai1, i1, j1, lo.W, lo.H, ai);
     }
-  }
+
+    public final void copyTo(int i, int j, int k, int l, int ai[], int i1, int j1, 
+            int k1, int l1, int ai1[])
+    {
+        i = Math.max(i, 0);
+        j = Math.max(j, 0);
+        k = Math.min(k, W);
+        l = Math.min(l, H);
+        int i2 = Math.min(k - i, k1);
+        int j2 = Math.min(l - j, l1);
+        if(i1 < 0)
+        {
+            i2 += i1;
+            i -= i1;
+            i1 = 0;
+        }
+        if(j1 < 0)
+        {
+            j2 += j1;
+            j -= j1;
+            j1 = 0;
+        }
+        if(i1 + i2 >= k1)
+        {
+            i2 = k1 - i1;
+        }
+        if(j1 + j2 >= l1)
+        {
+            j2 = l1 - j1;
+        }
+        if(i2 <= 0 || j2 <= 0)
+        {
+            return;
+        }
+        if(offset == null)
+        {
+            for(int i3 = j1; i3 < j1 + j2; i3++)
+            {
+                int k2 = i3 * k1 + i1;
+                for(int l3 = 0; l3 < i2; l3++)
+                {
+                    ai[k2++] = 0xffffff;
+                }
+
+            }
+
+        } else
+        {
+            int l2 = j * W + i;
+            if(offset != ai)
+            {
+                int j3 = j1 * k1 + i1;
+                for(int i4 = 0; i4 < j2; i4++)
+                {
+                    System.arraycopy(offset, l2, ai, j3, i2);
+                    l2 += W;
+                    j3 += k1;
+                }
+
+            } else
+            {
+                int k3 = i2 * j2;
+                if(ai1 == null || ai1.length < k3)
+                {
+                    ai1 = new int[k3];
+                }
+                for(int j4 = 0; j4 < j2; j4++)
+                {
+                    System.arraycopy(offset, l2, ai1, j4 * i2, i2);
+                    l2 += W;
+                }
+
+                l2 = j1 * k1 + i1;
+                for(int k4 = 0; k4 < j2; k4++)
+                {
+                    System.arraycopy(ai1, k4 * i2, ai, l2, i2);
+                    l2 += k1;
+                }
+
+            }
+        }
+    }
+
+    public void setLayer(LO lo)
+    {
+        setField(lo);
+        setImage(lo);
+    }
+
+    public void setImage(LO lo)
+    {
+        int i = lo.W;
+        int j = lo.H;
+        int k = i * j;
+        if(offset == null && lo.offset == null)
+        {
+            return;
+        }
+        reserve();
+        if(lo.offset == null)
+        {
+            for(int l = 0; l < k; l++)
+            {
+                offset[l] = 0xffffff;
+            }
+
+        } else
+        {
+            System.arraycopy(lo.offset, 0, offset, 0, k);
+        }
+        W = i;
+        H = j;
+    }
+
+    public void setField(LO lo)
+    {
+        name = lo.name;
+        iAlpha = lo.iAlpha;
+        iCopy = lo.iCopy;
+        offX = lo.offX;
+        offY = lo.offY;
+        isDraw = lo.isDraw;
+    }
+
+    public void makeName(String s)
+    {
+        name = s + iL++;
+    }
+
+    public void toCopy(int i, int j, int ai[], int k, int l)
+    {
+        if(offset == null)
+        {
+            reserve();
+        }
+        int i1 = 0;
+        int j1 = 0;
+        int k1 = i;
+        int _tmp = j;
+        if(k < 0)
+        {
+            i1 = -k;
+            i += k;
+            k = 0;
+        }
+        if(k + i > W)
+        {
+            i = W - k;
+        }
+        if(l < 0)
+        {
+            j1 = -l;
+            j += l;
+            l = 0;
+        }
+        if(l + j > H)
+        {
+            j = H - l;
+        }
+        if(i <= 0 || j <= 0)
+        {
+            return;
+        }
+        int l1 = j1 * k1 + i1;
+        int i2 = l * W + k;
+        for(int j2 = 0; j2 < j; j2++)
+        {
+            System.arraycopy(ai, l1, offset, i2, i);
+            l1 += i;
+            i2 += W;
+        }
+
+    }
+
+    public void dLR(int i, int j, int k, int l)
+    {
+        if(offset == null)
+        {
+            return;
+        }
+        for(; j < l; j++)
+        {
+            int k1 = k - 1;
+            for(int j1 = i; j1 < k1; j1++)
+            {
+                int i1 = getPixel(j1, j);
+                setPixel(getPixel(k1, j), j1, j);
+                setPixel(i1, k1, j);
+                k1--;
+                if(j1 + 1 >= k1)
+                {
+                    break;
+                }
+            }
+
+        }
+
+    }
+
+    public void dUD(int i, int j, int k, int l)
+    {
+        if(offset == null)
+        {
+            return;
+        }
+        for(; i < k; i++)
+        {
+            int k1 = l - 1;
+            for(int j1 = j; j1 < k1; j1++)
+            {
+                int i1 = getPixel(i, j1);
+                setPixel(getPixel(i, k1), i, j1);
+                setPixel(i1, i, k1);
+                k1--;
+                if(j1 + 1 >= k1)
+                {
+                    break;
+                }
+            }
+
+        }
+
+    }
+
+    public void dR(int i, int j, int k, int l, int ai[])
+    {
+        if(offset == null)
+        {
+            return;
+        }
+        int i1 = W;
+        int j1 = H;
+        int k1 = k - i;
+        int l1 = l - j;
+        Math.max(k1, l1);
+        int k2 = j * i1 + i;
+        int l2 = k1 * l1;
+        if(ai == null || ai.length < l2)
+        {
+            ai = new int[l2];
+        }
+        for(int i3 = 0; i3 < l1; i3++)
+        {
+            System.arraycopy(offset, k2 + i1 * i3, ai, k1 * i3, k1);
+        }
+
+        for(int j3 = 0; j3 < k1; j3++)
+        {
+            offset[k2 + j3] = 0xffffff;
+        }
+
+        for(int k3 = 1; k3 < l1; k3++)
+        {
+            System.arraycopy(offset, k2, offset, k2 + k3 * i1, k1);
+        }
+
+        l2 = i1 * j1;
+        for(int l3 = 0; l3 < l1; l3++)
+        {
+            int i2 = k1 * l3;
+            int j2 = (k2 + l1) - l3;
+            for(int i4 = 0; i4 < k1; i4++)
+            {
+                int j4 = i4 + i;
+                if(j4 <= i1 && j4 >= 0 && j2 < l2)
+                {
+                    offset[j2] = ai[i2];
+                }
+                j2 += i1;
+                i2++;
+            }
+
+        }
+
+    }
+
+    public void swap(LO lo)
+    {
+        LO lo1 = new LO(W, H);
+        lo1.setField(this);
+        setField(lo);
+        lo.setField(lo1);
+        int ai[] = offset;
+        int ai1[] = lo.offset;
+        if(ai != null && ai1 != null)
+        {
+            int i = W * H;
+            for(int k = 0; k < i; k++)
+            {
+                int j = ai[k];
+                ai[k] = ai1[k];
+                ai1[k] = j;
+            }
+
+        } else
+        {
+            offset = ai1;
+            lo.offset = ai;
+        }
+    }
+
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.LO
- * JD-Core Version:    0.6.0
- */

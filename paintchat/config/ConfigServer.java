@@ -1,22 +1,8 @@
 package paintchat.config;
 
 import java.applet.Applet;
-import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.Panel;
-import java.awt.TextField;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.beans.Beans;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -24,552 +10,623 @@ import java.util.EventObject;
 import paintchat.Config;
 import paintchat.Resource;
 import syi.applet.ServerStub;
-import syi.awt.Gui;
-import syi.awt.HelpWindow;
-import syi.awt.LButton;
-import syi.awt.LTextField;
+import syi.awt.*;
 import syi.util.PProperties;
 
+// Referenced classes of package paintchat.config:
+//            ConfigApplet
+
 public class ConfigServer extends ConfigApplet
-  implements ActionListener
+    implements ActionListener
 {
-  private Panel ivjPanel1 = null;
-  private GridLayout ivjPanel1GridLayout = null;
-  private Panel ivjPanel2 = null;
-  private GridLayout ivjPanel2GridLayout = null;
-  private Checkbox ivjServer_Load_Line = null;
-  private Checkbox ivjServer_Log_Text = null;
-  private Button ivjButton1 = null;
-  private LButton ivjCancel = null;
-  private LButton ivjOk = null;
-  private Panel ivjPanel3 = null;
-  private Checkbox ivjServer_Cash_Line = null;
-  private LTextField ivjServer_Cash_Line_Size = null;
-  private Checkbox ivjServer_Cash_Text = null;
-  private LTextField ivjServer_Cash_Text_Size = null;
-  private Checkbox ivjServer_Log_Line = null;
-  private Checkbox ivjServer_Load_Text = null;
-  private TextField ivjClient_Image_Height = null;
-  private TextField ivjClient_Image_Width = null;
-  private Label ivjLabel1 = null;
-  private Label ivjLabel2 = null;
-  private Panel ivjPanel4 = null;
-  private Checkbox ivjClient_Sound = null;
-  private LTextField textPermission;
 
-  public void actionPerformed(ActionEvent paramActionEvent)
-  {
-    if (paramActionEvent.getSource() == getButton1())
-      connEtoM1(paramActionEvent);
-    if (paramActionEvent.getSource() == getOk())
+    private Panel ivjPanel1;
+    private GridLayout ivjPanel1GridLayout;
+    private Panel ivjPanel2;
+    private GridLayout ivjPanel2GridLayout;
+    private Checkbox ivjServer_Load_Line;
+    private Checkbox ivjServer_Log_Text;
+    private Button ivjButton1;
+    private LButton ivjCancel;
+    private LButton ivjOk;
+    private Panel ivjPanel3;
+    private Checkbox ivjServer_Cash_Line;
+    private LTextField ivjServer_Cash_Line_Size;
+    private Checkbox ivjServer_Cash_Text;
+    private LTextField ivjServer_Cash_Text_Size;
+    private Checkbox ivjServer_Log_Line;
+    private Checkbox ivjServer_Load_Text;
+    private TextField ivjClient_Image_Height;
+    private TextField ivjClient_Image_Width;
+    private Label ivjLabel1;
+    private Label ivjLabel2;
+    private Panel ivjPanel4;
+    private Checkbox ivjClient_Sound;
+    private LTextField textPermission;
+
+    public ConfigServer()
     {
-      mSave();
-      mDestroy();
+        ivjPanel1 = null;
+        ivjPanel1GridLayout = null;
+        ivjPanel2 = null;
+        ivjPanel2GridLayout = null;
+        ivjServer_Load_Line = null;
+        ivjServer_Log_Text = null;
+        ivjButton1 = null;
+        ivjCancel = null;
+        ivjOk = null;
+        ivjPanel3 = null;
+        ivjServer_Cash_Line = null;
+        ivjServer_Cash_Line_Size = null;
+        ivjServer_Cash_Text = null;
+        ivjServer_Cash_Text_Size = null;
+        ivjServer_Log_Line = null;
+        ivjServer_Load_Text = null;
+        ivjClient_Image_Height = null;
+        ivjClient_Image_Width = null;
+        ivjLabel1 = null;
+        ivjLabel2 = null;
+        ivjPanel4 = null;
+        ivjClient_Sound = null;
     }
-    if (paramActionEvent.getSource() == getCancel())
-      mDestroy();
-  }
 
-  public void button1_ActionPerformed(ActionEvent paramActionEvent)
-  {
-  }
-
-  private void connEtoC1()
-  {
-    try
+    public void actionPerformed(ActionEvent actionevent)
     {
-      initValue();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void connEtoM1(ActionEvent paramActionEvent)
-  {
-    try
-    {
-      stop();
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  public String getAppletInfo()
-  {
-    return "paintchat.config.ConfigServer は VisualAge for Java を使用して作成されました。";
-  }
-
-  private Button getButton1()
-  {
-    if (this.ivjButton1 == null)
-      try
-      {
-        this.ivjButton1 = new Button();
-        this.ivjButton1.setName("Button1");
-        this.ivjButton1.setBounds(134, 283, 56, 20);
-        this.ivjButton1.setLabel("Button1");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjButton1;
-  }
-
-  private LButton getCancel()
-  {
-    if (this.ivjCancel == null)
-      try
-      {
-        this.ivjCancel = new LButton();
-        this.ivjCancel.setName("Cancel");
-        this.ivjCancel.setText("Cancel");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjCancel;
-  }
-
-  private TextField getClient_Image_Height()
-  {
-    if (this.ivjClient_Image_Height == null)
-      try
-      {
-        this.ivjClient_Image_Height = new TextField();
-        this.ivjClient_Image_Height.setName("Client_Image_Height");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjClient_Image_Height;
-  }
-
-  private TextField getClient_Image_Width()
-  {
-    if (this.ivjClient_Image_Width == null)
-      try
-      {
-        this.ivjClient_Image_Width = new TextField();
-        this.ivjClient_Image_Width.setName("Client_Image_Width");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjClient_Image_Width;
-  }
-
-  private Checkbox getClient_Sound()
-  {
-    if (this.ivjClient_Sound == null)
-      try
-      {
-        this.ivjClient_Sound = new Checkbox();
-        this.ivjClient_Sound.setName("Client_Sound");
-        this.ivjClient_Sound.setLabel("Client_Sound");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjClient_Sound;
-  }
-
-  private Label getLabel1()
-  {
-    if (this.ivjLabel1 == null)
-      try
-      {
-        this.ivjLabel1 = new Label();
-        this.ivjLabel1.setName("Label1");
-        this.ivjLabel1.setAlignment(2);
-        this.ivjLabel1.setText("Client_Image_Width");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjLabel1;
-  }
-
-  private Label getLabel2()
-  {
-    if (this.ivjLabel2 == null)
-      try
-      {
-        this.ivjLabel2 = new Label();
-        this.ivjLabel2.setName("Label2");
-        this.ivjLabel2.setAlignment(2);
-        this.ivjLabel2.setText("Client_Image_Height");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjLabel2;
-  }
-
-  private LButton getOk()
-  {
-    if (this.ivjOk == null)
-      try
-      {
-        this.ivjOk = new LButton();
-        this.ivjOk.setName("Ok");
-        this.ivjOk.setText("Ok");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjOk;
-  }
-
-  private Panel getPanel1()
-  {
-    if (this.ivjPanel1 == null)
-      try
-      {
-        this.ivjPanel1 = new Panel();
-        this.ivjPanel1.setName("Panel1");
-        this.ivjPanel1.setLayout(getPanel1GridLayout());
-        getPanel1().add(getServer_Cash_Text(), getServer_Cash_Text().getName());
-        getPanel1().add(getServer_Cash_Line(), getServer_Cash_Line().getName());
-        getPanel1().add(getServer_Log_Text(), getServer_Log_Text().getName());
-        getPanel1().add(getServer_Log_Line(), getServer_Log_Line().getName());
-        getPanel1().add(getServer_Load_Text(), getServer_Load_Text().getName());
-        getPanel1().add(getServer_Load_Line(), getServer_Load_Line().getName());
-        getPanel1().add(getClient_Sound(), getClient_Sound().getName());
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjPanel1;
-  }
-
-  private GridLayout getPanel1GridLayout()
-  {
-    GridLayout localGridLayout = null;
-    try
-    {
-      localGridLayout = new GridLayout(0, 2);
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-    return localGridLayout;
-  }
-
-  private Panel getPanel2()
-  {
-    if (this.ivjPanel2 == null)
-      try
-      {
-        this.ivjPanel2 = new Panel();
-        this.ivjPanel2.setName("Panel2");
-        this.ivjPanel2.setLayout(getPanel2GridLayout());
-        this.ivjPanel2.add(getPanel4());
-        getPanel2().add(getServer_Cash_Text_Size(), getServer_Cash_Text_Size().getName());
-        getPanel2().add(getServer_Cash_Line_Size(), getServer_Cash_Line_Size().getName());
-        LTextField localLTextField = new LTextField();
-        this.textPermission = localLTextField;
-        localLTextField.setText("Client_Permission");
-        localLTextField.setName(localLTextField.getText());
-        getPanel2().add(localLTextField, localLTextField.getName());
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjPanel2;
-  }
-
-  private GridLayout getPanel2GridLayout()
-  {
-    GridLayout localGridLayout = null;
-    try
-    {
-      localGridLayout = new GridLayout(0, 1);
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-    return localGridLayout;
-  }
-
-  private Panel getPanel3()
-  {
-    if (this.ivjPanel3 == null)
-      try
-      {
-        this.ivjPanel3 = new Panel();
-        this.ivjPanel3.setName("Panel3");
-        this.ivjPanel3.setLayout(new FlowLayout());
-        getPanel3().add(getOk(), getOk().getName());
-        getPanel3().add(getCancel(), getCancel().getName());
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjPanel3;
-  }
-
-  private Panel getPanel4()
-  {
-    if (this.ivjPanel4 == null)
-      try
-      {
-        this.ivjPanel4 = new Panel();
-        this.ivjPanel4.setName("Panel4");
-        this.ivjPanel4.setLayout(new GridLayout());
-        getPanel4().add(getLabel1(), getLabel1().getName());
-        getPanel4().add(getClient_Image_Width(), getClient_Image_Width().getName());
-        getPanel4().add(getLabel2(), getLabel2().getName());
-        getPanel4().add(getClient_Image_Height(), getClient_Image_Height().getName());
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjPanel4;
-  }
-
-  private Checkbox getServer_Cash_Line()
-  {
-    if (this.ivjServer_Cash_Line == null)
-      try
-      {
-        this.ivjServer_Cash_Line = new Checkbox();
-        this.ivjServer_Cash_Line.setName("Server_Cash_Line");
-        this.ivjServer_Cash_Line.setLabel("Server_Cash_Line");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjServer_Cash_Line;
-  }
-
-  private LTextField getServer_Cash_Line_Size()
-  {
-    if (this.ivjServer_Cash_Line_Size == null)
-      try
-      {
-        this.ivjServer_Cash_Line_Size = new LTextField();
-        this.ivjServer_Cash_Line_Size.setName("Server_Cash_Line_Size");
-        this.ivjServer_Cash_Line_Size.setText("Server_Cash_Text_Size");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjServer_Cash_Line_Size;
-  }
-
-  private Checkbox getServer_Cash_Text()
-  {
-    if (this.ivjServer_Cash_Text == null)
-      try
-      {
-        this.ivjServer_Cash_Text = new Checkbox();
-        this.ivjServer_Cash_Text.setName("Server_Cash_Text");
-        this.ivjServer_Cash_Text.setLabel("Server_Cash_Text");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjServer_Cash_Text;
-  }
-
-  private LTextField getServer_Cash_Text_Size()
-  {
-    if (this.ivjServer_Cash_Text_Size == null)
-      try
-      {
-        this.ivjServer_Cash_Text_Size = new LTextField();
-        this.ivjServer_Cash_Text_Size.setName("Server_Cash_Text_Size");
-        this.ivjServer_Cash_Text_Size.setText("Server_Cash_Text_Size");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjServer_Cash_Text_Size;
-  }
-
-  private Checkbox getServer_Load_Line()
-  {
-    if (this.ivjServer_Load_Line == null)
-      try
-      {
-        this.ivjServer_Load_Line = new Checkbox();
-        this.ivjServer_Load_Line.setName("Server_Load_Line");
-        this.ivjServer_Load_Line.setLabel("Server_Load_Line");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjServer_Load_Line;
-  }
-
-  private Checkbox getServer_Load_Text()
-  {
-    if (this.ivjServer_Load_Text == null)
-      try
-      {
-        this.ivjServer_Load_Text = new Checkbox();
-        this.ivjServer_Load_Text.setName("Server_Load_Text");
-        this.ivjServer_Load_Text.setLabel("Server_Load_Text");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjServer_Load_Text;
-  }
-
-  private Checkbox getServer_Log_Line()
-  {
-    if (this.ivjServer_Log_Line == null)
-      try
-      {
-        this.ivjServer_Log_Line = new Checkbox();
-        this.ivjServer_Log_Line.setName("Server_Log_Line");
-        this.ivjServer_Log_Line.setLabel("Server_Log_Line");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjServer_Log_Line;
-  }
-
-  private Checkbox getServer_Log_Text()
-  {
-    if (this.ivjServer_Log_Text == null)
-      try
-      {
-        this.ivjServer_Log_Text = new Checkbox();
-        this.ivjServer_Log_Text.setName("Server_Log_Text");
-        this.ivjServer_Log_Text.setLabel("Server_Log_Text");
-      }
-      catch (Throwable localThrowable)
-      {
-        handleException(localThrowable);
-      }
-    return this.ivjServer_Log_Text;
-  }
-
-  private void handleException(Throwable paramThrowable)
-  {
-  }
-
-  public void init()
-  {
-    try
-    {
-      setName("ConfigServer");
-      setLayout(new BorderLayout());
-      setSize(359, 226);
-      add(getPanel1(), "North");
-      add(getPanel2(), "Center");
-      add(getPanel3(), "South");
-      initConnections();
-      connEtoC1();
-      Gui.giveDef(this);
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-  }
-
-  private void initConnections()
-    throws Exception
-  {
-    getOk().addActionListener(this);
-    getCancel().addActionListener(this);
-    setMouseListener(this, this);
-    getButton1().addActionListener(this);
-  }
-
-  public void initValue()
-  {
-    getResource(this.res, this);
-    getParameter(this);
-    getClient_Image_Width().setText(getParameter(getClient_Image_Width().getName()));
-    getClient_Image_Height().setText(getParameter(getClient_Image_Height().getName()));
-    this.textPermission.setText(getParameter(this.textPermission.getName()));
-  }
-
-  public static void main(String[] paramArrayOfString)
-  {
-    try
-    {
-      Frame localFrame = new Frame();
-      Class localClass = Class.forName("paintchat.config.ConfigServer");
-      ClassLoader localClassLoader = localClass.getClassLoader();
-      ConfigServer localConfigServer = (ConfigServer)Beans.instantiate(localClassLoader, "paintchat.config.ConfigServer");
-      localFrame.add("Center", localConfigServer);
-      localFrame.setSize(localConfigServer.getSize());
-      localFrame.addWindowListener(new WindowAdapter()
-      {
-        public void windowClosing(WindowEvent paramWindowEvent)
+        if(actionevent.getSource() == getButton1())
         {
-          System.exit(0);
+            connEtoM1(actionevent);
         }
-      });
-      localFrame.setVisible(true);
+        if(actionevent.getSource() == getOk())
+        {
+            mSave();
+            mDestroy();
+        }
+        if(actionevent.getSource() == getCancel())
+        {
+            mDestroy();
+        }
     }
-    catch (Throwable localThrowable)
-    {
-      System.err.println("paintchat.config.ConfigApplet の main() で例外が発生しました");
-      localThrowable.printStackTrace(System.out);
-    }
-  }
 
-  public void mDestroy()
-  {
-    try
+    public void button1_ActionPerformed(ActionEvent actionevent)
     {
-      getHelp().reset();
-      ((Window)getParent()).dispose();
     }
-    catch (RuntimeException localRuntimeException)
-    {
-      localRuntimeException.printStackTrace();
-    }
-  }
 
-  public void mSave()
-  {
-    try
+    private void connEtoC1()
     {
-      setParameter(this);
-      Config localConfig = (Config)((ServerStub)getAppletContext()).getHashTable();
-      localConfig.save(new FileOutputStream(localConfig.getString("File_Config", "cnf/paintchat.cf")), Resource.loadResource("Config"));
+        try
+        {
+            initValue();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
     }
-    catch (Throwable localThrowable)
+
+    private void connEtoM1(ActionEvent actionevent)
     {
-      localThrowable.printStackTrace();
+        try
+        {
+            stop();
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
     }
-  }
+
+    public String getAppletInfo()
+    {
+        return "paintchat.config.ConfigServer \u306F VisualAge for Java \u3092\u4F7F\u7528\u3057" +
+"\u3066\u4F5C\u6210\u3055\u308C\u307E\u3057\u305F\u3002"
+;
+    }
+
+    private Button getButton1()
+    {
+        if(ivjButton1 == null)
+        {
+            try
+            {
+                ivjButton1 = new Button();
+                ivjButton1.setName("Button1");
+                ivjButton1.setBounds(134, 283, 56, 20);
+                ivjButton1.setLabel("Button1");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjButton1;
+    }
+
+    private LButton getCancel()
+    {
+        if(ivjCancel == null)
+        {
+            try
+            {
+                ivjCancel = new LButton();
+                ivjCancel.setName("Cancel");
+                ivjCancel.setText("Cancel");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjCancel;
+    }
+
+    private TextField getClient_Image_Height()
+    {
+        if(ivjClient_Image_Height == null)
+        {
+            try
+            {
+                ivjClient_Image_Height = new TextField();
+                ivjClient_Image_Height.setName("Client_Image_Height");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjClient_Image_Height;
+    }
+
+    private TextField getClient_Image_Width()
+    {
+        if(ivjClient_Image_Width == null)
+        {
+            try
+            {
+                ivjClient_Image_Width = new TextField();
+                ivjClient_Image_Width.setName("Client_Image_Width");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjClient_Image_Width;
+    }
+
+    private Checkbox getClient_Sound()
+    {
+        if(ivjClient_Sound == null)
+        {
+            try
+            {
+                ivjClient_Sound = new Checkbox();
+                ivjClient_Sound.setName("Client_Sound");
+                ivjClient_Sound.setLabel("Client_Sound");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjClient_Sound;
+    }
+
+    private Label getLabel1()
+    {
+        if(ivjLabel1 == null)
+        {
+            try
+            {
+                ivjLabel1 = new Label();
+                ivjLabel1.setName("Label1");
+                ivjLabel1.setAlignment(2);
+                ivjLabel1.setText("Client_Image_Width");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjLabel1;
+    }
+
+    private Label getLabel2()
+    {
+        if(ivjLabel2 == null)
+        {
+            try
+            {
+                ivjLabel2 = new Label();
+                ivjLabel2.setName("Label2");
+                ivjLabel2.setAlignment(2);
+                ivjLabel2.setText("Client_Image_Height");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjLabel2;
+    }
+
+    private LButton getOk()
+    {
+        if(ivjOk == null)
+        {
+            try
+            {
+                ivjOk = new LButton();
+                ivjOk.setName("Ok");
+                ivjOk.setText("Ok");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjOk;
+    }
+
+    private Panel getPanel1()
+    {
+        if(ivjPanel1 == null)
+        {
+            try
+            {
+                ivjPanel1 = new Panel();
+                ivjPanel1.setName("Panel1");
+                ivjPanel1.setLayout(getPanel1GridLayout());
+                getPanel1().add(getServer_Cash_Text(), getServer_Cash_Text().getName());
+                getPanel1().add(getServer_Cash_Line(), getServer_Cash_Line().getName());
+                getPanel1().add(getServer_Log_Text(), getServer_Log_Text().getName());
+                getPanel1().add(getServer_Log_Line(), getServer_Log_Line().getName());
+                getPanel1().add(getServer_Load_Text(), getServer_Load_Text().getName());
+                getPanel1().add(getServer_Load_Line(), getServer_Load_Line().getName());
+                getPanel1().add(getClient_Sound(), getClient_Sound().getName());
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjPanel1;
+    }
+
+    private GridLayout getPanel1GridLayout()
+    {
+        GridLayout gridlayout = null;
+        try
+        {
+            gridlayout = new GridLayout(0, 2);
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+        return gridlayout;
+    }
+
+    private Panel getPanel2()
+    {
+        if(ivjPanel2 == null)
+        {
+            try
+            {
+                ivjPanel2 = new Panel();
+                ivjPanel2.setName("Panel2");
+                ivjPanel2.setLayout(getPanel2GridLayout());
+                ivjPanel2.add(getPanel4());
+                getPanel2().add(getServer_Cash_Text_Size(), getServer_Cash_Text_Size().getName());
+                getPanel2().add(getServer_Cash_Line_Size(), getServer_Cash_Line_Size().getName());
+                LTextField ltextfield = new LTextField();
+                textPermission = ltextfield;
+                ltextfield.setText("Client_Permission");
+                ltextfield.setName(ltextfield.getText());
+                getPanel2().add(ltextfield, ltextfield.getName());
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjPanel2;
+    }
+
+    private GridLayout getPanel2GridLayout()
+    {
+        GridLayout gridlayout = null;
+        try
+        {
+            gridlayout = new GridLayout(0, 1);
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+        return gridlayout;
+    }
+
+    private Panel getPanel3()
+    {
+        if(ivjPanel3 == null)
+        {
+            try
+            {
+                ivjPanel3 = new Panel();
+                ivjPanel3.setName("Panel3");
+                ivjPanel3.setLayout(new FlowLayout());
+                getPanel3().add(getOk(), getOk().getName());
+                getPanel3().add(getCancel(), getCancel().getName());
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjPanel3;
+    }
+
+    private Panel getPanel4()
+    {
+        if(ivjPanel4 == null)
+        {
+            try
+            {
+                ivjPanel4 = new Panel();
+                ivjPanel4.setName("Panel4");
+                ivjPanel4.setLayout(new GridLayout());
+                getPanel4().add(getLabel1(), getLabel1().getName());
+                getPanel4().add(getClient_Image_Width(), getClient_Image_Width().getName());
+                getPanel4().add(getLabel2(), getLabel2().getName());
+                getPanel4().add(getClient_Image_Height(), getClient_Image_Height().getName());
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjPanel4;
+    }
+
+    private Checkbox getServer_Cash_Line()
+    {
+        if(ivjServer_Cash_Line == null)
+        {
+            try
+            {
+                ivjServer_Cash_Line = new Checkbox();
+                ivjServer_Cash_Line.setName("Server_Cash_Line");
+                ivjServer_Cash_Line.setLabel("Server_Cash_Line");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjServer_Cash_Line;
+    }
+
+    private LTextField getServer_Cash_Line_Size()
+    {
+        if(ivjServer_Cash_Line_Size == null)
+        {
+            try
+            {
+                ivjServer_Cash_Line_Size = new LTextField();
+                ivjServer_Cash_Line_Size.setName("Server_Cash_Line_Size");
+                ivjServer_Cash_Line_Size.setText("Server_Cash_Text_Size");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjServer_Cash_Line_Size;
+    }
+
+    private Checkbox getServer_Cash_Text()
+    {
+        if(ivjServer_Cash_Text == null)
+        {
+            try
+            {
+                ivjServer_Cash_Text = new Checkbox();
+                ivjServer_Cash_Text.setName("Server_Cash_Text");
+                ivjServer_Cash_Text.setLabel("Server_Cash_Text");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjServer_Cash_Text;
+    }
+
+    private LTextField getServer_Cash_Text_Size()
+    {
+        if(ivjServer_Cash_Text_Size == null)
+        {
+            try
+            {
+                ivjServer_Cash_Text_Size = new LTextField();
+                ivjServer_Cash_Text_Size.setName("Server_Cash_Text_Size");
+                ivjServer_Cash_Text_Size.setText("Server_Cash_Text_Size");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjServer_Cash_Text_Size;
+    }
+
+    private Checkbox getServer_Load_Line()
+    {
+        if(ivjServer_Load_Line == null)
+        {
+            try
+            {
+                ivjServer_Load_Line = new Checkbox();
+                ivjServer_Load_Line.setName("Server_Load_Line");
+                ivjServer_Load_Line.setLabel("Server_Load_Line");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjServer_Load_Line;
+    }
+
+    private Checkbox getServer_Load_Text()
+    {
+        if(ivjServer_Load_Text == null)
+        {
+            try
+            {
+                ivjServer_Load_Text = new Checkbox();
+                ivjServer_Load_Text.setName("Server_Load_Text");
+                ivjServer_Load_Text.setLabel("Server_Load_Text");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjServer_Load_Text;
+    }
+
+    private Checkbox getServer_Log_Line()
+    {
+        if(ivjServer_Log_Line == null)
+        {
+            try
+            {
+                ivjServer_Log_Line = new Checkbox();
+                ivjServer_Log_Line.setName("Server_Log_Line");
+                ivjServer_Log_Line.setLabel("Server_Log_Line");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjServer_Log_Line;
+    }
+
+    private Checkbox getServer_Log_Text()
+    {
+        if(ivjServer_Log_Text == null)
+        {
+            try
+            {
+                ivjServer_Log_Text = new Checkbox();
+                ivjServer_Log_Text.setName("Server_Log_Text");
+                ivjServer_Log_Text.setLabel("Server_Log_Text");
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+            }
+        }
+        return ivjServer_Log_Text;
+    }
+
+    private void handleException(Throwable throwable)
+    {
+    }
+
+    public void init()
+    {
+        try
+        {
+            setName("ConfigServer");
+            setLayout(new BorderLayout());
+            setSize(359, 226);
+            add(getPanel1(), "North");
+            add(getPanel2(), "Center");
+            add(getPanel3(), "South");
+            initConnections();
+            connEtoC1();
+            Gui.giveDef(this);
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+    }
+
+    private void initConnections()
+        throws Exception
+    {
+        getOk().addActionListener(this);
+        getCancel().addActionListener(this);
+        setMouseListener(this, this);
+        getButton1().addActionListener(this);
+    }
+
+    public void initValue()
+    {
+        getResource(super.res, this);
+        getParameter(this);
+        getClient_Image_Width().setText(getParameter(getClient_Image_Width().getName()));
+        getClient_Image_Height().setText(getParameter(getClient_Image_Height().getName()));
+        textPermission.setText(getParameter(textPermission.getName()));
+    }
+
+    public static void main(String args[])
+    {
+        try
+        {
+            Frame frame = new Frame();
+            Class class1 = Class.forName("paintchat.config.ConfigServer");
+            ClassLoader classloader = class1.getClassLoader();
+            ConfigServer configserver = (ConfigServer)Beans.instantiate(classloader, "paintchat.config.ConfigServer");
+            frame.add("Center", configserver);
+            frame.setSize(configserver.getSize());
+            frame.addWindowListener(new WindowAdapter() {
+
+                public void windowClosing(WindowEvent windowevent)
+                {
+                    System.exit(0);
+                }
+
+            });
+            frame.setVisible(true);
+        }
+        catch(Throwable throwable)
+        {
+            System.err.println("paintchat.config.ConfigApplet \u306E main() \u3067\u4F8B\u5916\u304C\u767A\u751F" +
+"\u3057\u307E\u3057\u305F"
+);
+            throwable.printStackTrace(System.out);
+        }
+    }
+
+    public void mDestroy()
+    {
+        try
+        {
+            getHelp().reset();
+            ((Window)getParent()).dispose();
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            runtimeexception.printStackTrace();
+        }
+    }
+
+    public void mSave()
+    {
+        try
+        {
+            setParameter(this);
+            Config config = (Config)((ServerStub)getAppletContext()).getHashTable();
+            config.save(new FileOutputStream(config.getString("File_Config", "cnf/paintchat.cf")), Resource.loadResource("Config"));
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.config.ConfigServer
- * JD-Core Version:    0.6.0
- */

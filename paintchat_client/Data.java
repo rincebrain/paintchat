@@ -1,302 +1,329 @@
 package paintchat_client;
 
 import java.applet.Applet;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.io.*;
+import java.net.*;
 import java.util.Hashtable;
 import java.util.Locale;
-import paintchat.M;
-import paintchat.M.Info;
-import paintchat.MgText;
-import paintchat.Res;
+import paintchat.*;
 import paintchat_server.PaintChatTalker;
 import syi.awt.Awt;
 import syi.awt.TextPanel;
 import syi.util.ByteStream;
 
+// Referenced classes of package paintchat_client:
+//            TLine, TText, Pl, Mi, 
+//            Me
+
 public class Data
 {
-  public Pl pl;
-  public Res res;
-  public Res config;
-  public M.Info info;
-  private boolean isDestroy = false;
-  private int Port;
-  private InetAddress address;
-  private int ID = 0;
-  private M mgDraw = new M();
-  public Mi mi;
-  private TextPanel text;
-  public int imW;
-  public int imH;
-  public int MAX_KAIWA;
-  public int MAX_KAIWA_BORDER;
-  private EOFException EOF = new EOFException();
-  private TLine tLine;
-  private TText tText;
-  public String strName = null;
 
-  public Data(Pl paramPl)
-  {
-    this.pl = paramPl;
-  }
+    public Pl pl;
+    public Res res;
+    public Res config;
+    public paintchat.M.Info info;
+    private boolean isDestroy;
+    private int Port;
+    private InetAddress address;
+    private int ID;
+    private M mgDraw;
+    public Mi mi;
+    private TextPanel text;
+    public int imW;
+    public int imH;
+    public int MAX_KAIWA;
+    public int MAX_KAIWA_BORDER;
+    private EOFException EOF;
+    private TLine tLine;
+    private TText tText;
+    public String strName;
 
-  public synchronized void destroy()
-  {
-    if (this.isDestroy)
-      return;
-    this.isDestroy = true;
-    try
+    public Data(Pl pl1)
     {
-      if (this.tLine != null)
-      {
-        this.tLine.mRStop();
-        this.tLine = null;
-      }
-      if (this.tText != null)
-      {
-        this.tText.mRStop();
-        this.tText = null;
-      }
+        isDestroy = false;
+        ID = 0;
+        mgDraw = new M();
+        EOF = new EOFException();
+        strName = null;
+        pl = pl1;
     }
-    catch (Throwable localThrowable)
-    {
-    }
-  }
 
-  private Socket getSocket()
-  {
-    if (this.address == null)
+    public synchronized void destroy()
     {
-      InetAddress localInetAddress = null;
-      String str1 = this.config.getP("Connection_Host", null);
-      try
-      {
-        if (str1 != null)
-          localInetAddress = InetAddress.getByName(str1);
-      }
-      catch (UnknownHostException localUnknownHostException1)
-      {
-        localInetAddress = null;
-      }
-      try
-      {
-        str1 = this.pl.applet.getCodeBase().getHost();
-        if ((str1 == null) || (str1.length() <= 0))
-          str1 = "localhost";
-        localInetAddress = InetAddress.getByName(str1);
-      }
-      catch (UnknownHostException localUnknownHostException2)
-      {
-        localInetAddress = null;
-      }
-      if (localInetAddress == null)
-      {
+        if(isDestroy)
+        {
+            return;
+        }
+        isDestroy = true;
+        try
+        {
+            if(tLine != null)
+            {
+                tLine.mRStop();
+                tLine = null;
+            }
+            if(tText != null)
+            {
+                tText.mRStop();
+                tText = null;
+            }
+        }
+        catch(Throwable _ex) { }
+    }
+
+    private Socket getSocket()
+    {
+        if(address == null)
+        {
+            InetAddress inetaddress = null;
+            String s = config.getP("Connection_Host", null);
+            try
+            {
+                if(s != null)
+                {
+                    inetaddress = InetAddress.getByName(s);
+                }
+            }
+            catch(UnknownHostException _ex)
+            {
+                inetaddress = null;
+            }
+            try
+            {
+                String s1 = pl.applet.getCodeBase().getHost();
+                if(s1 == null || s1.length() <= 0)
+                {
+                    s1 = "localhost";
+                }
+                inetaddress = InetAddress.getByName(s1);
+            }
+            catch(UnknownHostException _ex)
+            {
+                inetaddress = null;
+            }
+            if(inetaddress == null)
+            {
+                destroy();
+                return null;
+            }
+            address = inetaddress;
+            String s2 = "Connection_Port_PaintChat";
+            Port = config.getP(s2, 41411);
+        }
+        try
+        {
+            while(!isDestroy) 
+            {
+                for(int i = 0; i < 2; i++)
+                {
+                    try
+                    {
+                        return new Socket(address, Port);
+                    }
+                    catch(IOException _ex)
+                    {
+                        Thread.currentThread();
+                    }
+                    Thread.sleep(3000L);
+                }
+
+                if(!mi.alert("reconnect", true))
+                {
+                    break;
+                }
+            }
+        }
+        catch(InterruptedException _ex) { }
         destroy();
         return null;
-      }
-      this.address = localInetAddress;
-      String str2 = "Connection_Port_PaintChat";
-      this.Port = this.config.getP(str2, 41411);
     }
-    try
+
+    public void init()
     {
-      while (!this.isDestroy)
-      {
+        try
+        {
+            ByteStream bytestream = new ByteStream();
+            Applet applet = pl.applet;
+            URL url = applet.getCodeBase();
+            String s = p("dir_resource", "./res");
+            if(!s.endsWith("/"))
+            {
+                s = s + '/';
+            }
+            URL url1 = new URL(url, s);
+            res = new Res(applet, url1, bytestream);
+            config = new Res(applet, url1, bytestream);
+            config.loadZip(p("res.zip", "res.zip"));
+            try
+            {
+                String s1 = "param_utf8.txt";
+                config.load(new String((byte[])config.getRes(s1), "UTF8"));
+                config.remove(s1);
+            }
+            catch(IOException ioexception1)
+            {
+                ioexception1.printStackTrace();
+            }
+            Me.res = res;
+            Me.conf = config;
+            pl.iPG(true);
+            try
+            {
+                config.load(Awt.openStream(new URL(url, config.getP("File_PaintChat_Infomation", config.getP("server", ".paintchat")))));
+            }
+            catch(IOException ioexception2)
+            {
+                System.out.println(ioexception2);
+            }
+            pl.iPG(true);
+            res.loadResource(config, "res", Locale.getDefault().getLanguage());
+            pl.iPG(true);
+            MAX_KAIWA_BORDER = config.getP("Cash_Text_Max", 120);
+            imW = config.getP("Client_Image_Width", config.getP("image_width", 1200));
+            imH = config.getP("Client_Image_Height", config.getP("image_height", 1200));
+        }
+        catch(IOException ioexception)
+        {
+            ioexception.printStackTrace();
+        }
+    }
+
+    public void send(M m)
+    {
+        tLine.send(m);
+    }
+
+    public void send(MgText mgtext)
+    {
+        tText.send(mgtext);
+    }
+
+    public void start()
+        throws IOException
+    {
+        Mi mi1 = mi;
+        info = mi1.info;
+        mgDraw.setInfo(mi1.info);
+        mgDraw.newUser(mi1).wait = -1;
+        Res res1 = new Res();
+        res1.put("name", strName);
+        res1.put("password", config.get("chat_password"));
+        config.put(res1);
+        mRunText(res1);
+        mRunLine(res1);
+    }
+
+    private void mRunLine(Res res1)
+        throws IOException
+    {
+        Res res2 = new Res();
+        res2.put(res1);
+        res2.put("protocol", "paintchat.line");
+        tLine = new TLine(this, mgDraw);
+        Socket socket = getSocket();
+        tLine.mConnect(socket, res2);
+    }
+
+    private void mRunText(Res res1)
+        throws IOException
+    {
+        Res res2 = new Res();
+        res2.put(res1);
+        res2.put("protocol", "paintchat.text");
+        tText = new TText(pl, this);
+        Socket socket = getSocket();
+        tText.mConnect(socket, res2);
+    }
+
+    public String p(String s, String s1)
+    {
+        try
+        {
+            String s2 = pl.applet.getParameter(s);
+            if(s2 == null || s2.length() <= 0)
+            {
+                return s1;
+            } else
+            {
+                return s2;
+            }
+        }
+        catch(Throwable _ex)
+        {
+            return s1;
+        }
+    }
+
+    public void addTextComp()
+    {
+        pl.addTextInfo(res.get("log_complete"), true);
+        mPermission(tLine.getStatus().get("permission"));
+    }
+
+    public void mPermission(String s)
+    {
         int i = 0;
-        while (i < 2)
-          try
-          {
-            return new Socket(this.address, this.Port);
-          }
-          catch (IOException localIOException)
-          {
-            Thread.currentThread();
-            Thread.sleep(3000L);
-            i++;
-          }
-        if (!this.mi.alert("reconnect", true))
-          break;
-      }
+        int k = s.length();
+        int j;
+        do
+        {
+            j = s.indexOf(';', i);
+            if(j < 0)
+            {
+                j = k;
+            }
+            if(j - i > 0)
+            {
+                mP(s.substring(i, j));
+            }
+            i = j + 1;
+        } while(j < k);
     }
-    catch (InterruptedException localInterruptedException)
+
+    private void mP(String s)
     {
+        try
+        {
+            int i = s.indexOf(':');
+            if(i <= 0)
+            {
+                return;
+            }
+            String s1 = s.substring(0, i).trim();
+            String s2 = s.substring(i + 1).trim();
+            boolean flag = false;
+            if(s2.length() > 0)
+            {
+                flag = s2.charAt(0) == 't';
+            }
+            if(s1.equals("layer"))
+            {
+                info.permission = s2.equals("all") ? -1 : Integer.parseInt(s2);
+            }
+            if(s1.equals("layer_edit"))
+            {
+                info.isLEdit = flag;
+            }
+            if(s1.equals("canvas"))
+            {
+                mi.isEnable = flag;
+            }
+            if(s1.equals("fill"))
+            {
+                info.isFill = flag;
+            }
+            if(s1.equals("clean"))
+            {
+                info.isClean = flag;
+            }
+            if(s1.equals("unlayer"))
+            {
+                info.unpermission = Integer.parseInt(s2);
+            }
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            runtimeexception.printStackTrace();
+        }
     }
-    destroy();
-    return null;
-  }
-
-  public void init()
-  {
-    try
-    {
-      ByteStream localByteStream = new ByteStream();
-      Applet localApplet = this.pl.applet;
-      URL localURL1 = localApplet.getCodeBase();
-      String str1 = p("dir_resource", "./res");
-      if (!str1.endsWith("/"))
-        str1 = str1 + '/';
-      URL localURL2 = new URL(localURL1, str1);
-      this.res = new Res(localApplet, localURL2, localByteStream);
-      this.config = new Res(localApplet, localURL2, localByteStream);
-      this.config.loadZip(p("res.zip", "res.zip"));
-      try
-      {
-        String str2 = "param_utf8.txt";
-        this.config.load(new String((byte[])this.config.getRes(str2), "UTF8"));
-        this.config.remove(str2);
-      }
-      catch (IOException localIOException2)
-      {
-        localIOException2.printStackTrace();
-      }
-      Me.res = this.res;
-      Me.conf = this.config;
-      this.pl.iPG(true);
-      try
-      {
-        this.config.load(Awt.openStream(new URL(localURL1, this.config.getP("File_PaintChat_Infomation", this.config.getP("server", ".paintchat")))));
-      }
-      catch (IOException localIOException3)
-      {
-        System.out.println(localIOException3);
-      }
-      this.pl.iPG(true);
-      this.res.loadResource(this.config, "res", Locale.getDefault().getLanguage());
-      this.pl.iPG(true);
-      this.MAX_KAIWA_BORDER = this.config.getP("Cash_Text_Max", 120);
-      this.imW = this.config.getP("Client_Image_Width", this.config.getP("image_width", 1200));
-      this.imH = this.config.getP("Client_Image_Height", this.config.getP("image_height", 1200));
-    }
-    catch (IOException localIOException1)
-    {
-      localIOException1.printStackTrace();
-    }
-  }
-
-  public void send(M paramM)
-  {
-    this.tLine.send(paramM);
-  }
-
-  public void send(MgText paramMgText)
-  {
-    this.tText.send(paramMgText);
-  }
-
-  public void start()
-    throws IOException
-  {
-    Mi localMi = this.mi;
-    this.info = localMi.info;
-    this.mgDraw.setInfo(localMi.info);
-    this.mgDraw.newUser(localMi).wait = -1;
-    Res localRes = new Res();
-    localRes.put("name", this.strName);
-    localRes.put("password", this.config.get("chat_password"));
-    this.config.put(localRes);
-    mRunText(localRes);
-    mRunLine(localRes);
-  }
-
-  private void mRunLine(Res paramRes)
-    throws IOException
-  {
-    Res localRes = new Res();
-    localRes.put(paramRes);
-    localRes.put("protocol", "paintchat.line");
-    this.tLine = new TLine(this, this.mgDraw);
-    Socket localSocket = getSocket();
-    this.tLine.mConnect(localSocket, localRes);
-  }
-
-  private void mRunText(Res paramRes)
-    throws IOException
-  {
-    Res localRes = new Res();
-    localRes.put(paramRes);
-    localRes.put("protocol", "paintchat.text");
-    this.tText = new TText(this.pl, this);
-    Socket localSocket = getSocket();
-    this.tText.mConnect(localSocket, localRes);
-  }
-
-  public String p(String paramString1, String paramString2)
-  {
-    try
-    {
-      String str = this.pl.applet.getParameter(paramString1);
-      if ((str == null) || (str.length() <= 0))
-        return paramString2;
-      return str;
-    }
-    catch (Throwable localThrowable)
-    {
-    }
-    return paramString2;
-  }
-
-  public void addTextComp()
-  {
-    this.pl.addTextInfo(this.res.get("log_complete"), true);
-    mPermission(this.tLine.getStatus().get("permission"));
-  }
-
-  public void mPermission(String paramString)
-  {
-    int i = 0;
-    int k = paramString.length();
-    int j;
-    do
-    {
-      j = paramString.indexOf(';', i);
-      if (j < 0)
-        j = k;
-      if (j - i > 0)
-        mP(paramString.substring(i, j));
-      i = j + 1;
-    }
-    while (j < k);
-  }
-
-  private void mP(String paramString)
-  {
-    try
-    {
-      int i = paramString.indexOf(':');
-      if (i <= 0)
-        return;
-      String str1 = paramString.substring(0, i).trim();
-      String str2 = paramString.substring(i + 1).trim();
-      boolean bool = false;
-      if (str2.length() > 0)
-        bool = str2.charAt(0) == 't';
-      if (str1.equals("layer"))
-        this.info.permission = (str2.equals("all") ? -1 : Integer.parseInt(str2));
-      if (str1.equals("layer_edit"))
-        this.info.isLEdit = bool;
-      if (str1.equals("canvas"))
-        this.mi.isEnable = bool;
-      if (str1.equals("fill"))
-        this.info.isFill = bool;
-      if (str1.equals("clean"))
-        this.info.isClean = bool;
-      if (str1.equals("unlayer"))
-        this.info.unpermission = Integer.parseInt(str2);
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-      localRuntimeException.printStackTrace();
-    }
-  }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_client.Data
- * JD-Core Version:    0.6.0
- */

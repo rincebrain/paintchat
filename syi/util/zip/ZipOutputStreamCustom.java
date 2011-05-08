@@ -1,146 +1,151 @@
 package syi.util.zip;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.zip.CRC32;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
+import java.io.*;
+import java.util.zip.*;
 import syi.util.ByteStream;
 import syi.util.Io;
 
 public class ZipOutputStreamCustom extends ZipOutputStream
 {
-  private boolean is_deflate = true;
-  private CRC32 crc32 = null;
 
-  public ZipOutputStreamCustom(OutputStream paramOutputStream)
-  {
-    super(paramOutputStream);
-  }
+    private boolean is_deflate;
+    private CRC32 crc32;
 
-  public static void main(String[] paramArrayOfString)
-  {
-    try
+    public ZipOutputStreamCustom(OutputStream outputstream)
     {
-      File localFile = new File("C:\\IBMVJava\\Ide\\project_resources\\PaintChat\\sub\\bbs\\pbbs\\");
-      ZipOutputStreamCustom localZipOutputStreamCustom = new ZipOutputStreamCustom(new FileOutputStream(new File(localFile, "_PaintBBS.jar")));
-      localZipOutputStreamCustom.setMethod(8);
-      localZipOutputStreamCustom.setLevel(9);
-      localZipOutputStreamCustom.putZip(new ZipInputStream(new FileInputStream(new File(localFile, "PaintBBS.jar"))));
-      localZipOutputStreamCustom.finish();
-      localZipOutputStreamCustom.close();
+        super(outputstream);
+        is_deflate = true;
+        crc32 = null;
     }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-    System.exit(0);
-  }
 
-  public void putBytes(byte[] paramArrayOfByte, int paramInt1, int paramInt2, String paramString)
-    throws IOException
-  {
-    ZipEntry localZipEntry = new ZipEntry(paramString);
-    if (!this.is_deflate)
+    public static void main(String args[])
     {
-      if (this.crc32 == null)
-        this.crc32 = new CRC32();
-      else
-        this.crc32.reset();
-      this.crc32.update(paramArrayOfByte);
-      localZipEntry.setSize(paramArrayOfByte.length);
-      localZipEntry.setCrc(this.crc32.getValue());
+        try
+        {
+            File file = new File("C:\\IBMVJava\\Ide\\project_resources\\PaintChat\\sub\\bbs\\pbbs\\");
+            ZipOutputStreamCustom zipoutputstreamcustom = new ZipOutputStreamCustom(new FileOutputStream(new File(file, "_PaintBBS.jar")));
+            zipoutputstreamcustom.setMethod(8);
+            zipoutputstreamcustom.setLevel(9);
+            zipoutputstreamcustom.putZip(new ZipInputStream(new FileInputStream(new File(file, "PaintBBS.jar"))));
+            zipoutputstreamcustom.finish();
+            zipoutputstreamcustom.close();
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+        System.exit(0);
     }
-    putNextEntry(localZipEntry);
-    write(paramArrayOfByte, paramInt1, paramInt2);
-    closeEntry();
-  }
 
-  public void putDirectory(File paramFile, String paramString)
-    throws IOException
-  {
-    File localFile = new File(paramFile, paramString);
-    if (localFile.isFile())
+    public void putBytes(byte abyte0[], int i, int j, String s)
+        throws IOException
     {
-      putFile(paramFile, paramString);
-      return;
+        ZipEntry zipentry = new ZipEntry(s);
+        if(!is_deflate)
+        {
+            if(crc32 == null)
+            {
+                crc32 = new CRC32();
+            } else
+            {
+                crc32.reset();
+            }
+            crc32.update(abyte0);
+            zipentry.setSize(abyte0.length);
+            zipentry.setCrc(crc32.getValue());
+        }
+        putNextEntry(zipentry);
+        write(abyte0, i, j);
+        closeEntry();
     }
-    if (!localFile.exists())
-      return;
-    String[] arrayOfString = localFile.list();
-    for (int i = 0; i < arrayOfString.length; i++)
-    {
-      new File(localFile, arrayOfString[i]);
-      putDirectory(paramFile, paramString + '/' + arrayOfString[i]);
-    }
-  }
 
-  public void putFile(File paramFile, String paramString)
-    throws IOException
-  {
-    byte[] arrayOfByte = (byte[])null;
-    File localFile = new File(paramFile, paramString);
-    if (localFile.isDirectory())
+    public void putDirectory(File file, String s)
+        throws IOException
     {
-      putDirectory(paramFile, paramString);
-      return;
-    }
-    if (!localFile.exists())
-      return;
-    try
-    {
-      arrayOfByte = new byte[(int)localFile.length()];
-      FileInputStream localFileInputStream = new FileInputStream(localFile);
-      Io.rFull(localFileInputStream, arrayOfByte, 0, arrayOfByte.length);
-      localFileInputStream.close();
-    }
-    catch (IOException localIOException)
-    {
-      localIOException.printStackTrace();
-      arrayOfByte = (byte[])null;
-    }
-    if (arrayOfByte == null)
-      return;
-    putBytes(arrayOfByte, 0, arrayOfByte.length, paramString);
-  }
+        File file1 = new File(file, s);
+        if(file1.isFile())
+        {
+            putFile(file, s);
+            return;
+        }
+        if(!file1.exists())
+        {
+            return;
+        }
+        String as[] = file1.list();
+        for(int i = 0; i < as.length; i++)
+        {
+            new File(file1, as[i]);
+            putDirectory(file, s + '/' + as[i]);
+        }
 
-  public void putFile(String paramString1, String paramString2)
-    throws IOException
-  {
-    putFile(new File(paramString1), paramString2);
-  }
-
-  public void putZip(ZipInputStream paramZipInputStream)
-    throws IOException
-  {
-    ByteStream localByteStream = new ByteStream();
-    byte[] arrayOfByte = new byte[512];
-    ZipEntry localZipEntry;
-    while ((localZipEntry = paramZipInputStream.getNextEntry()) != null)
-    {
-      int i;
-      while ((i = paramZipInputStream.read(arrayOfByte)) != -1)
-        localByteStream.write(arrayOfByte, 0, i);
-      paramZipInputStream.closeEntry();
-      putBytes(localByteStream.getBuffer(), 0, localByteStream.size(), localZipEntry.getName());
-      localByteStream.reset();
     }
-    paramZipInputStream.close();
-  }
 
-  public void setMethod(int paramInt)
-  {
-    this.is_deflate = (paramInt == 8);
-    super.setMethod(paramInt);
-  }
+    public void putFile(File file, String s)
+        throws IOException
+    {
+        byte abyte0[] = (byte[])null;
+        File file1 = new File(file, s);
+        if(file1.isDirectory())
+        {
+            putDirectory(file, s);
+            return;
+        }
+        if(!file1.exists())
+        {
+            return;
+        }
+        try
+        {
+            abyte0 = new byte[(int)file1.length()];
+            FileInputStream fileinputstream = new FileInputStream(file1);
+            Io.rFull(fileinputstream, abyte0, 0, abyte0.length);
+            fileinputstream.close();
+        }
+        catch(IOException ioexception)
+        {
+            ioexception.printStackTrace();
+            abyte0 = (byte[])null;
+        }
+        if(abyte0 == null)
+        {
+            return;
+        } else
+        {
+            putBytes(abyte0, 0, abyte0.length, s);
+            return;
+        }
+    }
+
+    public void putFile(String s, String s1)
+        throws IOException
+    {
+        putFile(new File(s), s1);
+    }
+
+    public void putZip(ZipInputStream zipinputstream)
+        throws IOException
+    {
+        ByteStream bytestream = new ByteStream();
+        byte abyte0[] = new byte[512];
+        ZipEntry zipentry;
+        while((zipentry = zipinputstream.getNextEntry()) != null) 
+        {
+            int i;
+            while((i = zipinputstream.read(abyte0)) != -1) 
+            {
+                bytestream.write(abyte0, 0, i);
+            }
+            zipinputstream.closeEntry();
+            putBytes(bytestream.getBuffer(), 0, bytestream.size(), zipentry.getName());
+            bytestream.reset();
+        }
+        zipinputstream.close();
+    }
+
+    public void setMethod(int i)
+    {
+        is_deflate = i == 8;
+        super.setMethod(i);
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.util.zip.ZipOutputStreamCustom
- * JD-Core Version:    0.6.0
- */

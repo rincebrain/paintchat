@@ -1,189 +1,210 @@
 package syi.util;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 public class ByteStream extends OutputStream
 {
-  private byte[] buffer;
-  private int last = 0;
 
-  public ByteStream()
-  {
-    this(512);
-  }
+    private byte buffer[];
+    private int last;
 
-  public ByteStream(byte[] paramArrayOfByte)
-  {
-    this.buffer = paramArrayOfByte;
-  }
-
-  public ByteStream(int paramInt)
-  {
-    this.buffer = new byte[paramInt <= 0 ? 512 : paramInt];
-  }
-
-  public final void addSize(int paramInt)
-  {
-    int i = this.last + paramInt;
-    if (this.buffer.length < i)
+    public ByteStream()
     {
-      byte[] arrayOfByte = new byte[Math.max((int)(this.buffer.length * 1.5F), i) + 1];
-      System.arraycopy(this.buffer, 0, arrayOfByte, 0, this.buffer.length);
-      this.buffer = arrayOfByte;
+        this(512);
     }
-  }
 
-  public void gc()
-  {
-    if (this.buffer.length == this.last)
-      return;
-    byte[] arrayOfByte = new byte[this.last];
-    if (this.last != 0)
-      System.arraycopy(this.buffer, 0, arrayOfByte, 0, this.last);
-    this.buffer = arrayOfByte;
-  }
-
-  public byte[] getBuffer()
-  {
-    return this.buffer;
-  }
-
-  public final void insert(int paramInt1, int paramInt2)
-  {
-    this.buffer[paramInt1] = (byte)paramInt2;
-  }
-
-  public void reset()
-  {
-    this.last = 0;
-  }
-
-  public void reset(int paramInt)
-  {
-    int i = this.last;
-    reset();
-    if (paramInt < i)
-      write(this.buffer, paramInt, i - paramInt);
-  }
-
-  public void seek(int paramInt)
-  {
-    this.last = paramInt;
-  }
-
-  public final int size()
-  {
-    return this.last;
-  }
-
-  public byte[] toByteArray()
-  {
-    byte[] arrayOfByte = new byte[this.last];
-    if (this.last > 0)
-      System.arraycopy(this.buffer, 0, arrayOfByte, 0, this.last);
-    return arrayOfByte;
-  }
-
-  public final void w(long paramLong, int paramInt)
-    throws IOException
-  {
-    for (int i = paramInt - 1; i >= 0; i--)
-      write((int)(paramLong >>> (i << 3)) & 0xFF);
-  }
-
-  public final void w2(int paramInt)
-    throws IOException
-  {
-    write(paramInt >>> 8 & 0xFF);
-    write(paramInt & 0xFF);
-  }
-
-  public final void write(byte[] paramArrayOfByte)
-  {
-    write(paramArrayOfByte, 0, paramArrayOfByte.length);
-  }
-
-  public final void write(byte[] paramArrayOfByte, int paramInt1, int paramInt2)
-  {
-    addSize(paramInt2);
-    System.arraycopy(paramArrayOfByte, paramInt1, this.buffer, this.last, paramInt2);
-    this.last += paramInt2;
-  }
-
-  public final void write(int paramInt)
-    throws IOException
-  {
-    addSize(1);
-    this.buffer[(this.last++)] = (byte)paramInt;
-  }
-
-  public void write(InputStream paramInputStream)
-    throws IOException
-  {
-    addSize(128);
-    try
+    public ByteStream(byte abyte0[])
     {
-      int i;
-      while ((i = paramInputStream.read(this.buffer, this.last, this.buffer.length - this.last)) != -1)
-      {
-        this.last += i;
-        if (this.last < this.buffer.length)
-          continue;
-        addSize(256);
-      }
+        last = 0;
+        buffer = abyte0;
     }
-    catch (IOException localIOException)
-    {
-    }
-  }
 
-  public void write(InputStream paramInputStream, int paramInt)
-    throws IOException
-  {
-    if (paramInt == 0)
-      return;
-    addSize(paramInt);
-    int j = 0;
-    int i;
-    while ((i = paramInputStream.read(this.buffer, this.last, paramInt - j)) != -1)
+    public ByteStream(int i)
     {
-      this.last += i;
-      j += i;
-      if (j >= paramInt)
-        break;
+        last = 0;
+        buffer = new byte[i > 0 ? i : 512];
     }
-    if (j < paramInt)
-      throw new EOFException();
-  }
 
-  public byte[] writeTo(byte[] paramArrayOfByte, int paramInt)
-  {
-    int i = paramInt + this.last;
-    if (paramArrayOfByte == null)
-      paramArrayOfByte = new byte[i];
-    if (paramArrayOfByte.length < i)
+    public final void addSize(int i)
     {
-      byte[] arrayOfByte = new byte[i];
-      System.arraycopy(paramArrayOfByte, 0, arrayOfByte, 0, paramArrayOfByte.length);
-      paramArrayOfByte = arrayOfByte;
+        int j = last + i;
+        if(buffer.length < j)
+        {
+            byte abyte0[] = new byte[Math.max((int)((float)buffer.length * 1.5F), j) + 1];
+            System.arraycopy(buffer, 0, abyte0, 0, buffer.length);
+            buffer = abyte0;
+        }
     }
-    System.arraycopy(this.buffer, 0, paramArrayOfByte, paramInt, this.last);
-    return paramArrayOfByte;
-  }
 
-  public void writeTo(OutputStream paramOutputStream)
-    throws IOException
-  {
-    if (this.last == 0)
-      return;
-    paramOutputStream.write(this.buffer, 0, this.last);
-  }
+    public void gc()
+    {
+        if(buffer.length == last)
+        {
+            return;
+        }
+        byte abyte0[] = new byte[last];
+        if(last != 0)
+        {
+            System.arraycopy(buffer, 0, abyte0, 0, last);
+        }
+        buffer = abyte0;
+    }
+
+    public byte[] getBuffer()
+    {
+        return buffer;
+    }
+
+    public final void insert(int i, int j)
+    {
+        buffer[i] = (byte)j;
+    }
+
+    public void reset()
+    {
+        last = 0;
+    }
+
+    public void reset(int i)
+    {
+        int j = last;
+        reset();
+        if(i < j)
+        {
+            write(buffer, i, j - i);
+        }
+    }
+
+    public void seek(int i)
+    {
+        last = i;
+    }
+
+    public final int size()
+    {
+        return last;
+    }
+
+    public byte[] toByteArray()
+    {
+        byte abyte0[] = new byte[last];
+        if(last > 0)
+        {
+            System.arraycopy(buffer, 0, abyte0, 0, last);
+        }
+        return abyte0;
+    }
+
+    public final void w(long l, int i)
+        throws IOException
+    {
+        for(int j = i - 1; j >= 0; j--)
+        {
+            write((int)(l >>> (j << 3)) & 0xff);
+        }
+
+    }
+
+    public final void w2(int i)
+        throws IOException
+    {
+        write(i >>> 8 & 0xff);
+        write(i & 0xff);
+    }
+
+    public final void write(byte abyte0[])
+    {
+        write(abyte0, 0, abyte0.length);
+    }
+
+    public final void write(byte abyte0[], int i, int j)
+    {
+        addSize(j);
+        System.arraycopy(abyte0, i, buffer, last, j);
+        last += j;
+    }
+
+    public final void write(int i)
+        throws IOException
+    {
+        addSize(1);
+        buffer[last++] = (byte)i;
+    }
+
+    public void write(InputStream inputstream)
+        throws IOException
+    {
+        addSize(128);
+        int i;
+        try
+        {
+            while((i = inputstream.read(buffer, last, buffer.length - last)) != -1) 
+            {
+                last += i;
+                if(last >= buffer.length)
+                {
+                    addSize(256);
+                }
+            }
+        }
+        catch(IOException _ex) { }
+    }
+
+    public void write(InputStream inputstream, int i)
+        throws IOException
+    {
+        if(i == 0)
+        {
+            return;
+        }
+        addSize(i);
+        int k = 0;
+        int j;
+        while((j = inputstream.read(buffer, last, i - k)) != -1) 
+        {
+            last += j;
+            k += j;
+            if(k >= i)
+            {
+                break;
+            }
+        }
+        if(k < i)
+        {
+            throw new EOFException();
+        } else
+        {
+            return;
+        }
+    }
+
+    public byte[] writeTo(byte abyte0[], int i)
+    {
+        int j = i + last;
+        if(abyte0 == null)
+        {
+            abyte0 = new byte[j];
+        }
+        if(abyte0.length < j)
+        {
+            byte abyte1[] = new byte[j];
+            System.arraycopy(abyte0, 0, abyte1, 0, abyte0.length);
+            abyte0 = abyte1;
+        }
+        System.arraycopy(buffer, 0, abyte0, i, last);
+        return abyte0;
+    }
+
+    public void writeTo(OutputStream outputstream)
+        throws IOException
+    {
+        if(last == 0)
+        {
+            return;
+        } else
+        {
+            outputstream.write(buffer, 0, last);
+            return;
+        }
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.util.ByteStream
- * JD-Core Version:    0.6.0
- */

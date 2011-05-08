@@ -6,32 +6,31 @@ import java.awt.Dimension;
 import paintchat_client.Mi;
 import syi.awt.LComponent;
 
-public abstract interface ToolBox
+// Referenced classes of package paintchat:
+//            Res
+
+public interface ToolBox
 {
-  public abstract String getC();
 
-  public abstract LComponent[] getCs();
+    public abstract String getC();
 
-  public abstract Dimension getCSize();
+    public abstract LComponent[] getCs();
 
-  public abstract void init(Container paramContainer, Applet paramApplet, Res paramRes1, Res paramRes2, Mi paramMi);
+    public abstract Dimension getCSize();
 
-  public abstract void lift();
+    public abstract void init(Container container, Applet applet, Res res, Res res1, Mi mi);
 
-  public abstract void pack();
+    public abstract void lift();
 
-  public abstract void selPix(boolean paramBoolean);
+    public abstract void pack();
 
-  public abstract void setARGB(int paramInt);
+    public abstract void selPix(boolean flag);
 
-  public abstract void setC(String paramString);
+    public abstract void setARGB(int i);
 
-  public abstract void setLineSize(int paramInt);
+    public abstract void setC(String s);
 
-  public abstract void up();
+    public abstract void setLineSize(int i);
+
+    public abstract void up();
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.ToolBox
- * JD-Core Version:    0.6.0
- */

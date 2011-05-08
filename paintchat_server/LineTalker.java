@@ -1,165 +1,185 @@
 package paintchat_server;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import paintchat.M;
 import paintchat.debug.DebugListener;
 import syi.util.ByteStream;
 import syi.util.VectorBin;
 
+// Referenced classes of package paintchat_server:
+//            PaintChatTalker, LineServer
+
 public class LineTalker extends PaintChatTalker
 {
-  ByteStream lines_send = new ByteStream();
-  VectorBin lines_log = new VectorBin();
-  LineServer server;
-  DebugListener debug;
-  private M mgRead = new M();
-  private ByteStream workReceive = new ByteStream();
-  private ByteStream workReceive2 = new ByteStream();
-  private M mgSend = null;
-  private int countDraw = 0;
 
-  public LineTalker(LineServer paramLineServer, DebugListener paramDebugListener)
-  {
-    this.server = paramLineServer;
-    this.debug = paramDebugListener;
-  }
+    ByteStream lines_send;
+    VectorBin lines_log;
+    LineServer server;
+    DebugListener debug;
+    private M mgRead;
+    private ByteStream workReceive;
+    private ByteStream workReceive2;
+    private M mgSend;
+    private int countDraw;
 
-  public void send(ByteStream paramByteStream1, M paramM, ByteStream paramByteStream2)
-  {
-    if (!isValidate())
-      return;
-    try
+    public LineTalker(LineServer lineserver, DebugListener debuglistener)
     {
-      if (this.lines_send.size() >= 65535)
-      {
-        this.lines_send = null;
-        throw new IOException("client error");
-      }
-      int i = 0;
-      int j = paramByteStream1.size();
-      byte[] arrayOfByte = paramByteStream1.getBuffer();
-      synchronized (this.lines_send)
-      {
-        while (i + 1 < j)
+        lines_send = new ByteStream();
+        lines_log = new VectorBin();
+        mgRead = new M();
+        workReceive = new ByteStream();
+        workReceive2 = new ByteStream();
+        mgSend = null;
+        countDraw = 0;
+        server = lineserver;
+        debug = debuglistener;
+    }
+
+    public void send(ByteStream bytestream, M m, ByteStream bytestream1)
+    {
+        if(!isValidate())
         {
-          i += paramM.set(arrayOfByte, i);
-          paramM.get(this.lines_send, paramByteStream2, this.mgSend);
-          if (this.mgSend == null)
-            this.mgSend = new M();
-          this.mgSend.set(paramM);
+            return;
         }
-      }
+        try
+        {
+            if(lines_send.size() >= 65535)
+            {
+                lines_send = null;
+                throw new IOException("client error");
+            }
+            int i = 0;
+            int j = bytestream.size();
+            byte abyte0[] = bytestream.getBuffer();
+            synchronized(lines_send)
+            {
+                while(i + 1 < j) 
+                {
+                    i += m.set(abyte0, i);
+                    m.get(lines_send, bytestream1, mgSend);
+                    if(mgSend == null)
+                    {
+                        mgSend = new M();
+                    }
+                    mgSend.set(m);
+                }
+            }
+        }
+        catch(IOException ioexception)
+        {
+            debug.log(ioexception);
+            mStop();
+        }
     }
-    catch (IOException localIOException)
+
+    protected void mInit()
+        throws IOException
     {
-      this.debug.log(localIOException);
-      mStop();
+        super.iSendInterval = 4000;
+        server.addTalker(this);
+        synchronized(lines_send)
+        {
+            lines_send.w2(1);
+            lines_send.write(0);
+        }
     }
-  }
 
-  protected void mInit()
-    throws IOException
-  {
-    this.iSendInterval = 4000;
-    this.server.addTalker(this);
-    synchronized (this.lines_send)
+    protected void mRead(ByteStream bytestream)
+        throws IOException
     {
-      this.lines_send.w2(1);
-      this.lines_send.write(0);
+        int i = bytestream.size();
+        if(i <= 0)
+        {
+            return;
+        }
+        if(i <= 2 && bytestream.getBuffer()[0] == 0)
+        {
+            server.removeTalker(this);
+            return;
+        }
+        workReceive.reset();
+        while(bytestream.size() >= 2) 
+        {
+            int j = mgRead.set(bytestream);
+            if(j < 0)
+            {
+                return;
+            }
+            countDraw++;
+            bytestream.reset(j);
+            mgRead.get(workReceive, workReceive2, null);
+            if(mgRead.iHint == 10)
+            {
+                server.addClear(this, workReceive);
+                workReceive.reset();
+            }
+        }
+        if(workReceive.size() > 0)
+        {
+            server.addLine(this, workReceive);
+        }
     }
-  }
 
-  protected void mRead(ByteStream paramByteStream)
-    throws IOException
-  {
-    int i = paramByteStream.size();
-    if (i <= 0)
-      return;
-    if ((i <= 2) && (paramByteStream.getBuffer()[0] == 0))
+    protected void mIdle(long l)
+        throws IOException
     {
-      this.server.removeTalker(this);
-      return;
     }
-    this.workReceive.reset();
-    while (paramByteStream.size() >= 2)
+
+    protected void mWrite()
+        throws IOException
     {
-      i = this.mgRead.set(paramByteStream);
-      if (i < 0)
-        return;
-      this.countDraw += 1;
-      paramByteStream.reset(i);
-      this.mgRead.get(this.workReceive, this.workReceive2, null);
-      if (this.mgRead.iHint != 10)
-        continue;
-      this.server.addClear(this, this.workReceive);
-      this.workReceive.reset();
+        if(lines_log != null)
+        {
+            if(lines_log.size() <= 0)
+            {
+                lines_log = null;
+                return;
+            } else
+            {
+                mSendFlag(1);
+                byte abyte0[] = lines_log.get(0);
+                write(abyte0, abyte0.length);
+                lines_log.remove(1);
+                return;
+            }
+        }
+        if(lines_send.size() <= 2)
+        {
+            return;
+        }
+        ByteStream bytestream = getWriteBuffer();
+        synchronized(lines_send)
+        {
+            lines_send.writeTo(bytestream);
+            lines_send.reset();
+        }
+        write(bytestream);
+        bytestream.reset();
     }
-    if (this.workReceive.size() > 0)
-      this.server.addLine(this, this.workReceive);
-  }
 
-  protected void mIdle(long paramLong)
-    throws IOException
-  {
-  }
-
-  protected void mWrite()
-    throws IOException
-  {
-    if (this.lines_log != null)
+    protected void mDestroy()
     {
-      if (this.lines_log.size() <= 0)
-      {
-        this.lines_log = null;
-        return;
-      }
-      mSendFlag(1);
-      localObject1 = this.lines_log.get(0);
-      write(localObject1, localObject1.length);
-      this.lines_log.remove(1);
-      return;
+        lines_send = null;
+        lines_log = null;
+        server = null;
+        debug = null;
     }
-    if (this.lines_send.size() <= 2)
-      return;
-    Object localObject1 = getWriteBuffer();
-    synchronized (this.lines_send)
+
+    public VectorBin getLogArray()
     {
-      this.lines_send.writeTo((OutputStream)localObject1);
-      this.lines_send.reset();
+        return lines_log;
     }
-    write((ByteStream)localObject1);
-    ((ByteStream)localObject1).reset();
-  }
 
-  protected void mDestroy()
-  {
-    this.lines_send = null;
-    this.lines_log = null;
-    this.server = null;
-    this.debug = null;
-  }
+    private void mSendFlag(int i)
+        throws IOException
+    {
+        ByteStream bytestream = getWriteBuffer();
+        bytestream.write(i);
+        write(bytestream);
+    }
 
-  public VectorBin getLogArray()
-  {
-    return this.lines_log;
-  }
-
-  private void mSendFlag(int paramInt)
-    throws IOException
-  {
-    ByteStream localByteStream = getWriteBuffer();
-    localByteStream.write(paramInt);
-    write(localByteStream);
-  }
-
-  public int getDrawCount()
-  {
-    return this.countDraw;
-  }
+    public int getDrawCount()
+    {
+        return countDraw;
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_server.LineTalker
- * JD-Core Version:    0.6.0
- */

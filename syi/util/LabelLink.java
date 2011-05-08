@@ -2,96 +2,107 @@ package syi.util;
 
 import java.applet.Applet;
 import java.applet.AppletContext;
-import java.awt.AWTEvent;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.Label;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.net.URL;
 
 public class LabelLink extends Label
 {
-  private String strLink = null;
-  private boolean isMouse = false;
-  private Color clLink;
-  private Color clBack;
-  private Applet applet;
 
-  public LabelLink()
-  {
-  }
+    private String strLink;
+    private boolean isMouse;
+    private Color clLink;
+    private Color clBack;
+    private Applet applet;
 
-  public LabelLink(String paramString)
-  {
-    super(paramString);
-  }
-
-  public LabelLink(String paramString, int paramInt)
-  {
-    super(paramString, paramInt);
-  }
-
-  private void init()
-  {
-    if (this.isMouse)
-      return;
-    this.isMouse = true;
-    enableEvents(48L);
-    this.clBack = getForeground();
-  }
-
-  protected void processMouseEvent(MouseEvent paramMouseEvent)
-  {
-    processMouseMotionEvent(paramMouseEvent);
-  }
-
-  protected void processMouseMotionEvent(MouseEvent paramMouseEvent)
-  {
-    if (!this.isMouse)
-      return;
-    try
+    public LabelLink()
     {
-      switch (paramMouseEvent.getID())
-      {
-      case 504:
-        setFont(true);
-        break;
-      case 505:
-        setFont(false);
-        break;
-      case 501:
-        this.applet.getAppletContext().showDocument(new URL(this.strLink), "top");
-      case 502:
-      case 503:
-      }
+        strLink = null;
+        isMouse = false;
     }
-    catch (Throwable localThrowable)
+
+    public LabelLink(String s)
     {
-      localThrowable.printStackTrace();
+        super(s);
+        strLink = null;
+        isMouse = false;
     }
-  }
 
-  public void setFont(boolean paramBoolean)
-  {
-    Font localFont = getFont();
-    localFont = new Font(localFont.getName(), paramBoolean ? 2 : 0, localFont.getSize());
-    setFont(localFont);
-    setForeground(paramBoolean ? this.clLink : this.clBack);
-  }
+    public LabelLink(String s, int i)
+    {
+        super(s, i);
+        strLink = null;
+        isMouse = false;
+    }
 
-  public void setLink(Applet paramApplet, String paramString, Color paramColor)
-  {
-    if ((paramString == null) || (paramString.length() <= 0))
-      return;
-    init();
-    this.strLink = paramString;
-    this.clLink = paramColor;
-    this.applet = paramApplet;
-  }
+    private void init()
+    {
+        if(isMouse)
+        {
+            return;
+        } else
+        {
+            isMouse = true;
+            enableEvents(48L);
+            clBack = getForeground();
+            return;
+        }
+    }
+
+    protected void processMouseEvent(MouseEvent mouseevent)
+    {
+        processMouseMotionEvent(mouseevent);
+    }
+
+    protected void processMouseMotionEvent(MouseEvent mouseevent)
+    {
+        if(!isMouse)
+        {
+            return;
+        }
+        try
+        {
+            switch(mouseevent.getID())
+            {
+            case 504: 
+                setFont(true);
+                break;
+
+            case 505: 
+                setFont(false);
+                break;
+
+            case 501: 
+                applet.getAppletContext().showDocument(new URL(strLink), "top");
+                break;
+            }
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    public void setFont(boolean flag)
+    {
+        Font font = getFont();
+        font = new Font(font.getName(), flag ? 2 : 0, font.getSize());
+        setFont(font);
+        setForeground(flag ? clLink : clBack);
+    }
+
+    public void setLink(Applet applet1, String s, Color color)
+    {
+        if(s == null || s.length() <= 0)
+        {
+            return;
+        } else
+        {
+            init();
+            strLink = s;
+            clLink = color;
+            applet = applet1;
+            return;
+        }
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.util.LabelLink
- * JD-Core Version:    0.6.0
- */

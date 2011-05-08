@@ -4,74 +4,83 @@ import java.io.InputStream;
 
 public class BitInputStream
 {
-  private byte[] data;
-  private int seekMax;
-  private int seekByte = 0;
-  private int seekBit = 7;
-  private byte nowByte;
-  private InputStream in;
 
-  public BitInputStream()
-  {
-  }
+    private byte data[];
+    private int seekMax;
+    private int seekByte;
+    private int seekBit;
+    private byte nowByte;
+    private InputStream in;
 
-  public BitInputStream(byte[] paramArrayOfByte)
-  {
-    setArray(paramArrayOfByte);
-  }
-
-  public BitInputStream(InputStream paramInputStream)
-  {
-  }
-
-  public final int r()
-  {
-    if (this.seekByte >= this.seekMax)
-      return -1;
-    int i = this.nowByte >> this.seekBit & 0x1;
-    if (--this.seekBit < 0)
+    public BitInputStream()
     {
-      this.seekBit = 7;
-      this.seekByte += 1;
-      if (this.seekByte < this.seekMax)
-        this.nowByte = this.data[this.seekByte];
+        seekByte = 0;
+        seekBit = 7;
     }
-    return i;
-  }
 
-  public final int rByte()
-  {
-    int i = 0;
-    for (int j = 7; j >= 0; j--)
+    public BitInputStream(byte abyte0[])
     {
-      if (r() == -1)
-        return j == 7 ? -1 : i;
-      i |= r() << j;
+        seekByte = 0;
+        seekBit = 7;
+        setArray(abyte0);
     }
-    return i;
-  }
 
-  public void setArray(byte[] paramArrayOfByte)
-  {
-    setArray(paramArrayOfByte, paramArrayOfByte.length);
-  }
+    public BitInputStream(InputStream inputstream)
+    {
+        seekByte = 0;
+        seekBit = 7;
+    }
 
-  public void setArray(byte[] paramArrayOfByte, int paramInt)
-  {
-    setArray(paramArrayOfByte, 0, paramInt);
-  }
+    public final int r()
+    {
+        if(seekByte >= seekMax)
+        {
+            return -1;
+        }
+        int i = nowByte >> seekBit & 1;
+        if(--seekBit < 0)
+        {
+            seekBit = 7;
+            seekByte++;
+            if(seekByte < seekMax)
+            {
+                nowByte = data[seekByte];
+            }
+        }
+        return i;
+    }
 
-  public void setArray(byte[] paramArrayOfByte, int paramInt1, int paramInt2)
-  {
-    this.data = paramArrayOfByte;
-    this.seekByte = paramInt1;
-    this.seekBit = 7;
-    this.seekMax = paramInt2;
-    this.nowByte = this.data[paramInt1];
-  }
+    public final int rByte()
+    {
+        int i = 0;
+        for(int j = 7; j >= 0; j--)
+        {
+            if(r() == -1)
+            {
+                return j != 7 ? i : -1;
+            }
+            i |= r() << j;
+        }
+
+        return i;
+    }
+
+    public void setArray(byte abyte0[])
+    {
+        setArray(abyte0, abyte0.length);
+    }
+
+    public void setArray(byte abyte0[], int i)
+    {
+        setArray(abyte0, 0, i);
+    }
+
+    public void setArray(byte abyte0[], int i, int j)
+    {
+        data = abyte0;
+        seekByte = i;
+        seekBit = 7;
+        seekMax = j;
+        nowByte = data[i];
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.util.BitInputStream
- * JD-Core Version:    0.6.0
- */

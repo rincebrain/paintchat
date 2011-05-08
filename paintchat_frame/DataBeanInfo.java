@@ -1,193 +1,196 @@
 package paintchat_frame;
 
 import java.awt.Image;
-import java.beans.BeanDescriptor;
-import java.beans.BeanInfo;
-import java.beans.EventSetDescriptor;
-import java.beans.FeatureDescriptor;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.MethodDescriptor;
-import java.beans.PropertyDescriptor;
-import java.beans.SimpleBeanInfo;
+import java.beans.*;
 import java.lang.reflect.Method;
 
 public class DataBeanInfo extends SimpleBeanInfo
 {
-  public static Method findMethod(Class paramClass, String paramString, int paramInt)
-  {
-    try
-    {
-      Method[] arrayOfMethod = paramClass.getMethods();
-      for (int i = 0; i < arrayOfMethod.length; i++)
-      {
-        Method localMethod = arrayOfMethod[i];
-        if ((localMethod.getParameterTypes().length == paramInt) && (localMethod.getName().equals(paramString)))
-          return localMethod;
-      }
-    }
-    catch (Throwable localThrowable)
-    {
-      return null;
-    }
-    return null;
-  }
 
-  public BeanInfo[] getAdditionalBeanInfo()
-  {
-    BeanInfo localBeanInfo = null;
-    Class localClass;
-    try
-    {
-      localClass = getBeanDescriptor().getBeanClass().getSuperclass();
-    }
-    catch (Throwable localThrowable)
-    {
-      return null;
-    }
-    try
-    {
-      localBeanInfo = Introspector.getBeanInfo(localClass);
-    }
-    catch (IntrospectionException localIntrospectionException)
-    {
-    }
-    if (localBeanInfo != null)
-    {
-      BeanInfo[] arrayOfBeanInfo = new BeanInfo[1];
-      arrayOfBeanInfo[0] = localBeanInfo;
-      return arrayOfBeanInfo;
-    }
-    return null;
-  }
+    static Class class$1; /* synthetic field */
 
-  public static Class getBeanClass()
-  {
-    return Data.class;
-  }
-
-  public static String getBeanClassName()
-  {
-    return "paintchat_frame.Data";
-  }
-
-  public BeanDescriptor getBeanDescriptor()
-  {
-    BeanDescriptor localBeanDescriptor = null;
-    try
-    {
-      localBeanDescriptor = new BeanDescriptor(Data.class);
-      localBeanDescriptor.setDisplayName("paintchat_frame.Data");
-      localBeanDescriptor.setShortDescription("paintchat_frame.Data");
-    }
-    catch (Throwable localThrowable)
+    public DataBeanInfo()
     {
     }
-    return localBeanDescriptor;
-  }
 
-  public EventSetDescriptor[] getEventSetDescriptors()
-  {
-    try
+    public static Method findMethod(Class class1, String s, int i)
     {
-      EventSetDescriptor[] arrayOfEventSetDescriptor = new EventSetDescriptor[0];
-      return arrayOfEventSetDescriptor;
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-    return null;
-  }
-
-  public Image getIcon(int paramInt)
-  {
-    Image localImage = null;
-    if (paramInt == 1)
-      localImage = loadImage("/cnf/icon.gif");
-    if (paramInt == 3)
-      localImage = loadImage("/cnf/icon.gif");
-    return localImage;
-  }
-
-  public MethodDescriptor[] getMethodDescriptors()
-  {
-    try
-    {
-      MethodDescriptor[] arrayOfMethodDescriptor = new MethodDescriptor[0];
-      return arrayOfMethodDescriptor;
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-    return null;
-  }
-
-  public PropertyDescriptor[] getPropertyDescriptors()
-  {
-    try
-    {
-      PropertyDescriptor[] arrayOfPropertyDescriptor = { isNativeWindowsPropertyDescriptor() };
-      return arrayOfPropertyDescriptor;
-    }
-    catch (Throwable localThrowable)
-    {
-      handleException(localThrowable);
-    }
-    return null;
-  }
-
-  private void handleException(Throwable paramThrowable)
-  {
-  }
-
-  public PropertyDescriptor isNativeWindowsPropertyDescriptor()
-  {
-    PropertyDescriptor localPropertyDescriptor = null;
-    try
-    {
-      try
-      {
-        Method localMethod1 = null;
         try
         {
-          Class[] arrayOfClass1 = new Class[0];
-          localMethod1 = getBeanClass().getMethod("getIsNativeWindows", arrayOfClass1);
+            Method amethod[] = class1.getMethods();
+            for(int j = 0; j < amethod.length; j++)
+            {
+                Method method = amethod[j];
+                if(method.getParameterTypes().length == i && method.getName().equals(s))
+                {
+                    return method;
+                }
+            }
+
         }
-        catch (Throwable localThrowable3)
+        catch(Throwable _ex)
         {
-          handleException(localThrowable3);
-          localMethod1 = findMethod(getBeanClass(), "getIsNativeWindows", 0);
+            return null;
         }
-        Method localMethod2 = null;
+        return null;
+    }
+
+    public BeanInfo[] getAdditionalBeanInfo()
+    {
+        BeanInfo beaninfo = null;
+        Class class1;
         try
         {
-          Class[] arrayOfClass2 = { Boolean.TYPE };
-          localMethod2 = getBeanClass().getMethod("setIsNativeWindows", arrayOfClass2);
+            class1 = getBeanDescriptor().getBeanClass().getSuperclass();
         }
-        catch (Throwable localThrowable4)
+        catch(Throwable _ex)
         {
-          handleException(localThrowable4);
-          localMethod2 = findMethod(getBeanClass(), "setIsNativeWindows", 1);
+            return null;
         }
-        localPropertyDescriptor = new PropertyDescriptor("isNativeWindows", localMethod1, localMethod2);
-      }
-      catch (Throwable localThrowable1)
-      {
-        handleException(localThrowable1);
-        localPropertyDescriptor = new PropertyDescriptor("isNativeWindows", getBeanClass());
-      }
+        try
+        {
+            beaninfo = Introspector.getBeanInfo(class1);
+        }
+        catch(IntrospectionException _ex) { }
+        if(beaninfo != null)
+        {
+            BeanInfo abeaninfo[] = new BeanInfo[1];
+            abeaninfo[0] = beaninfo;
+            return abeaninfo;
+        } else
+        {
+            return null;
+        }
     }
-    catch (Throwable localThrowable2)
+
+    public static Class getBeanClass()
     {
-      handleException(localThrowable2);
+        return paintchat_frame.Data.class;
     }
-    return localPropertyDescriptor;
-  }
+
+    public static String getBeanClassName()
+    {
+        return "paintchat_frame.Data";
+    }
+
+    public BeanDescriptor getBeanDescriptor()
+    {
+        BeanDescriptor beandescriptor = null;
+        try
+        {
+            beandescriptor = new BeanDescriptor(paintchat_frame.Data.class);
+            beandescriptor.setDisplayName("paintchat_frame.Data");
+            beandescriptor.setShortDescription("paintchat_frame.Data");
+        }
+        catch(Throwable _ex) { }
+        return beandescriptor;
+    }
+
+    public EventSetDescriptor[] getEventSetDescriptors()
+    {
+        try
+        {
+            EventSetDescriptor aeventsetdescriptor[] = new EventSetDescriptor[0];
+            return aeventsetdescriptor;
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+        return null;
+    }
+
+    public Image getIcon(int i)
+    {
+        Image image = null;
+        if(i == 1)
+        {
+            image = loadImage("/cnf/icon.gif");
+        }
+        if(i == 3)
+        {
+            image = loadImage("/cnf/icon.gif");
+        }
+        return image;
+    }
+
+    public MethodDescriptor[] getMethodDescriptors()
+    {
+        try
+        {
+            MethodDescriptor amethoddescriptor[] = new MethodDescriptor[0];
+            return amethoddescriptor;
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+        return null;
+    }
+
+    public PropertyDescriptor[] getPropertyDescriptors()
+    {
+        try
+        {
+            PropertyDescriptor apropertydescriptor[] = {
+                isNativeWindowsPropertyDescriptor()
+            };
+            return apropertydescriptor;
+        }
+        catch(Throwable throwable)
+        {
+            handleException(throwable);
+        }
+        return null;
+    }
+
+    private void handleException(Throwable throwable)
+    {
+    }
+
+    public PropertyDescriptor isNativeWindowsPropertyDescriptor()
+    {
+        PropertyDescriptor propertydescriptor = null;
+        try
+        {
+            try
+            {
+                Method method = null;
+                try
+                {
+                    Class aclass[] = new Class[0];
+                    method = getBeanClass().getMethod("getIsNativeWindows", aclass);
+                }
+                catch(Throwable throwable2)
+                {
+                    handleException(throwable2);
+                    method = findMethod(getBeanClass(), "getIsNativeWindows", 0);
+                }
+                Method method1 = null;
+                try
+                {
+                    Class aclass1[] = {
+                        Boolean.TYPE
+                    };
+                    method1 = getBeanClass().getMethod("setIsNativeWindows", aclass1);
+                }
+                catch(Throwable throwable3)
+                {
+                    handleException(throwable3);
+                    method1 = findMethod(getBeanClass(), "setIsNativeWindows", 1);
+                }
+                propertydescriptor = new PropertyDescriptor("isNativeWindows", method, method1);
+            }
+            catch(Throwable throwable)
+            {
+                handleException(throwable);
+                propertydescriptor = new PropertyDescriptor("isNativeWindows", getBeanClass());
+            }
+        }
+        catch(Throwable throwable1)
+        {
+            handleException(throwable1);
+        }
+        return propertydescriptor;
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_frame.DataBeanInfo
- * JD-Core Version:    0.6.0
- */

@@ -3,193 +3,219 @@ package paintchat_client;
 import java.io.IOException;
 import java.util.zip.Inflater;
 import paintchat.M;
-import paintchat.M.Info;
 import paintchat_server.PaintChatTalker;
 import syi.util.ByteStream;
 import syi.util.ThreadPool;
 
+// Referenced classes of package paintchat_client:
+//            Data
+
 public class TLine extends PaintChatTalker
 {
-  public Data data;
-  private ByteStream bSendCash = new ByteStream();
-  private ByteStream stmIn = new ByteStream();
-  private ByteStream workSend = new ByteStream();
-  private M mgOut = null;
-  private M mgDraw = null;
-  private boolean isCompress = false;
-  private boolean isRunDraw = false;
-  Inflater inflater = new Inflater(false);
 
-  public TLine(Data paramData, M paramM)
-  {
-    this.data = paramData;
-    this.mgDraw = paramM;
-  }
+    public Data data;
+    private ByteStream bSendCash;
+    private ByteStream stmIn;
+    private ByteStream workSend;
+    private M mgOut;
+    private M mgDraw;
+    private boolean isCompress;
+    private boolean isRunDraw;
+    Inflater inflater;
 
-  protected void mDestroy()
-  {
-    this.isRunDraw = false;
-    this.iSendInterval = 0;
-  }
-
-  protected void mRead(ByteStream paramByteStream)
-    throws IOException
-  {
-    if (paramByteStream.size() <= 1)
+    public TLine(Data data1, M m)
     {
-      switch (paramByteStream.getBuffer()[0])
-      {
-      case 0:
-        synchronized (this.stmIn)
-        {
-          this.stmIn.w2(0);
-        }
-        break;
-      case 1:
-        this.isCompress = true;
-      }
-      return;
+        bSendCash = new ByteStream();
+        stmIn = new ByteStream();
+        workSend = new ByteStream();
+        mgOut = null;
+        mgDraw = null;
+        isCompress = false;
+        isRunDraw = false;
+        inflater = new Inflater(false);
+        data = data1;
+        mgDraw = m;
     }
-    try
+
+    protected void mDestroy()
     {
-      int i = paramByteStream.size();
-      if (this.isCompress)
-      {
-        this.isCompress = false;
-        if (this.inflater == null)
-          this.inflater = new Inflater(false);
-        this.inflater.reset();
-        this.inflater.setInput(paramByteStream.getBuffer(), 0, i);
-        synchronized (this)
+        isRunDraw = false;
+        super.iSendInterval = 0;
+    }
+
+    protected void mRead(ByteStream bytestream)
+        throws IOException
+    {
+        if(bytestream.size() <= 1)
         {
-          byte[] arrayOfByte = this.workSend.getBuffer();
-          synchronized (this.stmIn)
-          {
-            while (!this.inflater.needsInput())
+            switch(bytestream.getBuffer()[0])
             {
-              int j = this.inflater.inflate(arrayOfByte, 0, arrayOfByte.length);
-              this.stmIn.write(arrayOfByte, 0, j);
+            case 0: // '\0'
+                synchronized(stmIn)
+                {
+                    stmIn.w2(0);
+                }
+                break;
+
+            case 1: // '\001'
+                isCompress = true;
+                break;
             }
-          }
+            return;
         }
-      }
-      else
-      {
-        if (this.inflater != null)
-        {
-          this.inflater.end();
-          this.inflater = null;
-        }
-        synchronized (this.stmIn)
-        {
-          paramByteStream.writeTo(this.stmIn);
-        }
-      }
-    }
-    catch (Exception localException)
-    {
-      localException.printStackTrace();
-    }
-  }
-
-  public void mInit()
-  {
-  }
-
-  protected void mIdle(long paramLong)
-    throws IOException
-  {
-  }
-
-  protected void mWrite()
-    throws IOException
-  {
-    if (this.bSendCash.size() <= 0)
-      return;
-    synchronized (this.bSendCash)
-    {
-      write(this.bSendCash);
-      this.bSendCash.reset();
-    }
-  }
-
-  public void send(M paramM)
-  {
-    synchronized (this.bSendCash)
-    {
-      if (paramM == null)
-      {
         try
         {
-          this.canWrite = true;
-          this.bSendCash.reset();
-          this.bSendCash.w2(2);
-          write(this.bSendCash);
-          flush();
-        }
-        catch (IOException localIOException)
-        {
-        }
-        return;
-      }
-      paramM.get(this.bSendCash, this.workSend, this.mgOut);
-      if (this.mgOut == null)
-        this.mgOut = new M();
-      this.mgOut.set(paramM);
-    }
-  }
-
-  public void run()
-  {
-    if (!this.isRunDraw)
-    {
-      this.isRunDraw = true;
-      ThreadPool.poolStartThread(this, 'd');
-      super.run();
-      return;
-    }
-    try
-    {
-      while (this.isRunDraw)
-        if (this.stmIn.size() >= 2)
-        {
-          synchronized (this.stmIn)
-          {
-            byte[] arrayOfByte = this.stmIn.getBuffer();
-            int i = (arrayOfByte[0] & 0xFF) << 8 | arrayOfByte[1] & 0xFF;
-            if (i <= 2)
+            int i = bytestream.size();
+            if(isCompress)
             {
-              this.mgDraw.newUser(null).wait = 0;
-              this.data.addTextComp();
-              this.stmIn.reset(i + 2);
-              continue;
+                isCompress = false;
+                if(inflater == null)
+                {
+                    inflater = new Inflater(false);
+                }
+                inflater.reset();
+                inflater.setInput(bytestream.getBuffer(), 0, i);
+                synchronized(this)
+                {
+                    byte abyte0[] = workSend.getBuffer();
+                    synchronized(stmIn)
+                    {
+                        int j;
+                        for(; !inflater.needsInput(); stmIn.write(abyte0, 0, j))
+                        {
+                            j = inflater.inflate(abyte0, 0, abyte0.length);
+                        }
+
+                    }
+                }
+            } else
+            {
+                if(inflater != null)
+                {
+                    inflater.end();
+                    inflater = null;
+                }
+                synchronized(stmIn)
+                {
+                    bytestream.writeTo(stmIn);
+                }
             }
-            i = this.mgDraw.set(this.stmIn.getBuffer(), 0);
-            this.stmIn.reset(i);
-          }
-          if (this.mgDraw.iLayer >= this.data.info.L)
-            this.data.info.setL(this.mgDraw.iLayer + 1);
-          this.mgDraw.draw();
         }
-        else
+        catch(Exception exception)
         {
-          Thread.currentThread();
-          Thread.sleep(3000L);
+            exception.printStackTrace();
         }
     }
-    catch (InterruptedException localInterruptedException)
+
+    public void mInit()
     {
     }
-  }
 
-  public synchronized void mRStop()
-  {
-    send(null);
-    mStop();
-  }
+    protected void mIdle(long l)
+        throws IOException
+    {
+    }
+
+    protected void mWrite()
+        throws IOException
+    {
+        if(bSendCash.size() <= 0)
+        {
+            return;
+        }
+        synchronized(bSendCash)
+        {
+            write(bSendCash);
+            bSendCash.reset();
+        }
+    }
+
+    public void send(M m)
+    {
+label0:
+        {
+            synchronized(bSendCash)
+            {
+                if(m != null)
+                {
+                    break label0;
+                }
+                try
+                {
+                    super.canWrite = true;
+                    bSendCash.reset();
+                    bSendCash.w2(2);
+                    write(bSendCash);
+                    flush();
+                }
+                catch(IOException _ex) { }
+            }
+            return;
+        }
+        m.get(bSendCash, workSend, mgOut);
+        if(mgOut == null)
+        {
+            mgOut = new M();
+        }
+        mgOut.set(m);
+        bytestream;
+        JVM INSTR monitorexit ;
+    }
+
+    public void run()
+    {
+        if(!isRunDraw)
+        {
+            isRunDraw = true;
+            ThreadPool.poolStartThread(this, 'd');
+            super.run();
+            return;
+        }
+          goto _L1
+_L3:
+label0:
+        {
+            if(stmIn.size() < 2)
+            {
+                break MISSING_BLOCK_LABEL_191;
+            }
+            int j;
+            synchronized(stmIn)
+            {
+                byte abyte0[] = stmIn.getBuffer();
+                int i = (abyte0[0] & 0xff) << 8 | abyte0[1] & 0xff;
+                if(i > 2)
+                {
+                    break label0;
+                }
+                mgDraw.newUser(null).wait = 0;
+                data.addTextComp();
+                stmIn.reset(i + 2);
+            }
+            continue; /* Loop/switch isn't completed */
+        }
+        j = mgDraw.set(stmIn.getBuffer(), 0);
+        stmIn.reset(j);
+        bytestream;
+        JVM INSTR monitorexit ;
+        if(mgDraw.iLayer >= data.info.L)
+        {
+            data.info.setL(mgDraw.iLayer + 1);
+        }
+        mgDraw.draw();
+        continue; /* Loop/switch isn't completed */
+        Thread.currentThread();
+        Thread.sleep(3000L);
+_L1:
+        if(isRunDraw) goto _L3; else goto _L2
+_L2:
+        break MISSING_BLOCK_LABEL_212;
+        JVM INSTR pop ;
+    }
+
+    public synchronized void mRStop()
+    {
+        send(null);
+        mStop();
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_client.TLine
- * JD-Core Version:    0.6.0
- */

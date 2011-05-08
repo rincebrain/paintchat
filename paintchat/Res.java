@@ -1,17 +1,7 @@
 package paintchat;
 
 import java.applet.Applet;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.CharArrayWriter;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
+import java.io.*;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -22,365 +12,402 @@ import syi.util.ByteStream;
 
 public class Res extends Hashtable
 {
-  private Object resBase;
-  private Applet applet;
-  private ByteStream work;
-  private static final String EMPTY = "";
 
-  public Res()
-  {
-    this(null, null, null);
-  }
+    private Object resBase;
+    private Applet applet;
+    private ByteStream work;
+    private static final String EMPTY = "";
 
-  public Res(Applet paramApplet, Object paramObject, ByteStream paramByteStream)
-  {
-    this.resBase = paramObject;
-    this.applet = paramApplet;
-    this.work = paramByteStream;
-  }
-
-  public final String get(String paramString)
-  {
-    return get(paramString, "");
-  }
-
-  public final String get(String paramString1, String paramString2)
-  {
-    if (paramString1 == null)
-      return paramString2;
-    String str = (String)super.get(paramString1);
-    if (str == null)
-      return paramString2;
-    return str;
-  }
-
-  public final boolean getBool(String paramString)
-  {
-    return getBool(paramString, false);
-  }
-
-  public final boolean getBool(String paramString, boolean paramBoolean)
-  {
-    try
+    public Res()
     {
-      paramString = get(paramString);
-      if ((paramString == null) || (paramString.length() <= 0))
-        return paramBoolean;
-      int i = paramString.charAt(0);
-      switch (i)
-      {
-      case 49:
-      case 111:
-      case 116:
-      case 121:
+        this(null, null, null);
+    }
+
+    public Res(Applet applet1, Object obj, ByteStream bytestream)
+    {
+        resBase = obj;
+        applet = applet1;
+        work = bytestream;
+    }
+
+    public final String get(String s)
+    {
+        return get(s, "");
+    }
+
+    public final String get(String s, String s1)
+    {
+        if(s == null)
+        {
+            return s1;
+        }
+        String s2 = (String)super.get(s);
+        if(s2 == null)
+        {
+            return s1;
+        } else
+        {
+            return s2;
+        }
+    }
+
+    public final boolean getBool(String s)
+    {
+        return getBool(s, false);
+    }
+
+    public final boolean getBool(String s, boolean flag)
+    {
+        try
+        {
+            s = get(s);
+            if(s == null || s.length() <= 0)
+            {
+                return flag;
+            }
+            char c = s.charAt(0);
+            switch(c)
+            {
+            case 49: // '1'
+            case 111: // 'o'
+            case 116: // 't'
+            case 121: // 'y'
+                return true;
+
+            case 48: // '0'
+            case 102: // 'f'
+            case 110: // 'n'
+            case 120: // 'x'
+                return false;
+            }
+        }
+        catch(RuntimeException _ex) { }
+        return flag;
+    }
+
+    public ByteStream getBuffer()
+    {
+        if(work == null)
+        {
+            work = new ByteStream();
+        } else
+        {
+            work.reset();
+        }
+        return work;
+    }
+
+    public final int getInt(String s)
+    {
+        try
+        {
+            return getInt(s, 0);
+        }
+        catch(Exception _ex)
+        {
+            return 0;
+        }
+    }
+
+    public final int getInt(String s, int i)
+    {
+        try
+        {
+            String s1 = get(s);
+            if(s1 != null && s1.length() > 0)
+            {
+                return parseInt(s1);
+            }
+        }
+        catch(Throwable _ex) { }
+        return i;
+    }
+
+    public String getP(String s)
+    {
+        String s1 = p(s);
+        if(s1 != null)
+        {
+            return s1;
+        } else
+        {
+            return get(s, null);
+        }
+    }
+
+    public final int getP(String s, int i)
+    {
+        String s1 = p(s);
+        if(s1 != null)
+        {
+            put(s, s1);
+        }
+        return getInt(s, i);
+    }
+
+    public String getP(String s, String s1)
+    {
+        String s2 = p(s);
+        return s2 != null && s2.length() > 0 ? s2 : get(s, s1);
+    }
+
+    public boolean getP(String s, boolean flag)
+    {
+        String s1 = p(s);
+        if(s1 != null)
+        {
+            put(s, s1);
+        }
+        return getBool(s, flag);
+    }
+
+    public final Object getRes(Object obj)
+    {
+        try
+        {
+            Object obj1 = get(obj);
+            if(obj1 == null)
+            {
+                ByteStream bytestream = getBuffer();
+                bytestream.write(Awt.openStream((resBase instanceof String) ? new URL(applet.getCodeBase(), (String)resBase + (String)obj) : new URL((URL)resBase, (String)obj)));
+                return bytestream.toByteArray();
+            } else
+            {
+                return obj1;
+            }
+        }
+        catch(IOException _ex)
+        {
+            return null;
+        }
+    }
+
+    public boolean load(InputStream inputstream)
+    {
+        try
+        {
+            return load(((Reader) (new InputStreamReader(inputstream, "UTF8"))));
+        }
+        catch(UnsupportedEncodingException _ex)
+        {
+            return false;
+        }
+    }
+
+    public boolean load(Reader reader)
+    {
+        try
+        {
+            Object obj = (reader instanceof StringReader) ? ((Object) (reader)) : ((Object) (new BufferedReader(reader, 512)));
+            CharArrayWriter chararraywriter = new CharArrayWriter();
+            String s1 = null;
+            try
+            {
+                do
+                {
+                    String s;
+                    do
+                    {
+                        s = readLine(((Reader) (obj)));
+                    } while(s == null);
+                    int i = s.indexOf('=');
+                    if(i > 0)
+                    {
+                        if(s1 != null)
+                        {
+                            put(s1, chararraywriter.toString());
+                            s1 = null;
+                        }
+                        s1 = s.substring(0, i).trim();
+                        chararraywriter.reset();
+                        if(i + 1 < s.length())
+                        {
+                            chararraywriter.write(s.substring(i + 1));
+                        }
+                    } else
+                    if(s1 != null)
+                    {
+                        chararraywriter.write(10);
+                        chararraywriter.write(s);
+                    }
+                } while(true);
+            }
+            catch(EOFException _ex) { }
+            if(s1 != null && chararraywriter.size() > 0)
+            {
+                put(s1, chararraywriter.toString());
+            }
+            ((Reader) (obj)).close();
+        }
+        catch(IOException ioexception)
+        {
+            ioexception.printStackTrace();
+            return false;
+        }
         return true;
-      case 48:
-      case 102:
-      case 110:
-      case 120:
-        return false;
-      }
     }
-    catch (RuntimeException localRuntimeException)
-    {
-    }
-    return paramBoolean;
-  }
 
-  public ByteStream getBuffer()
-  {
-    if (this.work == null)
-      this.work = new ByteStream();
-    else
-      this.work.reset();
-    return this.work;
-  }
-
-  public final int getInt(String paramString)
-  {
-    try
+    public void load(String s)
     {
-      return getInt(paramString, 0);
-    }
-    catch (Exception localException)
-    {
-    }
-    return 0;
-  }
-
-  public final int getInt(String paramString, int paramInt)
-  {
-    try
-    {
-      String str = get(paramString);
-      if ((str != null) && (str.length() > 0))
-        return parseInt(str);
-    }
-    catch (Throwable localThrowable)
-    {
-    }
-    return paramInt;
-  }
-
-  public String getP(String paramString)
-  {
-    String str = p(paramString);
-    if (str != null)
-      return str;
-    return get(paramString, null);
-  }
-
-  public final int getP(String paramString, int paramInt)
-  {
-    String str = p(paramString);
-    if (str != null)
-      put(paramString, str);
-    return getInt(paramString, paramInt);
-  }
-
-  public String getP(String paramString1, String paramString2)
-  {
-    String str = p(paramString1);
-    return (str == null) || (str.length() <= 0) ? get(paramString1, paramString2) : str;
-  }
-
-  public boolean getP(String paramString, boolean paramBoolean)
-  {
-    String str = p(paramString);
-    if (str != null)
-      put(paramString, str);
-    return getBool(paramString, paramBoolean);
-  }
-
-  public final Object getRes(Object paramObject)
-  {
-    try
-    {
-      Object localObject = get(paramObject);
-      if (localObject == null)
-      {
-        ByteStream localByteStream = getBuffer();
-        localByteStream.write(Awt.openStream((this.resBase instanceof String) ? new URL(this.applet.getCodeBase(), (String)this.resBase + (String)paramObject) : new URL((URL)this.resBase, (String)paramObject)));
-        return localByteStream.toByteArray();
-      }
-      return localObject;
-    }
-    catch (IOException localIOException)
-    {
-    }
-    return null;
-  }
-
-  public boolean load(InputStream paramInputStream)
-  {
-    try
-    {
-      return load(new InputStreamReader(paramInputStream, "UTF8"));
-    }
-    catch (UnsupportedEncodingException localUnsupportedEncodingException)
-    {
-    }
-    return false;
-  }
-
-  public boolean load(Reader paramReader)
-  {
-    try
-    {
-      BufferedReader localBufferedReader = (paramReader instanceof StringReader) ? paramReader : new BufferedReader(paramReader, 512);
-      CharArrayWriter localCharArrayWriter = new CharArrayWriter();
-      Object localObject = null;
-      try
-      {
-        while (true)
+        if(s == null || s.length() <= 0)
         {
-          String str = readLine(localBufferedReader);
-          if (str != null)
-          {
-            int i = str.indexOf('=');
-            if (i > 0)
-            {
-              if (localObject != null)
-              {
-                put(localObject, localCharArrayWriter.toString());
-                localObject = null;
-              }
-              localObject = str.substring(0, i).trim();
-              localCharArrayWriter.reset();
-              if (i + 1 < str.length())
-                localCharArrayWriter.write(str.substring(i + 1));
-            }
-            else if (localObject != null)
-            {
-              localCharArrayWriter.write(10);
-              localCharArrayWriter.write(str);
-            }
-          }
-        }
-      }
-      catch (EOFException localEOFException)
-      {
-        if ((localObject != null) && (localCharArrayWriter.size() > 0))
-          put(localObject, localCharArrayWriter.toString());
-        localBufferedReader.close();
-      }
-    }
-    catch (IOException localIOException)
-    {
-      localIOException.printStackTrace();
-      return false;
-    }
-    return true;
-  }
-
-  public void load(String paramString)
-  {
-    if ((paramString == null) || (paramString.length() <= 0))
-      return;
-    load(new StringReader(paramString));
-  }
-
-  public void loadResource(Res paramRes, String paramString1, String paramString2)
-  {
-    ((paramString2 != null) && (paramString2.equals("ja")) ? 1 : 0);
-    String str = paramString1 + ((paramString2 != null) && (paramString2.length() != 0) ? '_' + paramString2 : "") + ".txt";
-    for (int i = 0; i < 2; i++)
-    {
-      try
-      {
-        byte[] arrayOfByte = (byte[])paramRes.getRes(str);
-        if (arrayOfByte != null)
+            return;
+        } else
         {
-          ByteArrayInputStream localByteArrayInputStream = new ByteArrayInputStream(arrayOfByte);
-          load(new InputStreamReader(localByteArrayInputStream, "UTF8"));
-          break;
+            load(((Reader) (new StringReader(s))));
+            return;
         }
-      }
-      catch (RuntimeException localRuntimeException)
-      {
-      }
-      catch (UnsupportedEncodingException localUnsupportedEncodingException)
-      {
-      }
-      str = paramString1 + ".txt";
     }
-  }
 
-  public void loadZip(InputStream paramInputStream)
-    throws IOException
-  {
-    ByteStream localByteStream = getBuffer();
-    ZipInputStream localZipInputStream = new ZipInputStream(paramInputStream);
-    ZipEntry localZipEntry;
-    while ((localZipEntry = localZipInputStream.getNextEntry()) != null)
+    public void loadResource(Res res1, String s, String s1)
     {
-      localByteStream.reset();
-      localByteStream.write(localZipInputStream);
-      r(localByteStream, localZipEntry.getName());
-    }
-    localZipInputStream.close();
-  }
+        boolean _tmp = s1 != null && s1.equals("ja");
+        String s2 = s + (s1 == null || s1.length() == 0 ? "" : '_' + s1) + ".txt";
+        for(int i = 0; i < 2; i++)
+        {
+            try
+            {
+                byte abyte0[] = (byte[])res1.getRes(s2);
+                if(abyte0 != null)
+                {
+                    ByteArrayInputStream bytearrayinputstream = new ByteArrayInputStream(abyte0);
+                    load(new InputStreamReader(bytearrayinputstream, "UTF8"));
+                    break;
+                }
+            }
+            catch(RuntimeException _ex) { }
+            catch(UnsupportedEncodingException _ex) { }
+            s2 = s + ".txt";
+        }
 
-  public void loadZip(String paramString)
-    throws IOException
-  {
-    try
+    }
+
+    public void loadZip(InputStream inputstream)
+        throws IOException
     {
-      InputStream localInputStream = getClass().getResourceAsStream('/' + paramString);
-      if (localInputStream != null)
-      {
-        loadZip(localInputStream);
-        return;
-      }
+        ByteStream bytestream = getBuffer();
+        ZipInputStream zipinputstream = new ZipInputStream(inputstream);
+        ZipEntry zipentry;
+        while((zipentry = zipinputstream.getNextEntry()) != null) 
+        {
+            bytestream.reset();
+            bytestream.write(zipinputstream);
+            r(bytestream, zipentry.getName());
+        }
+        zipinputstream.close();
     }
-    catch (Throwable localThrowable)
+
+    public void loadZip(String s)
+        throws IOException
     {
+        try
+        {
+            InputStream inputstream = getClass().getResourceAsStream('/' + s);
+            if(inputstream != null)
+            {
+                loadZip(inputstream);
+                return;
+            }
+        }
+        catch(Throwable _ex) { }
+        loadZip(Awt.openStream(new URL(applet.getCodeBase(), s)));
     }
-    loadZip(Awt.openStream(new URL(this.applet.getCodeBase(), paramString)));
-  }
 
-  private String p(String paramString)
-  {
-    return this.applet.getParameter(paramString);
-  }
-
-  public static final int parseInt(String paramString)
-  {
-    int i = paramString.length();
-    if (i <= 0)
-      return 0;
-    int j = 0;
-    if (paramString.charAt(0) == '0')
-      j = 2;
-    else if (paramString.charAt(0) == '#')
-      j = 1;
-    if (j != 0)
+    private String p(String s)
     {
-      int k = 0;
-      i -= j;
-      for (int m = 0; m < i; m++)
-        k |= Character.digit(paramString.charAt(m + j), 16) << (i - 1 - m) * 4;
-      return k;
+        return applet.getParameter(s);
     }
-    return Integer.parseInt(paramString);
-  }
 
-  private void r(ByteStream paramByteStream, String paramString)
-    throws IOException
-  {
-    String str = paramString.toLowerCase();
-    if (str.endsWith("zip"))
-      loadZip(new ByteArrayInputStream(paramByteStream.toByteArray()));
-    else
-      put(paramString, paramByteStream.toByteArray());
-  }
-
-  private final String readLine(Reader paramReader)
-    throws EOFException, IOException
-  {
-    int i = paramReader.read();
-    if (i == -1)
-      throw new EOFException();
-    if ((i == 13) || (i == 10))
-      return null;
-    if (i == 35)
+    public static final int parseInt(String s)
     {
-      while (true)
-      {
-        i = paramReader.read();
-        if ((i == 13) || (i == 10) || (i == -1))
-          break;
-      }
-      return null;
-    }
-    StringBuffer localStringBuffer = new StringBuffer();
-    localStringBuffer.append((char)i);
-    while ((i = paramReader.read()) != -1)
-    {
-      if ((i == 13) || (i == 10))
-        break;
-      localStringBuffer.append((char)i);
-    }
-    return localStringBuffer.toString();
-  }
+        int i = s.length();
+        if(i <= 0)
+        {
+            return 0;
+        }
+        byte byte0 = 0;
+        if(s.charAt(0) == '0')
+        {
+            byte0 = 2;
+        } else
+        if(s.charAt(0) == '#')
+        {
+            byte0 = 1;
+        }
+        if(byte0 != 0)
+        {
+            int j = 0;
+            i -= byte0;
+            for(int k = 0; k < i; k++)
+            {
+                j |= Character.digit(s.charAt(k + byte0), 16) << (i - 1 - k) * 4;
+            }
 
-  public final String res(String paramString)
-  {
-    return getP(paramString, paramString);
-  }
-
-  public void put(Res paramRes)
-  {
-    Enumeration localEnumeration = paramRes.keys();
-    while (localEnumeration.hasMoreElements())
-    {
-      Object localObject = localEnumeration.nextElement();
-      put(localObject, paramRes.get(localObject));
+            return j;
+        } else
+        {
+            return Integer.parseInt(s);
+        }
     }
-  }
+
+    private void r(ByteStream bytestream, String s)
+        throws IOException
+    {
+        String s1 = s.toLowerCase();
+        if(s1.endsWith("zip"))
+        {
+            loadZip(new ByteArrayInputStream(bytestream.toByteArray()));
+        } else
+        {
+            put(s, bytestream.toByteArray());
+        }
+    }
+
+    private final String readLine(Reader reader)
+        throws EOFException, IOException
+    {
+        int i = reader.read();
+        if(i == -1)
+        {
+            throw new EOFException();
+        }
+        if(i == 13 || i == 10)
+        {
+            return null;
+        }
+        if(i == 35)
+        {
+            do
+            {
+                i = reader.read();
+            } while(i != 13 && i != 10 && i != -1);
+            return null;
+        }
+        StringBuffer stringbuffer = new StringBuffer();
+        stringbuffer.append((char)i);
+        while((i = reader.read()) != -1) 
+        {
+            if(i == 13 || i == 10)
+            {
+                break;
+            }
+            stringbuffer.append((char)i);
+        }
+        return stringbuffer.toString();
+    }
+
+    public final String res(String s)
+    {
+        return getP(s, s);
+    }
+
+    public void put(Res res1)
+    {
+        Object obj;
+        for(Enumeration enumeration = res1.keys(); enumeration.hasMoreElements(); put(obj, res1.get(obj)))
+        {
+            obj = enumeration.nextElement();
+        }
+
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.Res
- * JD-Core Version:    0.6.0
- */

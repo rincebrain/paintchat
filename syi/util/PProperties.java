@@ -1,254 +1,262 @@
 package syi.util;
 
-import java.io.BufferedReader;
-import java.io.CharArrayWriter;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.Writer;
+import java.io.*;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
 public class PProperties extends Hashtable
 {
-  private static final String str_empty = "";
 
-  public final boolean getBool(String paramString)
-  {
-    return getBool(paramString, false);
-  }
+    private static final String str_empty = "";
 
-  public final boolean getBool(String paramString, boolean paramBoolean)
-  {
-    try
+    public PProperties()
     {
-      paramString = (String)get(paramString);
-      if ((paramString == null) || (paramString.length() <= 0))
-        return paramBoolean;
-      int i = Character.toLowerCase(paramString.charAt(0));
-      switch (i)
-      {
-      case 49:
-      case 111:
-      case 116:
-      case 121:
+    }
+
+    public final boolean getBool(String s)
+    {
+        return getBool(s, false);
+    }
+
+    public final boolean getBool(String s, boolean flag)
+    {
+        try
+        {
+            s = (String)get(s);
+            if(s == null || s.length() <= 0)
+            {
+                return flag;
+            }
+            char c = Character.toLowerCase(s.charAt(0));
+            switch(c)
+            {
+            case 49: // '1'
+            case 111: // 'o'
+            case 116: // 't'
+            case 121: // 'y'
+                return true;
+
+            case 48: // '0'
+            case 102: // 'f'
+            case 110: // 'n'
+            case 120: // 'x'
+                return false;
+            }
+        }
+        catch(Exception _ex) { }
+        return flag;
+    }
+
+    public final int getInt(String s)
+    {
+        try
+        {
+            return getInt(s, 0);
+        }
+        catch(Exception _ex)
+        {
+            return 0;
+        }
+    }
+
+    public final int getInt(String s, int i)
+    {
+        try
+        {
+            String s1 = (String)get(s);
+            if(s1 != null && s1.length() > 0)
+            {
+                return Integer.decode(s1).intValue();
+            }
+        }
+        catch(Throwable _ex) { }
+        return i;
+    }
+
+    public final String getString(String s)
+    {
+        return getString(s, "");
+    }
+
+    public final String getString(String s, String s1)
+    {
+        if(s == null)
+        {
+            return s1;
+        }
+        Object obj = get(s);
+        if(obj == null)
+        {
+            return s1;
+        } else
+        {
+            return obj.toString();
+        }
+    }
+
+    public synchronized boolean load(InputStream inputstream)
+    {
+        clear();
+        return loadPut(inputstream);
+    }
+
+    public synchronized boolean load(Reader reader)
+    {
+        clear();
+        return loadPut(reader);
+    }
+
+    public synchronized void load(String s)
+    {
+        if(s == null || s.length() <= 0)
+        {
+            return;
+        } else
+        {
+            load(((Reader) (new StringReader(s))));
+            return;
+        }
+    }
+
+    public synchronized boolean loadPut(InputStream inputstream)
+    {
+        return loadPut(((Reader) (new InputStreamReader(inputstream))));
+    }
+
+    public synchronized boolean loadPut(Reader reader)
+    {
+        try
+        {
+            Object obj = (reader instanceof StringReader) ? ((Object) (reader)) : ((Object) (new BufferedReader(reader, 1024)));
+            CharArrayWriter chararraywriter = new CharArrayWriter();
+            String s1 = null;
+            try
+            {
+                do
+                {
+                    String s;
+                    do
+                    {
+                        s = readLine(((Reader) (obj)));
+                    } while(s == null);
+                    int i = s.indexOf('=');
+                    if(i > 0)
+                    {
+                        if(s1 != null)
+                        {
+                            put(s1, chararraywriter.toString());
+                            s1 = null;
+                        }
+                        s1 = s.substring(0, i);
+                        chararraywriter.reset();
+                        if(i + 1 < s.length())
+                        {
+                            chararraywriter.write(s.substring(i + 1));
+                        }
+                    } else
+                    if(s1 != null)
+                    {
+                        chararraywriter.write(10);
+                        chararraywriter.write(s);
+                    }
+                } while(true);
+            }
+            catch(EOFException _ex) { }
+            if(s1 != null && chararraywriter.size() > 0)
+            {
+                put(s1, chararraywriter.toString());
+            }
+            ((Reader) (obj)).close();
+        }
+        catch(IOException ioexception)
+        {
+            System.out.println("load" + ioexception.getMessage());
+            return false;
+        }
         return true;
-      case 48:
-      case 102:
-      case 110:
-      case 120:
-        return false;
-      }
     }
-    catch (Exception localException)
+
+    private final String readLine(Reader reader)
+        throws EOFException, IOException
     {
-    }
-    return paramBoolean;
-  }
-
-  public final int getInt(String paramString)
-  {
-    try
-    {
-      return getInt(paramString, 0);
-    }
-    catch (Exception localException)
-    {
-    }
-    return 0;
-  }
-
-  public final int getInt(String paramString, int paramInt)
-  {
-    try
-    {
-      String str = (String)get(paramString);
-      if ((str != null) && (str.length() > 0))
-        return Integer.decode(str).intValue();
-    }
-    catch (Throwable localThrowable)
-    {
-    }
-    return paramInt;
-  }
-
-  public final String getString(String paramString)
-  {
-    return getString(paramString, "");
-  }
-
-  public final String getString(String paramString1, String paramString2)
-  {
-    if (paramString1 == null)
-      return paramString2;
-    Object localObject = get(paramString1);
-    if (localObject == null)
-      return paramString2;
-    return localObject.toString();
-  }
-
-  public synchronized boolean load(InputStream paramInputStream)
-  {
-    clear();
-    return loadPut(paramInputStream);
-  }
-
-  public synchronized boolean load(Reader paramReader)
-  {
-    clear();
-    return loadPut(paramReader);
-  }
-
-  public synchronized void load(String paramString)
-  {
-    if ((paramString == null) || (paramString.length() <= 0))
-      return;
-    load(new StringReader(paramString));
-  }
-
-  public synchronized boolean loadPut(InputStream paramInputStream)
-  {
-    return loadPut(new InputStreamReader(paramInputStream));
-  }
-
-  public synchronized boolean loadPut(Reader paramReader)
-  {
-    try
-    {
-      BufferedReader localBufferedReader = (paramReader instanceof StringReader) ? paramReader : new BufferedReader(paramReader, 1024);
-      CharArrayWriter localCharArrayWriter = new CharArrayWriter();
-      Object localObject = null;
-      try
-      {
-        while (true)
+        int i = reader.read();
+        if(i == -1)
         {
-          String str = readLine(localBufferedReader);
-          if (str != null)
-          {
-            int i = str.indexOf('=');
-            if (i > 0)
-            {
-              if (localObject != null)
-              {
-                put(localObject, localCharArrayWriter.toString());
-                localObject = null;
-              }
-              localObject = str.substring(0, i);
-              localCharArrayWriter.reset();
-              if (i + 1 < str.length())
-                localCharArrayWriter.write(str.substring(i + 1));
-            }
-            else if (localObject != null)
-            {
-              localCharArrayWriter.write(10);
-              localCharArrayWriter.write(str);
-            }
-          }
+            throw new EOFException();
         }
-      }
-      catch (EOFException localEOFException)
-      {
-        if ((localObject != null) && (localCharArrayWriter.size() > 0))
-          put(localObject, localCharArrayWriter.toString());
-        localBufferedReader.close();
-      }
-    }
-    catch (IOException localIOException)
-    {
-      System.out.println("load" + localIOException.getMessage());
-      return false;
-    }
-    return true;
-  }
-
-  private final String readLine(Reader paramReader)
-    throws EOFException, IOException
-  {
-    int i = paramReader.read();
-    if (i == -1)
-      throw new EOFException();
-    if ((i == 13) || (i == 10))
-      return null;
-    if (i == 35)
-    {
-      while (true)
-      {
-        i = paramReader.read();
-        if ((i == 13) || (i == 10) || (i == -1))
-          break;
-      }
-      return null;
-    }
-    StringBuffer localStringBuffer = new StringBuffer();
-    localStringBuffer.append((char)i);
-    while ((i = paramReader.read()) != -1)
-    {
-      if ((i == 13) || (i == 10))
-        break;
-      localStringBuffer.append((char)i);
-    }
-    return localStringBuffer.toString();
-  }
-
-  public void save(OutputStream paramOutputStream)
-    throws Exception
-  {
-    save(paramOutputStream, null);
-  }
-
-  public synchronized void save(OutputStream paramOutputStream, Hashtable paramHashtable)
-    throws IOException
-  {
-    PrintWriter localPrintWriter = new PrintWriter(new OutputStreamWriter(paramOutputStream), false);
-    int i = paramHashtable != null ? 1 : 0;
-    Enumeration localEnumeration = keys();
-    while (localEnumeration.hasMoreElements())
-    {
-      String str2 = (String)localEnumeration.nextElement();
-      if ((str2 == null) || (str2.length() <= 0) || (str2.charAt(0) == '#'))
-        continue;
-      if (i != 0)
-      {
-        String str3 = (String)paramHashtable.get(str2);
-        if ((str3 != null) && (str3.length() > 0))
+        if(i == 13 || i == 10)
         {
-          StringReader localStringReader = new StringReader(str3);
-          try
-          {
-            while (true)
-            {
-              String str4 = readLine(localStringReader);
-              localPrintWriter.print('#');
-              localPrintWriter.println(str4);
-            }
-          }
-          catch (EOFException localEOFException)
-          {
-          }
+            return null;
         }
-      }
-      String str1 = getString(str2);
-      localPrintWriter.print(str2);
-      localPrintWriter.print('=');
-      if ((str1 != null) && (str1.length() > 0))
-        localPrintWriter.print(str1);
-      localPrintWriter.println();
-      localPrintWriter.println();
+        if(i == 35)
+        {
+            do
+            {
+                i = reader.read();
+            } while(i != 13 && i != 10 && i != -1);
+            return null;
+        }
+        StringBuffer stringbuffer = new StringBuffer();
+        stringbuffer.append((char)i);
+        while((i = reader.read()) != -1) 
+        {
+            if(i == 13 || i == 10)
+            {
+                break;
+            }
+            stringbuffer.append((char)i);
+        }
+        return stringbuffer.toString();
     }
-    localPrintWriter.flush();
-    localPrintWriter.close();
-    paramOutputStream.close();
-  }
+
+    public void save(OutputStream outputstream)
+        throws Exception
+    {
+        save(outputstream, null);
+    }
+
+    public synchronized void save(OutputStream outputstream, Hashtable hashtable)
+        throws IOException
+    {
+        PrintWriter printwriter = new PrintWriter(new OutputStreamWriter(outputstream), false);
+        boolean flag = hashtable != null;
+        for(Enumeration enumeration = keys(); enumeration.hasMoreElements();)
+        {
+            String s1 = (String)enumeration.nextElement();
+            if(s1 != null && s1.length() > 0 && s1.charAt(0) != '#')
+            {
+                if(flag)
+                {
+                    String s2 = (String)hashtable.get(s1);
+                    if(s2 != null && s2.length() > 0)
+                    {
+                        StringReader stringreader = new StringReader(s2);
+                        try
+                        {
+                            do
+                            {
+                                String s3 = readLine(stringreader);
+                                printwriter.print('#');
+                                printwriter.println(s3);
+                            } while(true);
+                        }
+                        catch(EOFException _ex) { }
+                    }
+                }
+                String s = getString(s1);
+                printwriter.print(s1);
+                printwriter.print('=');
+                if(s != null && s.length() > 0)
+                {
+                    printwriter.print(s);
+                }
+                printwriter.println();
+                printwriter.println();
+            }
+        }
+
+        printwriter.flush();
+        printwriter.close();
+        outputstream.close();
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.util.PProperties
- * JD-Core Version:    0.6.0
- */

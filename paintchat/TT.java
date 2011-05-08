@@ -1,12 +1,6 @@
 package paintchat;
 
-import java.awt.AWTEvent;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.image.DirectColorModel;
 import java.awt.image.MemoryImageSource;
@@ -14,191 +8,222 @@ import java.util.Hashtable;
 import syi.awt.Awt;
 import syi.awt.LComponent;
 
+// Referenced classes of package paintchat:
+//            SW, Res, M, ToolBox
+
 public class TT extends LComponent
-  implements SW, Runnable
+    implements SW, Runnable
 {
-  private ToolBox ts;
-  private M.Info info;
-  private M.User user;
-  private M mg;
-  private boolean isRun = false;
-  private Image[] images = null;
-  private boolean isDrag = false;
-  private int selButton = 0;
-  private int selWhite;
-  private int selPen = 0;
-  private int imW = 0;
-  private int imH = 0;
-  private int imCount;
-  private int selItem = -1;
-  private M[] mgs = null;
-  private int sizeTT = 0;
-  private int iLast = -1;
 
-  private int getIndex(int paramInt1, int paramInt2, int paramInt3)
-  {
-    Dimension localDimension = getSize();
-    int i = this.imW;
-    int j = this.imH;
-    paramInt1 -= paramInt3;
-    int k = (localDimension.width - paramInt3) / i;
-    return paramInt2 / j * k + Math.min(paramInt1 / i, k);
-  }
+    private ToolBox ts;
+    private M.Info info;
+    private M.User user;
+    private M mg;
+    private boolean isRun;
+    private Image images[];
+    private boolean isDrag;
+    private int selButton;
+    private int selWhite;
+    private int selPen;
+    private int imW;
+    private int imH;
+    private int imCount;
+    private int selItem;
+    private M mgs[];
+    private int sizeTT;
+    private int iLast;
 
-  public void lift()
-  {
-  }
-
-  public void mPack()
-  {
-    inParent();
-    Container localContainer = getParent();
-    Dimension localDimension = getMaximumSize();
-    localDimension.height = (localContainer.getSize().height - getGapH());
-  }
-
-  public void mSetup(ToolBox paramToolBox, M.Info paramInfo, M.User paramUser, M paramM, Res paramRes1, Res paramRes2)
-  {
-    this.ts = paramToolBox;
-    this.info = paramInfo;
-    this.user = paramUser;
-    this.mg = paramM;
-    setTitle(paramRes2.getP("window_3"));
-    getToolkit();
-    this.imW = (this.imH = (int)(34.0F * LComponent.Q));
-    try
+    public TT()
     {
-      String str = "tt_size";
-      this.images = new Image[Integer.parseInt(paramRes2.get(str))];
-      paramRes2.remove(str);
-      int i = this.imW * 5 + 1;
-      int j = ((this.images.length + 12) / 5 + 1) * this.imW + 1;
-      setDimension(new Dimension(this.imW + 1, this.imW + 1), new Dimension(i, j), new Dimension(i, j));
+        isRun = false;
+        images = null;
+        isDrag = false;
+        selButton = 0;
+        selPen = 0;
+        imW = 0;
+        imH = 0;
+        selItem = -1;
+        mgs = null;
+        sizeTT = 0;
+        iLast = -1;
     }
-    catch (RuntimeException localRuntimeException)
+
+    private int getIndex(int i, int j, int k)
+    {
+        Dimension dimension = getSize();
+        int l = imW;
+        int i1 = imH;
+        i -= k;
+        int j1 = (dimension.width - k) / l;
+        return (j / i1) * j1 + Math.min(i / l, j1);
+    }
+
+    public void lift()
     {
     }
-  }
 
-  public void paint2(Graphics paramGraphics)
-  {
-    if (this.images == null)
-      return;
-    if (!this.isRun)
+    public void mPack()
     {
-      Thread localThread = new Thread(this);
-      localThread.setPriority(1);
-      localThread.setDaemon(true);
-      localThread.start();
-      this.isRun = true;
+        inParent();
+        java.awt.Container container = getParent();
+        Dimension dimension = getMaximumSize();
+        dimension.height = container.getSize().height - getGapH();
     }
-    int i = this.images.length + 11;
-    int j = 0;
-    int k = 0;
-    int m = this.imW;
-    int n = this.imH;
-    int i1 = m - 3;
-    M localM = this.mg;
-    int[] arrayOfInt = this.user.getBuffer();
-    Color localColor = getBackground();
-    int i4 = 255;
-    localColor.getRGB();
-    Dimension localDimension = getSize();
-    getToolkit();
-    this.iLast = localM.iTT;
-    for (int i5 = -1; i5 < i; i5++)
+
+    public void mSetup(ToolBox toolbox, M.Info info1, M.User user1, M m, Res res, Res res1)
     {
-      paramGraphics.setColor(i5 + 1 == localM.iTT ? Awt.cFSel : Awt.cF);
-      paramGraphics.drawRect(j + 1, k + 1, m - 2, n - 2);
-      if (i5 == -1)
-      {
-        paramGraphics.setColor(Color.blue);
-        paramGraphics.fillRect(j + 2, k + 2, m - 3, n - 3);
-      }
-      else if (i5 < 11)
-      {
-        synchronized (arrayOfInt)
+        ts = toolbox;
+        info = info1;
+        user = user1;
+        mg = m;
+        setTitle(res1.getP("window_3"));
+        getToolkit();
+        imW = imH = (int)(34F * LComponent.Q);
+        try
         {
-          int i6 = 0;
-          int i7 = i5;
-          for (int i3 = 0; i3 < i1; i3++)
-            for (int i2 = 0; i2 < i1; i2++)
-              arrayOfInt[(i6++)] = (M.isTone(i7, i2, i3) ? -1 : i4);
-          paramGraphics.drawImage(this.user.mkImage(i1, i1), j + 2, k + 2, localColor, null);
+            String s = "tt_size";
+            images = new Image[Integer.parseInt(res1.get(s))];
+            res1.remove(s);
+            int i = imW * 5 + 1;
+            int j = ((images.length + 12) / 5 + 1) * imW + 1;
+            setDimension(new Dimension(imW + 1, imW + 1), new Dimension(i, j), new Dimension(i, j));
         }
-      }
-      else
-      {
-        Image localImage = this.images[(i5 - 11)];
-        if (localImage == null)
+        catch(RuntimeException _ex) { }
+    }
+
+    public void paint2(Graphics g)
+    {
+        if(images == null)
         {
-          paramGraphics.setColor(Color.blue);
-          paramGraphics.fillRect(j + 2, k + 2, m - 3, n - 3);
+            return;
         }
-        else
+        if(!isRun)
         {
-          paramGraphics.drawImage(localImage, j + 2, k + 2, localColor, null);
+            Thread thread = new Thread(this);
+            thread.setPriority(1);
+            thread.setDaemon(true);
+            thread.start();
+            isRun = true;
         }
-      }
-      j += m;
-      if (j + m < localDimension.width)
-        continue;
-      j = 0;
-      k += n;
-      if (k + n >= localDimension.height)
-        break;
-    }
-  }
+        int i = images.length + 11;
+        int j = 0;
+        int k = 0;
+        int l = imW;
+        int i1 = imH;
+        int j1 = l - 3;
+        M m = mg;
+        int ai[] = user.getBuffer();
+        Color color = getBackground();
+        char c = '\377';
+        color.getRGB();
+        Dimension dimension = getSize();
+        getToolkit();
+        iLast = m.iTT;
+        for(int i2 = -1; i2 < i; i2++)
+        {
+            g.setColor(i2 + 1 != m.iTT ? Awt.cF : Awt.cFSel);
+            g.drawRect(j + 1, k + 1, l - 2, i1 - 2);
+            if(i2 == -1)
+            {
+                g.setColor(Color.blue);
+                g.fillRect(j + 2, k + 2, l - 3, i1 - 3);
+            } else
+            if(i2 < 11)
+            {
+                synchronized(ai)
+                {
+                    int j2 = 0;
+                    int k2 = i2;
+                    for(int l1 = 0; l1 < j1; l1++)
+                    {
+                        for(int k1 = 0; k1 < j1; k1++)
+                        {
+                            ai[j2++] = M.isTone(k2, k1, l1) ? -1 : ((int) (c));
+                        }
 
-  public void pMouse(MouseEvent paramMouseEvent)
-  {
-    if (paramMouseEvent.getID() == 501)
-    {
-      getSize();
-      int i = getIndex(paramMouseEvent.getX(), paramMouseEvent.getY(), 0);
-      if (i >= this.images.length + 12)
-        return;
-      this.mg.iTT = i;
-      repaint();
-    }
-  }
+                    }
 
-  public void run()
-  {
-    try
-    {
-      DirectColorModel localDirectColorModel = new DirectColorModel(24, 65280, 65280, 255);
-      int i = this.imW;
-      int j = this.imH;
-      for (int k = 0; k < this.images.length; k++)
-      {
-        if (this.images[k] != null)
-          continue;
-        float[] arrayOfFloat = this.info.getTT(k + 12);
-        int[] arrayOfInt = new int[arrayOfFloat.length];
-        for (int m = 0; m < arrayOfInt.length; m++)
-          arrayOfInt[m] = ((int)((1.0F - arrayOfFloat[m]) * 255.0F) << 8 | 0xFF);
-        m = (int)Math.sqrt(arrayOfInt.length);
-        this.images[k] = Awt.toMin(createImage(new MemoryImageSource(m, m, localDirectColorModel, arrayOfInt, 0, m)), i - 3, j - 3);
-        if (k % 5 != 2)
-          continue;
-        repaint();
-      }
-      repaint();
-    }
-    catch (Throwable localThrowable)
-    {
-    }
-  }
+                    g.drawImage(user.mkImage(j1, j1), j + 2, k + 2, color, null);
+                }
+            } else
+            {
+                Image image = images[i2 - 11];
+                if(image == null)
+                {
+                    g.setColor(Color.blue);
+                    g.fillRect(j + 2, k + 2, l - 3, i1 - 3);
+                } else
+                {
+                    g.drawImage(image, j + 2, k + 2, color, null);
+                }
+            }
+            j += l;
+            if(j + l < dimension.width)
+            {
+                continue;
+            }
+            j = 0;
+            k += i1;
+            if(k + i1 >= dimension.height)
+            {
+                break;
+            }
+        }
 
-  public void up()
-  {
-    if (this.iLast != this.mg.iTT)
-      repaint();
-  }
+    }
+
+    public void pMouse(MouseEvent mouseevent)
+    {
+        if(mouseevent.getID() == 501)
+        {
+            getSize();
+            int i = getIndex(mouseevent.getX(), mouseevent.getY(), 0);
+            if(i >= images.length + 12)
+            {
+                return;
+            }
+            mg.iTT = i;
+            repaint();
+        }
+    }
+
+    public void run()
+    {
+        try
+        {
+            DirectColorModel directcolormodel = new DirectColorModel(24, 65280, 65280, 255);
+            int i = imW;
+            int j = imH;
+            for(int k = 0; k < images.length; k++)
+            {
+                if(images[k] == null)
+                {
+                    float af[] = info.getTT(k + 12);
+                    int ai[] = new int[af.length];
+                    for(int l = 0; l < ai.length; l++)
+                    {
+                        ai[l] = (int)((1.0F - af[l]) * 255F) << 8 | 0xff;
+                    }
+
+                    int i1 = (int)Math.sqrt(ai.length);
+                    images[k] = Awt.toMin(createImage(new MemoryImageSource(i1, i1, directcolormodel, ai, 0, i1)), i - 3, j - 3);
+                    if(k % 5 == 2)
+                    {
+                        repaint();
+                    }
+                }
+            }
+
+            repaint();
+        }
+        catch(Throwable _ex) { }
+    }
+
+    public void up()
+    {
+        if(iLast != mg.iTT)
+        {
+            repaint();
+        }
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.TT
- * JD-Core Version:    0.6.0
- */

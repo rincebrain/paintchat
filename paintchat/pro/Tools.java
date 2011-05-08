@@ -1,266 +1,270 @@
 package paintchat.pro;
 
 import java.applet.Applet;
-import java.awt.CheckboxMenuItem;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Image;
-import java.awt.Menu;
-import java.awt.MenuComponent;
-import java.awt.MenuItem;
-import java.awt.Point;
-import java.awt.PopupMenu;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.ColorModel;
 import java.lang.reflect.Field;
 import java.util.EventObject;
 import java.util.Hashtable;
-import paintchat.M;
-import paintchat.M.Info;
-import paintchat.M.User;
-import paintchat.Res;
-import paintchat.SRaster;
-import paintchat.ToolBox;
+import paintchat.*;
 import paintchat_client.L;
 import paintchat_client.Mi;
 import syi.awt.Awt;
 import syi.awt.LComponent;
 
+// Referenced classes of package paintchat.pro:
+//            TPalette, TPen, TPic, TBar
+
 public class Tools
-  implements ToolBox, ActionListener
+    implements ToolBox, ActionListener
 {
-  private Applet applet;
-  private Component parent;
-  private Res res;
-  protected Mi mi;
-  M.Info info;
-  M mg;
-  private LComponent[] components;
-  private TPic tPic;
-  private TPalette tPalette;
-  protected int[] iBuffer;
-  private Image image = null;
-  private SRaster raster;
 
-  public void actionPerformed(ActionEvent paramActionEvent)
-  {
-    try
+    private Applet applet;
+    private Component parent;
+    private Res res;
+    protected Mi mi;
+    paintchat.M.Info info;
+    M mg;
+    private LComponent components[];
+    private TPic tPic;
+    private TPalette tPalette;
+    protected int iBuffer[];
+    private Image image;
+    private SRaster raster;
+
+    public Tools()
     {
-      PopupMenu localPopupMenu = (PopupMenu)paramActionEvent.getSource();
-      int i = localPopupMenu.getItemCount();
-      String str = paramActionEvent.getActionCommand();
-      for (int j = 0; j < i; j++)
-      {
-        if (!localPopupMenu.getItem(j).getLabel().equals(str))
-          continue;
-        this.mg.set(localPopupMenu.getName() + '=' + String.valueOf(j));
-        repaint();
-        break;
-      }
+        image = null;
     }
-    catch (Throwable localThrowable)
+
+    public void actionPerformed(ActionEvent actionevent)
     {
-      localThrowable.printStackTrace();
+        try
+        {
+            PopupMenu popupmenu = (PopupMenu)actionevent.getSource();
+            int i = popupmenu.getItemCount();
+            String s = actionevent.getActionCommand();
+            for(int j = 0; j < i; j++)
+            {
+                if(!popupmenu.getItem(j).getLabel().equals(s))
+                {
+                    continue;
+                }
+                mg.set(popupmenu.getName() + '=' + String.valueOf(j));
+                repaint();
+                break;
+            }
+
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
     }
-  }
 
-  public String getC()
-  {
-    return this.tPalette.getC();
-  }
-
-  public LComponent[] getCs()
-  {
-    return this.components;
-  }
-
-  public Dimension getCSize()
-  {
-    return null;
-  }
-
-  public void init(Container paramContainer, Applet paramApplet, Res paramRes1, Res paramRes2, Mi paramMi)
-  {
-    this.applet = paramApplet;
-    this.info = paramMi.info;
-    this.mg = this.info.m;
-    this.res = paramRes2;
-    this.iBuffer = paramMi.user.getBuffer();
-    this.mi = paramMi;
-    this.parent = paramContainer;
-    Dimension localDimension = paramContainer.getSize();
-    LComponent[] arrayOfLComponent = new LComponent[9];
-    TPen localTPen1 = new TPen(this, this.info, paramRes1, null, arrayOfLComponent);
-    localTPen1.init(0);
-    arrayOfLComponent[0] = localTPen1;
-    TPen localTPen2 = new TPen(this, this.info, paramRes1, localTPen1, arrayOfLComponent);
-    localTPen2.init(1);
-    arrayOfLComponent[1] = localTPen2;
-    TPalette localTPalette = new TPalette();
-    localTPalette.setLocation((int)(localTPen1.getSizeW().width * Awt.q()) + 10, 0);
-    localTPalette.init(this, this.info, paramRes1, paramRes2);
-    arrayOfLComponent[2] = localTPalette;
-    this.tPalette = localTPalette;
-    TPen localTPen3 = new TPen(this, this.info, paramRes1, null, arrayOfLComponent);
-    localTPen3.initTT();
-    arrayOfLComponent[3] = localTPen3;
-    TPic localTPic = new TPic(this);
-    arrayOfLComponent[4] = localTPic;
-    this.tPic = localTPic;
-    TPen localTPen4 = new TPen(this, this.info, paramRes1, null, arrayOfLComponent);
-    localTPen4.setLocation(localTPalette.getLocation().x + localTPalette.getSizeW().width, 0);
-    localTPen4.initHint();
-    arrayOfLComponent[5] = localTPen4;
-    L localL = new L(paramMi, this, paramRes2, paramRes1);
-    arrayOfLComponent[6] = localL;
-    TBar localTBar1 = new TBar(paramRes1, paramRes2, arrayOfLComponent);
-    arrayOfLComponent[7] = localTBar1;
-    TBar localTBar2 = new TBar(paramRes1, paramRes2, arrayOfLComponent);
-    arrayOfLComponent[8] = localTBar2;
-    localTBar1.initOption(paramApplet.getCodeBase(), paramMi);
-    localTBar2.init();
-    localTPen3.setLocation(localTPen4.getLocation().x + localTPen4.getSizeW().width, 0);
-    localTPen2.setLocation(0, localTPen1.getSizeW().height);
-    localTPic.setLocation(0, localTPen2.getLocation().y + localTPen2.getSizeW().height);
-    localTBar2.setLocation(localDimension.width - localTBar2.getSizeW().width, 0);
-    for (int i = 0; i < arrayOfLComponent.length; i++)
+    public String getC()
     {
-      arrayOfLComponent[i].setVisible(false);
-      paramContainer.add(arrayOfLComponent[i], 0);
+        return tPalette.getC();
     }
-    this.components = arrayOfLComponent;
-    localTBar2.setVisible(true);
-    localTPen1.setItem(0, null);
-  }
 
-  public void lift()
-  {
-    ((TPen)this.components[0]).setItem(-1, null);
-  }
-
-  protected Image mkImage(int paramInt1, int paramInt2)
-  {
-    if (this.raster == null)
+    public LComponent[] getCs()
     {
-      this.raster = new SRaster(ColorModel.getRGBdefault(), this.iBuffer, paramInt1, paramInt2);
-      this.image = this.applet.createImage(this.raster);
+        return components;
     }
-    else
+
+    public Dimension getCSize()
     {
-      this.raster.newPixels(this.image, this.iBuffer, paramInt1, paramInt2);
+        return null;
     }
-    return this.image;
-  }
 
-  public void pack()
-  {
-    if (this.components != null)
+    public void init(Container container, Applet applet1, Res res1, Res res2, Mi mi1)
     {
-      for (int i = 0; i < this.components.length; i++)
-      {
-        if (this.components[i] == null)
-          continue;
-        this.components[i].inParent();
-      }
-      this.mi.setVisible(false);
-      Dimension localDimension1 = this.parent.getSize();
-      this.mi.setDimension(null, new Dimension(localDimension1), new Dimension(localDimension1));
-      Dimension localDimension2 = this.mi.getSize();
-      this.mi.setLocation((localDimension1.width - localDimension2.width) / 2, (localDimension1.height - localDimension2.height) / 2);
-      this.mi.setVisible(true);
+        applet = applet1;
+        info = mi1.info;
+        mg = info.m;
+        res = res2;
+        iBuffer = mi1.user.getBuffer();
+        mi = mi1;
+        parent = container;
+        Dimension dimension = container.getSize();
+        LComponent alcomponent[] = new LComponent[9];
+        TPen tpen = new TPen(this, info, res1, null, alcomponent);
+        tpen.init(0);
+        alcomponent[0] = tpen;
+        TPen tpen1 = new TPen(this, info, res1, tpen, alcomponent);
+        tpen1.init(1);
+        alcomponent[1] = tpen1;
+        TPalette tpalette = new TPalette();
+        tpalette.setLocation((int)((float)tpen.getSizeW().width * Awt.q()) + 10, 0);
+        tpalette.init(this, info, res1, res2);
+        alcomponent[2] = tpalette;
+        tPalette = tpalette;
+        TPen tpen2 = new TPen(this, info, res1, null, alcomponent);
+        tpen2.initTT();
+        alcomponent[3] = tpen2;
+        TPic tpic = new TPic(this);
+        alcomponent[4] = tpic;
+        tPic = tpic;
+        TPen tpen3 = new TPen(this, info, res1, null, alcomponent);
+        tpen3.setLocation(tpalette.getLocation().x + tpalette.getSizeW().width, 0);
+        tpen3.initHint();
+        alcomponent[5] = tpen3;
+        L l = new L(mi1, this, res2, res1);
+        alcomponent[6] = l;
+        TBar tbar = new TBar(res1, res2, alcomponent);
+        alcomponent[7] = tbar;
+        TBar tbar1 = new TBar(res1, res2, alcomponent);
+        alcomponent[8] = tbar1;
+        tbar.initOption(applet1.getCodeBase(), mi1);
+        tbar1.init();
+        tpen2.setLocation(tpen3.getLocation().x + tpen3.getSizeW().width, 0);
+        tpen1.setLocation(0, tpen.getSizeW().height);
+        tpic.setLocation(0, tpen1.getLocation().y + tpen1.getSizeW().height);
+        tbar1.setLocation(dimension.width - tbar1.getSizeW().width, 0);
+        for(int i = 0; i < alcomponent.length; i++)
+        {
+            alcomponent[i].setVisible(false);
+            container.add(alcomponent[i], 0);
+        }
+
+        components = alcomponent;
+        tbar1.setVisible(true);
+        tpen.setItem(0, null);
     }
-  }
 
-  void repaint()
-  {
-    for (int i = 0; i < this.components.length; i++)
-      this.components[i].repaint();
-  }
-
-  public void selPix(boolean paramBoolean)
-  {
-    ((TPen)this.components[0]).undo(paramBoolean);
-  }
-
-  public void setARGB(int paramInt)
-  {
-    int i = this.mg.iAlpha << 24 | this.mg.iColor;
-    this.mg.iAlpha = (paramInt >>> 24);
-    this.mg.iColor = (paramInt & 0xFFFFFF);
-    if (i != paramInt)
+    public void lift()
     {
-      this.tPic.setColor(paramInt);
-      this.tPalette.setColor(paramInt);
+        ((TPen)components[0]).setItem(-1, null);
     }
-  }
 
-  public void setC(String paramString)
-  {
-    this.tPalette.setC(paramString);
-  }
-
-  void setField(Component paramComponent, String paramString1, String paramString2, int paramInt1, int paramInt2)
-  {
-    try
+    protected Image mkImage(int i, int j)
     {
-      PopupMenu localPopupMenu = new PopupMenu();
-      localPopupMenu.setName(paramString1);
-      localPopupMenu.addActionListener(this);
-      int i = M.class.getField(paramString1).getInt(this.mg);
-      for (int j = 0; j < 16; j++)
-      {
-        Object localObject = this.res.get(paramString2 + j);
-        if (localObject == null)
-          continue;
-        if (i == j)
-          localPopupMenu.add(new CheckboxMenuItem(localObject.toString(), true));
-        else
-          localPopupMenu.add(localObject.toString());
-      }
-      paramComponent.add(localPopupMenu);
-      localPopupMenu.show(paramComponent, paramInt1, paramInt2);
+        if(raster == null)
+        {
+            raster = new SRaster(ColorModel.getRGBdefault(), iBuffer, i, j);
+            image = applet.createImage(raster);
+        } else
+        {
+            raster.newPixels(image, iBuffer, i, j);
+        }
+        return image;
     }
-    catch (Throwable localThrowable)
+
+    public void pack()
     {
-      localThrowable.printStackTrace();
+        if(components != null)
+        {
+            for(int i = 0; i < components.length; i++)
+            {
+                if(components[i] != null)
+                {
+                    components[i].inParent();
+                }
+            }
+
+            mi.setVisible(false);
+            Dimension dimension = parent.getSize();
+            mi.setDimension(null, new Dimension(dimension), new Dimension(dimension));
+            Dimension dimension1 = mi.getSize();
+            mi.setLocation((dimension.width - dimension1.width) / 2, (dimension.height - dimension1.height) / 2);
+            mi.setVisible(true);
+        }
     }
-  }
 
-  public void setLineSize(int paramInt)
-  {
-    this.tPalette.setLineSize(paramInt);
-  }
-
-  public void setMask(Component paramComponent, int paramInt1, int paramInt2, int paramInt3, boolean paramBoolean)
-  {
-    if (paramBoolean)
+    void repaint()
     {
-      setField(paramComponent, "iMask", "mask_", paramInt2, paramInt3);
+        for(int i = 0; i < components.length; i++)
+        {
+            components[i].repaint();
+        }
+
     }
-    else
+
+    public void selPix(boolean flag)
     {
-      this.mg.iColorMask = (paramInt1 & 0xFFFFFF);
-      this.components[4].repaint();
+        ((TPen)components[0]).undo(flag);
     }
-  }
 
-  public void setRGB(int paramInt)
-  {
-    setARGB(this.mg.iAlpha << 24 | paramInt & 0xFFFFFF);
-  }
+    public void setARGB(int i)
+    {
+        int j = mg.iAlpha << 24 | mg.iColor;
+        mg.iAlpha = i >>> 24;
+        mg.iColor = i & 0xffffff;
+        if(j != i)
+        {
+            tPic.setColor(i);
+            tPalette.setColor(i);
+        }
+    }
 
-  public void up()
-  {
-    this.tPic.repaint();
-    this.tPalette.repaint();
-    if ((this.components != null) && (this.components[6] != null))
-      this.components[6].repaint();
-  }
+    public void setC(String s)
+    {
+        tPalette.setC(s);
+    }
+
+    void setField(Component component, String s, String s1, int i, int j)
+    {
+        try
+        {
+            PopupMenu popupmenu = new PopupMenu();
+            popupmenu.setName(s);
+            popupmenu.addActionListener(this);
+            int k = paintchat.M.class.getField(s).getInt(mg);
+            for(int l = 0; l < 16; l++)
+            {
+                Object obj = res.get(s1 + l);
+                if(obj != null)
+                {
+                    if(k == l)
+                    {
+                        popupmenu.add(new CheckboxMenuItem(obj.toString(), true));
+                    } else
+                    {
+                        popupmenu.add(obj.toString());
+                    }
+                }
+            }
+
+            component.add(popupmenu);
+            popupmenu.show(component, i, j);
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    public void setLineSize(int i)
+    {
+        tPalette.setLineSize(i);
+    }
+
+    public void setMask(Component component, int i, int j, int k, boolean flag)
+    {
+        if(flag)
+        {
+            setField(component, "iMask", "mask_", j, k);
+        } else
+        {
+            mg.iColorMask = i & 0xffffff;
+            components[4].repaint();
+        }
+    }
+
+    public void setRGB(int i)
+    {
+        setARGB(mg.iAlpha << 24 | i & 0xffffff);
+    }
+
+    public void up()
+    {
+        tPic.repaint();
+        tPalette.repaint();
+        if(components != null && components[6] != null)
+        {
+            components[6].repaint();
+        }
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.pro.Tools
- * JD-Core Version:    0.6.0
- */

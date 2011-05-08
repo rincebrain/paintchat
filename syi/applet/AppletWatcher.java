@@ -1,12 +1,7 @@
 package syi.applet;
 
 import java.applet.Applet;
-import java.awt.AWTEvent;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Frame;
-import java.awt.Window;
+import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -18,133 +13,147 @@ import syi.awt.Awt;
 import syi.awt.Gui;
 import syi.util.PProperties;
 
+// Referenced classes of package syi.applet:
+//            ServerStub
+
 public class AppletWatcher extends Frame
 {
-  private Applet applet;
-  private boolean bool_exit;
 
-  public AppletWatcher(String paramString1, String paramString2, Config paramConfig, Hashtable paramHashtable, boolean paramBoolean)
-    throws ClassNotFoundException, Exception, IOException
-  {
-    super(paramString2);
-    enableEvents(64L);
-    this.bool_exit = paramBoolean;
-    setLayout(new BorderLayout());
-    this.applet = ((Applet)Class.forName(paramString1).newInstance());
-    this.applet.setStub(ServerStub.getDefaultStub(paramConfig, paramHashtable));
-    add(this.applet, "Center");
-    this.applet.init();
-    Gui.getDefSize(this);
-    Awt.moveCenter(this);
-  }
+    private Applet applet;
+    private boolean bool_exit;
 
-  private PProperties getProperties(URL paramURL)
-  {
-    try
+    public AppletWatcher(String s, String s1, Config config, Hashtable hashtable, boolean flag)
+        throws ClassNotFoundException, Exception, IOException
     {
-      int i = 0;
-      URLConnection localURLConnection = paramURL.openConnection();
-      localURLConnection.connect();
-      BufferedInputStream localBufferedInputStream = new BufferedInputStream(localURLConnection.getInputStream());
-      int j = localURLConnection.getContentLength();
-      int k = 0;
-      char[] arrayOfChar1 = new char[j];
-      while (k < j)
-      {
-        m = localBufferedInputStream.read();
-        switch (m)
+        super(s1);
+        enableEvents(64L);
+        bool_exit = flag;
+        setLayout(new BorderLayout());
+        applet = (Applet)Class.forName(s).newInstance();
+        applet.setStub(ServerStub.getDefaultStub(config, hashtable));
+        add(applet, "Center");
+        applet.init();
+        Gui.getDefSize(this);
+        Awt.moveCenter(this);
+    }
+
+    private PProperties getProperties(URL url)
+    {
+        try
         {
-        case -1:
-          arrayOfChar1[k] = '\000';
-          j = 0;
-          break;
-        case 9:
-        case 10:
-        case 13:
-        case 32:
-          if (i != 0)
-            break;
-          i = 1;
-          arrayOfChar1[k] = (char)m;
-          break;
-        default:
-          i = 0;
-          arrayOfChar1[k] = (char)m;
+            boolean flag = false;
+            URLConnection urlconnection = url.openConnection();
+            urlconnection.connect();
+            BufferedInputStream bufferedinputstream = new BufferedInputStream(urlconnection.getInputStream());
+            int i = urlconnection.getContentLength();
+            int j = 0;
+            char ac[] = new char[i];
+            for(; j < i; j++)
+            {
+                int l = bufferedinputstream.read();
+                switch(l)
+                {
+                case -1: 
+                    ac[j] = '\0';
+                    i = 0;
+                    break;
+
+                case 9: // '\t'
+                case 10: // '\n'
+                case 13: // '\r'
+                case 32: // ' '
+                    if(!flag)
+                    {
+                        flag = true;
+                        ac[j] = (char)l;
+                    }
+                    break;
+
+                default:
+                    flag = false;
+                    ac[j] = (char)l;
+                    break;
+                }
+            }
+
+            bufferedinputstream.close();
+            bufferedinputstream = null;
+            i = j;
+            flag = false;
+            int i1 = 0;
+            int j1 = 0;
+            char ac1[] = {
+                'p', 'a', 'r', 'a', 'm'
+            };
+            char ac2[] = {
+                'a', 'p', 'p', 'l', 'e', 't'
+            };
+            for(int k = 0; k < i; k++)
+            {
+                if(ac[k] == '<')
+                {
+                    for(k++; k < i; k++)
+                    {
+                        if(ac[k] == ' ')
+                        {
+                            if(flag)
+                            {
+                                break;
+                            }
+                        } else
+                        {
+                            flag = true;
+                            char c = Character.toLowerCase(ac[k]);
+                            i1 = ac1[i1] != c ? 0 : i1 + 1;
+                            j1 = ac2[i1] != c ? 0 : j1 + 1;
+                        }
+                    }
+
+                }
+            }
+
         }
-        k++;
-      }
-      localBufferedInputStream.close();
-      localBufferedInputStream = null;
-      j = k;
-      i = 0;
-      int m = 0;
-      int n = 0;
-      char[] arrayOfChar2 = { 'p', 'a', 'r', 'a', 'm' };
-      char[] arrayOfChar3 = { 'a', 'p', 'p', 'l', 'e', 't' };
-      for (k = 0; k < j; k++)
-      {
-        if (arrayOfChar1[k] != '<')
-          continue;
-        k++;
-        while (k < j)
+        catch(Throwable throwable)
         {
-          if (arrayOfChar1[k] == ' ')
-          {
-            if (i != 0)
-              break;
-          }
-          else
-          {
-            i = 1;
-            int i1 = Character.toLowerCase(arrayOfChar1[k]);
-            m = arrayOfChar2[m] == i1 ? m + 1 : 0;
-            n = arrayOfChar3[m] == i1 ? n + 1 : 0;
-          }
-          k++;
+            throwable.printStackTrace();
         }
-      }
+        return null;
     }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-    return null;
-  }
 
-  public static void main(String[] paramArrayOfString)
-  {
-  }
+    public static void main(String args[])
+    {
+    }
 
-  protected void processWindowEvent(WindowEvent paramWindowEvent)
-  {
-    try
+    protected void processWindowEvent(WindowEvent windowevent)
     {
-      int i = paramWindowEvent.getID();
-      Window localWindow = paramWindowEvent.getWindow();
-      switch (i)
-      {
-      case 201:
-        localWindow.dispose();
-        this.applet.stop();
-        break;
-      case 202:
-        this.applet.destroy();
-        this.applet = null;
-        if (!this.bool_exit)
-          break;
-        System.exit(0);
-        break;
-      case 200:
-        this.applet.start();
-      }
+        try
+        {
+            int i = windowevent.getID();
+            Window window = windowevent.getWindow();
+            switch(i)
+            {
+            default:
+                break;
+
+            case 201: 
+                window.dispose();
+                applet.stop();
+                break;
+
+            case 202: 
+                applet.destroy();
+                applet = null;
+                if(bool_exit)
+                {
+                    System.exit(0);
+                }
+                break;
+
+            case 200: 
+                applet.start();
+                break;
+            }
+        }
+        catch(Throwable _ex) { }
     }
-    catch (Throwable localThrowable)
-    {
-    }
-  }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.applet.AppletWatcher
- * JD-Core Version:    0.6.0
- */

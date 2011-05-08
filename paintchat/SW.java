@@ -1,17 +1,17 @@
 package paintchat;
 
-public abstract interface SW
+
+// Referenced classes of package paintchat:
+//            ToolBox, M, Res
+
+public interface SW
 {
-  public abstract void lift();
 
-  public abstract void mPack();
+    public abstract void lift();
 
-  public abstract void mSetup(ToolBox paramToolBox, M.Info paramInfo, M.User paramUser, M paramM, Res paramRes1, Res paramRes2);
+    public abstract void mPack();
 
-  public abstract void up();
+    public abstract void mSetup(ToolBox toolbox, M.Info info, M.User user, M m, Res res, Res res1);
+
+    public abstract void up();
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.SW
- * JD-Core Version:    0.6.0
- */

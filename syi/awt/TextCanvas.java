@@ -1,131 +1,155 @@
 package syi.awt;
 
-import java.awt.Canvas;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
+import java.awt.*;
 import java.io.CharArrayWriter;
 
 public class TextCanvas extends Canvas
 {
-  String[] strs = null;
-  int seek = 0;
-  CharArrayWriter buffer = new CharArrayWriter();
-  Dimension d = new Dimension();
-  private int Gap = 3;
-  public boolean isBorder = true;
 
-  public TextCanvas()
-  {
-  }
+    String strs[];
+    int seek;
+    CharArrayWriter buffer;
+    Dimension d;
+    private int Gap;
+    public boolean isBorder;
 
-  public TextCanvas(String paramString)
-  {
-    setText(paramString);
-  }
-
-  public synchronized void addText(String paramString)
-  {
-    if (this.strs == null)
+    public TextCanvas()
     {
-      this.strs = new String[6];
+        strs = null;
+        seek = 0;
+        buffer = new CharArrayWriter();
+        d = new Dimension();
+        Gap = 3;
+        isBorder = true;
     }
-    else if (this.seek >= this.strs.length)
-    {
-      String[] arrayOfString = new String[this.strs.length * 2];
-      System.arraycopy(this.strs, 0, arrayOfString, 0, this.strs.length);
-      this.strs = arrayOfString;
-    }
-    this.strs[(this.seek++)] = paramString;
-  }
 
-  public Dimension getPreferredSize()
-  {
-    if ((this.strs == null) || (this.seek == 0))
-      return new Dimension(50, 10);
-    try
+    public TextCanvas(String s)
     {
-      FontMetrics localFontMetrics = getFontMetrics(getFont());
-      int i = 0;
-      int j = this.Gap * 2;
-      for (int k = 0; k < this.seek; k++)
-        i = Math.max(i, localFontMetrics.stringWidth(this.strs[k]));
-      return new Dimension(i + j + 4, (localFontMetrics.getMaxDescent() + localFontMetrics.getMaxAscent() + this.Gap) * this.seek + 4);
+        strs = null;
+        seek = 0;
+        buffer = new CharArrayWriter();
+        d = new Dimension();
+        Gap = 3;
+        isBorder = true;
+        setText(s);
     }
-    catch (RuntimeException localRuntimeException)
-    {
-    }
-    return new Dimension(50, 10);
-  }
 
-  public void paint(Graphics paramGraphics)
-  {
-    try
+    public synchronized void addText(String s)
     {
-      Dimension localDimension = getSize();
-      paramGraphics.clearRect(1, 1, localDimension.width - 2, localDimension.height - 2);
-      if (this.isBorder)
-        paramGraphics.drawRect(0, 0, localDimension.width - 1, localDimension.height - 1);
-      FontMetrics localFontMetrics = paramGraphics.getFontMetrics();
-      int i = localFontMetrics.getMaxAscent() + localFontMetrics.getMaxDescent() + this.Gap;
-      int j = localFontMetrics.getMaxAscent();
-      for (int k = 0; k < this.seek; k++)
-        paramGraphics.drawString(this.strs[k], this.Gap + 2, i * k + j + this.Gap + 2);
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
-
-  public void reset()
-  {
-    if (this.strs == null)
-      return;
-    for (int i = 0; i < this.seek; i++)
-      this.strs[i] = null;
-    this.seek = 0;
-  }
-
-  public final void setText(String paramString)
-  {
-    if (paramString == null)
-      return;
-    CharArrayWriter localCharArrayWriter = this.buffer;
-    synchronized (localCharArrayWriter)
-    {
-      localCharArrayWriter.reset();
-      reset();
-      int i = paramString.length();
-      for (int k = 0; k < i; k++)
-      {
-        int j = paramString.charAt(k);
-        if ((j == 13) || (j == 10))
+        if(strs == null)
         {
-          if (localCharArrayWriter.size() <= 0)
-            continue;
-          addText(localCharArrayWriter.toString());
-          localCharArrayWriter.reset();
-        }
-        else
+            strs = new String[6];
+        } else
+        if(seek >= strs.length)
         {
-          localCharArrayWriter.write(j);
+            String as[] = new String[strs.length * 2];
+            System.arraycopy(strs, 0, as, 0, strs.length);
+            strs = as;
         }
-      }
-      if (localCharArrayWriter.size() > 0)
-        addText(localCharArrayWriter.toString());
+        strs[seek++] = s;
     }
-    setSize(getPreferredSize());
-  }
 
-  public void update(Graphics paramGraphics)
-  {
-    paint(paramGraphics);
-  }
+    public Dimension getPreferredSize()
+    {
+        if(strs == null || seek == 0)
+        {
+            return new Dimension(50, 10);
+        }
+        try
+        {
+            FontMetrics fontmetrics = getFontMetrics(getFont());
+            int i = 0;
+            int j = Gap * 2;
+            for(int k = 0; k < seek; k++)
+            {
+                i = Math.max(i, fontmetrics.stringWidth(strs[k]));
+            }
+
+            return new Dimension(i + j + 4, (fontmetrics.getMaxDescent() + fontmetrics.getMaxAscent() + Gap) * seek + 4);
+        }
+        catch(RuntimeException _ex)
+        {
+            return new Dimension(50, 10);
+        }
+    }
+
+    public void paint(Graphics g)
+    {
+        try
+        {
+            Dimension dimension = getSize();
+            g.clearRect(1, 1, dimension.width - 2, dimension.height - 2);
+            if(isBorder)
+            {
+                g.drawRect(0, 0, dimension.width - 1, dimension.height - 1);
+            }
+            FontMetrics fontmetrics = g.getFontMetrics();
+            int i = fontmetrics.getMaxAscent() + fontmetrics.getMaxDescent() + Gap;
+            int j = fontmetrics.getMaxAscent();
+            for(int k = 0; k < seek; k++)
+            {
+                g.drawString(strs[k], Gap + 2, i * k + j + Gap + 2);
+            }
+
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    public void reset()
+    {
+        if(strs == null)
+        {
+            return;
+        }
+        for(int i = 0; i < seek; i++)
+        {
+            strs[i] = null;
+        }
+
+        seek = 0;
+    }
+
+    public final void setText(String s)
+    {
+        if(s == null)
+        {
+            return;
+        }
+        CharArrayWriter chararraywriter = buffer;
+        synchronized(chararraywriter)
+        {
+            chararraywriter.reset();
+            reset();
+            int i = s.length();
+            for(int j = 0; j < i; j++)
+            {
+                char c = s.charAt(j);
+                if(c == '\r' || c == '\n')
+                {
+                    if(chararraywriter.size() > 0)
+                    {
+                        addText(chararraywriter.toString());
+                        chararraywriter.reset();
+                    }
+                } else
+                {
+                    chararraywriter.write(c);
+                }
+            }
+
+            if(chararraywriter.size() > 0)
+            {
+                addText(chararraywriter.toString());
+            }
+        }
+        setSize(getPreferredSize());
+    }
+
+    public void update(Graphics g)
+    {
+        paint(g);
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.awt.TextCanvas
- * JD-Core Version:    0.6.0
- */

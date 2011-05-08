@@ -1,12 +1,6 @@
 package paintchat.normal;
 
-import java.awt.AWTEvent;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.Field;
 import java.util.Hashtable;
@@ -14,405 +8,463 @@ import paintchat.M;
 import paintchat.Res;
 import paintchat_client.Mi;
 
+// Referenced classes of package paintchat.normal:
+//            Tools
+
 public class ToolList
 {
-  private Tools tools;
-  private Res res;
-  private Res cnf;
-  boolean isField;
-  boolean isClass;
-  boolean isDirect;
-  boolean isMask;
-  boolean isEraser;
-  boolean isSelect;
-  boolean isDrawList;
-  boolean isIm;
-  String strField;
-  private int quality = 1;
-  private boolean isDrag = false;
-  public int iSelect;
-  public int iSelectList;
-  public boolean isList;
-  private M info = null;
-  private M[] mgs = null;
-  private int[] items = null;
-  private String[] strs = null;
-  private String[] strings;
-  private int length;
-  private ToolList[] lists;
-  private Font font;
-  private int base = 0;
-  private Image image;
-  private int imW;
-  private int imH;
-  private int imIndex;
-  public Rectangle r = new Rectangle();
 
-  private void dImage(Graphics paramGraphics, Color paramColor, int paramInt1, int paramInt2)
-  {
-    int i = this.r.height;
-    int j = this.r.width;
-    paramGraphics.setColor(paramColor);
-    paramGraphics.fillRect(2, paramInt1 + 2, this.r.width - 4, i - 4);
-    if (this.isMask)
-    {
-      paramGraphics.setColor(new Color(this.info.iColorMask));
-      paramGraphics.fillRect(j - this.imW - 3, paramInt1 + 3, this.imW, (i - 4) / 2);
-    }
-    if ((!this.isIm) || (this.image == null) || (paramInt2 >= this.image.getHeight(null) / this.imH))
-      return;
-    int k = this.imIndex * this.imW;
-    int m = paramInt2 * this.imH;
-    int n = this.r.x + 2;
-    int i1 = paramInt1 + 2;
-    paramGraphics.drawImage(this.image, n, i1, n + j - 4, i1 + i - 4, k, m, k + this.imW, m + this.imH, paramColor, null);
-  }
+    private Tools tools;
+    private Res res;
+    private Res cnf;
+    boolean isField;
+    boolean isClass;
+    boolean isDirect;
+    boolean isMask;
+    boolean isEraser;
+    boolean isSelect;
+    boolean isDrawList;
+    boolean isIm;
+    String strField;
+    private int quality;
+    private boolean isDrag;
+    public int iSelect;
+    public int iSelectList;
+    public boolean isList;
+    private M info;
+    private M mgs[];
+    private int items[];
+    private String strs[];
+    private String strings[];
+    private int length;
+    private ToolList lists[];
+    private Font font;
+    private int base;
+    private Image image;
+    private int imW;
+    private int imH;
+    private int imIndex;
+    public Rectangle r;
 
-  private void drag(int paramInt1, int paramInt2)
-  {
-    if (!this.isDrag)
-      return;
-    int i = len();
-    int j = this.r.width;
-    int k = this.r.height;
-    int m = paramInt2 / (k - 2) - 1;
-    this.isList = true;
-    int n = this.iSelectList;
-    if ((paramInt1 < 0) || (paramInt1 >= j) || (m < 0) || (m >= i))
+    public ToolList()
     {
-      this.iSelectList = -1;
-      m = -1;
+        quality = 1;
+        isDrag = false;
+        info = null;
+        mgs = null;
+        items = null;
+        strs = null;
+        base = 0;
+        r = new Rectangle();
     }
-    else
-    {
-      this.iSelectList = m;
-    }
-    if ((this.isList) && (!this.isDrawList))
-    {
-      this.isDrawList = true;
-      repaint();
-    }
-    if ((n == m) || (!this.isList))
-      return;
-    Graphics localGraphics = this.tools.primary();
-    if (n >= 0)
-    {
-      localGraphics.setColor(this.tools.clFrame);
-      localGraphics.drawRect(this.r.x + 1, this.r.y + (k - 3) * (n + 1) + 2, j - 3, k - 3);
-    }
-    if (m >= 0)
-    {
-      localGraphics.setColor(this.tools.clSel);
-      localGraphics.drawRect(this.r.x + 1, this.r.y + (k - 3) * (m + 1) + 2, j - 3, k - 3);
-    }
-  }
 
-  private int getValue()
-  {
-    try
+    private void dImage(Graphics g, Color color, int i, int j)
     {
-      return this.isField ? M.class.getField(this.strField).getInt(this.info) : this.iSelect;
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-    return 0;
-  }
-
-  public void init(Tools paramTools, Res paramRes1, Res paramRes2, M paramM, ToolList[] paramArrayOfToolList, int paramInt)
-  {
-    try
-    {
-      this.tools = paramTools;
-      this.res = paramRes1;
-      this.cnf = paramRes2;
-      this.lists = paramArrayOfToolList;
-      this.info = paramM;
-      String str1 = "t0" + paramInt + "_";
-      this.isDirect = paramRes2.getP(str1 + "direct", false);
-      this.isClass = paramRes2.getP(str1 + "class", false);
-      this.isEraser = paramRes2.getP(str1 + "iseraser", false);
-      this.isIm = paramRes2.getP(str1 + "image", true);
-      this.strField = paramRes2.getP(str1 + "field", null);
-      this.isField = (this.strField != null);
-      if ((this.isField) && (this.strField.equals("iMask")))
-        this.isMask = true;
-      str1 = "t0" + paramInt;
-      for (int i = 0; paramRes2.getP(str1 + i) != null; i++);
-      this.strings = new String[i];
-      for (int j = 0; j < i; j++)
-      {
-        String str2 = str1 + j;
-        if (this.isField)
+        int k = r.height;
+        int l = r.width;
+        g.setColor(color);
+        g.fillRect(2, i + 2, r.width - 4, k - 4);
+        if(isMask)
         {
-          if (this.items == null)
-            this.items = new int[i];
-          this.items[j] = paramRes2.getP(str2, 0);
+            g.setColor(new Color(info.iColorMask));
+            g.fillRect(l - imW - 3, i + 3, imW, (k - 4) / 2);
         }
-        else if (this.isClass)
+        if(!isIm || image == null || j >= image.getHeight(null) / imH)
         {
-          if (this.strs == null)
-            this.strs = new String[i];
-          this.strs[j] = paramRes2.getP(str2);
-        }
-        else
+            return;
+        } else
         {
-          if (this.mgs == null)
-            this.mgs = new M[i];
-          (this.mgs[j] =  = new M()).set(paramRes2.getP(str2));
+            int i1 = imIndex * imW;
+            int j1 = j * imH;
+            int k1 = r.x + 2;
+            int l1 = i + 2;
+            g.drawImage(image, k1, l1, (k1 + l) - 4, (l1 + k) - 4, i1, j1, i1 + imW, j1 + imH, color, null);
+            return;
         }
-        this.strings[j] = paramRes1.res(str2);
-        paramRes2.remove(str2);
-        paramRes1.remove(str2);
-      }
     }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
 
-  private int len()
-  {
-    return this.mgs == null ? this.items.length : this.items == null ? this.strs.length : this.strs == null ? 0 : this.mgs.length;
-  }
-
-  public void paint(Graphics paramGraphics1, Graphics paramGraphics2)
-  {
-    try
+    private void drag(int i, int j)
     {
-      if ((paramGraphics1 == null) || (paramGraphics2 == null))
-        return;
-      int j = this.r.width;
-      int k = this.r.height;
-      int m = this.r.x;
-      int n = this.r.y;
-      int i1 = len();
-      int i2 = k - 2;
-      int i3;
-      if (this.isList)
-      {
-        i3 = n + k - 2;
-        Color localColor = this.isDirect ? this.tools.clB2 : this.tools.clB;
-        for (int i5 = 0; i5 < i1; i5++)
+        if(!isDrag)
         {
-          dImage(paramGraphics1, localColor, i3, i5);
-          paramGraphics1.setColor(this.tools.clText);
-          if (i5 < this.strings.length)
-            paramGraphics1.drawString(this.strings[i5], m + 4, i3 + this.base);
-          i3 += i2 - 1;
+            return;
         }
-        i3 = n + i2;
-        paramGraphics1.setColor(this.tools.clFrame);
-        paramGraphics1.drawRect(m, i3, j - 1, (i2 - 1) * i1 + 2);
-        for (i5 = 0; i5 < i1; i5++)
+        int k = len();
+        int l = r.width;
+        int i1 = r.height;
+        int j1 = j / (i1 - 2) - 1;
+        isList = true;
+        int k1 = iSelectList;
+        if(i < 0 || i >= l || j1 < 0 || j1 >= k)
         {
-          paramGraphics1.drawRect(m + 1, i3 + 1, j - 3, k - 3);
-          i3 += i2 - 1;
-        }
-      }
-      int i = getValue();
-      if (this.isField)
-      {
-        i3 = this.items.length;
-        for (int i4 = 0; i4 < i3; i4++)
+            iSelectList = -1;
+            j1 = -1;
+        } else
         {
-          if (this.items[i4] != i)
-            continue;
-          i = i4;
-          break;
+            iSelectList = j1;
         }
-      }
-      dImage(paramGraphics2, this.isDirect ? this.tools.clB2 : this.tools.clB, 0, i);
-      paramGraphics2.setColor(this.tools.clFrame);
-      paramGraphics2.drawRect(0, 0, j - 1, k - 1);
-      if (this.isSelect)
-      {
-        paramGraphics2.setColor(this.tools.clSel);
-        paramGraphics2.drawRect(1, 1, j - 3, k - 3);
-      }
-      else
-      {
-        paramGraphics2.setColor(this.tools.clBL);
-        paramGraphics2.fillRect(1, 1, j - 2, 1);
-        paramGraphics2.fillRect(1, 1, 1, k - 2);
-        paramGraphics2.setColor(this.tools.clBD);
-        paramGraphics2.fillRect(j - 2, 2, 1, k - 4);
-        paramGraphics2.fillRect(2, k - 2, j - 3, 1);
-      }
-      if ((i >= 0) && (i < this.strings.length))
-      {
-        paramGraphics2.setColor(this.tools.clText);
-        paramGraphics2.drawString(this.strings[i], 3, this.base);
-      }
-      paramGraphics1.drawImage(this.tools.imBack, this.r.x, this.r.y, this.r.x + j, this.r.y + k, 0, 0, j, k, this.tools.clB, null);
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
-
-  public void pMouse(MouseEvent paramMouseEvent)
-  {
-    int i = paramMouseEvent.getX();
-    int j = paramMouseEvent.getY();
-    int k = i - this.r.x;
-    int m = j - this.r.y;
-    switch (paramMouseEvent.getID())
-    {
-    case 501:
-      if (!this.r.contains(i, j))
-        break;
-      press();
-      break;
-    case 506:
-      drag(k, m);
-      break;
-    case 502:
-      release(k, m, this.r.contains(i, j));
-    case 503:
-    case 504:
-    case 505:
-    }
-  }
-
-  private void press()
-  {
-    if (this.isDrag)
-      return;
-    this.isDrag = true;
-    this.iSelectList = -1;
-    if (this.isDirect)
-    {
-      this.isList = true;
-      this.isDrawList = true;
-      repaint();
-    }
-  }
-
-  private void release(int paramInt1, int paramInt2, boolean paramBoolean)
-  {
-    if (!this.isDrag)
-      return;
-    int i = this.r.height;
-    int j = this.r.width;
-    int k = paramInt2 / (i - 2) - 1;
-    boolean bool = this.isDrawList;
-    int m = 0;
-    this.isDrag = false;
-    this.isList = false;
-    if ((k < 0) || (k >= len()) || (paramInt1 < 0) || (paramInt1 >= j))
-      k = -1;
-    if (k == -1)
-    {
-      if (paramBoolean)
-      {
-        if (this.isSelect)
+        if(isList && !isDrawList)
         {
-          int n = len();
-          unSelect();
-          if (++this.iSelect >= n)
-            this.iSelect = 0;
-          select();
+            isDrawList = true;
+            repaint();
         }
-        else
+        if(k1 == j1 || !isList)
         {
-          select();
+            return;
         }
-        m = 1;
-      }
+        Graphics g = tools.primary();
+        if(k1 >= 0)
+        {
+            g.setColor(tools.clFrame);
+            g.drawRect(r.x + 1, r.y + (i1 - 3) * (k1 + 1) + 2, l - 3, i1 - 3);
+        }
+        if(j1 >= 0)
+        {
+            g.setColor(tools.clSel);
+            g.drawRect(r.x + 1, r.y + (i1 - 3) * (j1 + 1) + 2, l - 3, i1 - 3);
+        }
     }
-    else
+
+    private int getValue()
     {
-      if (this.isSelect)
-        unSelect();
-      this.iSelect = k;
-      select();
+        try
+        {
+            return isField ? paintchat.M.class.getField(strField).getInt(info) : iSelect;
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+        return 0;
     }
-    this.iSelectList = -1;
-    this.isDrawList = false;
-    if (bool)
+
+    public void init(Tools tools1, Res res1, Res res2, M m, ToolList atoollist[], int i)
     {
-      Graphics localGraphics = this.tools.primary();
-      localGraphics.setColor(this.tools.getBackground());
-      localGraphics.fillRect(this.r.x - 1, this.r.y - 1, j + 2, (i - 2) * (len() + 1) + 2);
+        try
+        {
+            tools = tools1;
+            res = res1;
+            cnf = res2;
+            lists = atoollist;
+            info = m;
+            String s = "t0" + i + "_";
+            isDirect = res2.getP(s + "direct", false);
+            isClass = res2.getP(s + "class", false);
+            isEraser = res2.getP(s + "iseraser", false);
+            isIm = res2.getP(s + "image", true);
+            strField = res2.getP(s + "field", null);
+            isField = strField != null;
+            if(isField && strField.equals("iMask"))
+            {
+                isMask = true;
+            }
+            s = "t0" + i;
+            int j;
+            for(j = 0; res2.getP(s + j) != null; j++) { }
+            strings = new String[j];
+            for(int k = 0; k < j; k++)
+            {
+                String s1 = s + k;
+                if(isField)
+                {
+                    if(items == null)
+                    {
+                        items = new int[j];
+                    }
+                    items[k] = res2.getP(s1, 0);
+                } else
+                if(isClass)
+                {
+                    if(strs == null)
+                    {
+                        strs = new String[j];
+                    }
+                    strs[k] = res2.getP(s1);
+                } else
+                {
+                    if(mgs == null)
+                    {
+                        mgs = new M[j];
+                    }
+                    (mgs[k] = new M()).set(res2.getP(s1));
+                }
+                strings[k] = res1.res(s1);
+                res2.remove(s1);
+                res1.remove(s1);
+            }
+
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
     }
-    if ((m != 0) || (bool))
-      this.tools.mPaint(-1);
-  }
 
-  public void repaint()
-  {
-    paint(this.tools.primary(), this.tools.getBack());
-  }
-
-  public void select()
-  {
-    try
+    private int len()
     {
-      if (this.isField)
-      {
-        M.class.getField(this.strField).setInt(this.info, this.items[this.iSelect]);
-        this.tools.upCS();
-        return;
-      }
-      if (this.isClass)
-      {
-        this.tools.showW(this.strs[this.iSelect]);
-        return;
-      }
-      if (!this.isDirect)
-        this.tools.unSelect();
-      int i = this.info.iColor;
-      int j = this.info.iMask;
-      int k = this.info.iColorMask;
-      int m = this.info.iLayer;
-      int n = this.info.iLayerSrc;
-      int i1 = this.info.iTT;
-      int i2 = this.info.iSA;
-      int i3 = this.info.iSS;
-      this.info.set(this.mgs[this.iSelect]);
-      this.info.iColor = i;
-      this.info.iMask = j;
-      this.info.iColorMask = k;
-      this.info.iLayer = m;
-      this.info.iLayerSrc = n;
-      this.info.iTT = i1;
-      if ((i2 != this.info.iSA) || (i3 != this.info.iSS))
-        this.tools.mi.up();
-      if (!this.isDirect)
-        this.isSelect = true;
+        return mgs != null ? mgs.length : items != null ? items.length : strs != null ? strs.length : 0;
     }
-    catch (Throwable localThrowable)
+
+    public void paint(Graphics g, Graphics g1)
     {
+        try
+        {
+            if(g == null || g1 == null)
+            {
+                return;
+            }
+            int j = r.width;
+            int k = r.height;
+            int l = r.x;
+            int i1 = r.y;
+            int j1 = len();
+            int k1 = k - 2;
+            if(isList)
+            {
+                int l1 = (i1 + k) - 2;
+                Color color = isDirect ? tools.clB2 : tools.clB;
+                for(int k2 = 0; k2 < j1; k2++)
+                {
+                    dImage(g, color, l1, k2);
+                    g.setColor(tools.clText);
+                    if(k2 < strings.length)
+                    {
+                        g.drawString(strings[k2], l + 4, l1 + base);
+                    }
+                    l1 += k1 - 1;
+                }
+
+                l1 = i1 + k1;
+                g.setColor(tools.clFrame);
+                g.drawRect(l, l1, j - 1, (k1 - 1) * j1 + 2);
+                for(int l2 = 0; l2 < j1; l2++)
+                {
+                    g.drawRect(l + 1, l1 + 1, j - 3, k - 3);
+                    l1 += k1 - 1;
+                }
+
+            }
+            int i = getValue();
+            if(isField)
+            {
+                int i2 = items.length;
+                for(int j2 = 0; j2 < i2; j2++)
+                {
+                    if(items[j2] != i)
+                    {
+                        continue;
+                    }
+                    i = j2;
+                    break;
+                }
+
+            }
+            dImage(g1, isDirect ? tools.clB2 : tools.clB, 0, i);
+            g1.setColor(tools.clFrame);
+            g1.drawRect(0, 0, j - 1, k - 1);
+            if(isSelect)
+            {
+                g1.setColor(tools.clSel);
+                g1.drawRect(1, 1, j - 3, k - 3);
+            } else
+            {
+                g1.setColor(tools.clBL);
+                g1.fillRect(1, 1, j - 2, 1);
+                g1.fillRect(1, 1, 1, k - 2);
+                g1.setColor(tools.clBD);
+                g1.fillRect(j - 2, 2, 1, k - 4);
+                g1.fillRect(2, k - 2, j - 3, 1);
+            }
+            if(i >= 0 && i < strings.length)
+            {
+                g1.setColor(tools.clText);
+                g1.drawString(strings[i], 3, base);
+            }
+            g.drawImage(tools.imBack, r.x, r.y, r.x + j, r.y + k, 0, 0, j, k, tools.clB, null);
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
     }
-  }
 
-  public void setImage(Image paramImage, int paramInt1, int paramInt2, int paramInt3)
-  {
-    this.image = paramImage;
-    this.imW = paramInt1;
-    this.imH = paramInt2;
-    this.imIndex = paramInt3;
-  }
+    public void pMouse(MouseEvent mouseevent)
+    {
+        int i = mouseevent.getX();
+        int j = mouseevent.getY();
+        int k = i - r.x;
+        int l = j - r.y;
+        switch(mouseevent.getID())
+        {
+        case 503: 
+        case 504: 
+        case 505: 
+        default:
+            break;
 
-  public void setSize(int paramInt1, int paramInt2, int paramInt3)
-  {
-    this.r.setSize(paramInt1, paramInt2);
-    this.base = paramInt3;
-  }
+        case 501: 
+            if(r.contains(i, j))
+            {
+                press();
+            }
+            break;
 
-  public void unSelect()
-  {
-    if ((this.isSelect) && (!this.isDirect))
-      this.mgs[this.iSelect].set(this.info);
-    this.isSelect = false;
-  }
+        case 506: 
+            drag(k, l);
+            break;
+
+        case 502: 
+            release(k, l, r.contains(i, j));
+            break;
+        }
+    }
+
+    private void press()
+    {
+        if(isDrag)
+        {
+            return;
+        }
+        isDrag = true;
+        iSelectList = -1;
+        if(isDirect)
+        {
+            isList = true;
+            isDrawList = true;
+            repaint();
+        }
+    }
+
+    private void release(int i, int j, boolean flag)
+    {
+        if(!isDrag)
+        {
+            return;
+        }
+        int k = r.height;
+        int l = r.width;
+        int i1 = j / (k - 2) - 1;
+        boolean flag1 = isDrawList;
+        boolean flag2 = false;
+        isDrag = false;
+        isList = false;
+        if(i1 < 0 || i1 >= len() || i < 0 || i >= l)
+        {
+            i1 = -1;
+        }
+        if(i1 == -1)
+        {
+            if(flag)
+            {
+                if(isSelect)
+                {
+                    int j1 = len();
+                    unSelect();
+                    if(++iSelect >= j1)
+                    {
+                        iSelect = 0;
+                    }
+                    select();
+                } else
+                {
+                    select();
+                }
+                flag2 = true;
+            }
+        } else
+        {
+            if(isSelect)
+            {
+                unSelect();
+            }
+            iSelect = i1;
+            select();
+        }
+        iSelectList = -1;
+        isDrawList = false;
+        if(flag1)
+        {
+            Graphics g = tools.primary();
+            g.setColor(tools.getBackground());
+            g.fillRect(r.x - 1, r.y - 1, l + 2, (k - 2) * (len() + 1) + 2);
+        }
+        if(flag2 || flag1)
+        {
+            tools.mPaint(-1);
+        }
+    }
+
+    public void repaint()
+    {
+        paint(tools.primary(), tools.getBack());
+    }
+
+    public void select()
+    {
+        try
+        {
+            if(isField)
+            {
+                paintchat.M.class.getField(strField).setInt(info, items[iSelect]);
+                tools.upCS();
+                return;
+            }
+            if(isClass)
+            {
+                tools.showW(strs[iSelect]);
+                return;
+            }
+            if(!isDirect)
+            {
+                tools.unSelect();
+            }
+            int i = info.iColor;
+            int j = info.iMask;
+            int k = info.iColorMask;
+            int l = info.iLayer;
+            int i1 = info.iLayerSrc;
+            int j1 = info.iTT;
+            int k1 = info.iSA;
+            int l1 = info.iSS;
+            info.set(mgs[iSelect]);
+            info.iColor = i;
+            info.iMask = j;
+            info.iColorMask = k;
+            info.iLayer = l;
+            info.iLayerSrc = i1;
+            info.iTT = j1;
+            if(k1 != info.iSA || l1 != info.iSS)
+            {
+                tools.mi.up();
+            }
+            if(!isDirect)
+            {
+                isSelect = true;
+            }
+        }
+        catch(Throwable _ex) { }
+    }
+
+    public void setImage(Image image1, int i, int j, int k)
+    {
+        image = image1;
+        imW = i;
+        imH = j;
+        imIndex = k;
+    }
+
+    public void setSize(int i, int j, int k)
+    {
+        r.setSize(i, j);
+        base = k;
+    }
+
+    public void unSelect()
+    {
+        if(isSelect && !isDirect)
+        {
+            mgs[iSelect].set(info);
+        }
+        isSelect = false;
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.normal.ToolList
- * JD-Core Version:    0.6.0
- */

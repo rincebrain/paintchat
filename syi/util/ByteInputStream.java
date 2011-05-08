@@ -3,81 +3,91 @@ package syi.util;
 import java.io.IOException;
 import java.io.InputStream;
 
+// Referenced classes of package syi.util:
+//            ByteStream
+
 public class ByteInputStream extends InputStream
 {
-  private byte[] buffer;
-  private int iSeekStart = 0;
-  private int iSeek = 0;
-  private int iLen = 0;
 
-  public int available()
-  {
-    return this.iLen - this.iSeek;
-  }
+    private byte buffer[];
+    private int iSeekStart;
+    private int iSeek;
+    private int iLen;
 
-  public int read()
-  {
-    return this.iSeek >= this.iLen ? -1 : this.buffer[(this.iSeek++)] & 0xFF;
-  }
+    public ByteInputStream()
+    {
+        iSeekStart = 0;
+        iSeek = 0;
+        iLen = 0;
+    }
 
-  public int read(byte[] paramArrayOfByte, int paramInt1, int paramInt2)
-  {
-    if (this.iSeek >= this.iLen)
-      return -1;
-    paramInt2 = Math.min(this.iLen - this.iSeek, paramInt2);
-    System.arraycopy(this.buffer, this.iSeek, paramArrayOfByte, paramInt1, paramInt2);
-    this.iSeek += paramInt2;
-    return paramInt2;
-  }
+    public int available()
+    {
+        return iLen - iSeek;
+    }
 
-  public void reset()
-  {
-    this.iSeek = this.iSeekStart;
-  }
+    public int read()
+    {
+        return iSeek < iLen ? buffer[iSeek++] & 0xff : -1;
+    }
 
-  public void setBuffer(byte[] paramArrayOfByte, int paramInt1, int paramInt2)
-  {
-    this.buffer = paramArrayOfByte;
-    this.iLen = (paramInt1 + paramInt2);
-    this.iSeekStart = (this.iSeek = paramInt1);
-  }
+    public int read(byte abyte0[], int i, int j)
+    {
+        if(iSeek >= iLen)
+        {
+            return -1;
+        } else
+        {
+            j = Math.min(iLen - iSeek, j);
+            System.arraycopy(buffer, iSeek, abyte0, i, j);
+            iSeek += j;
+            return j;
+        }
+    }
 
-  public void setByteStream(ByteStream paramByteStream)
-  {
-    setBuffer(paramByteStream.getBuffer(), 0, paramByteStream.size());
-  }
+    public void reset()
+    {
+        iSeek = iSeekStart;
+    }
 
-  public void close()
-    throws IOException
-  {
-  }
+    public void setBuffer(byte abyte0[], int i, int j)
+    {
+        buffer = abyte0;
+        iLen = i + j;
+        iSeekStart = iSeek = i;
+    }
 
-  public int read(byte[] paramArrayOfByte)
-    throws IOException
-  {
-    return read(paramArrayOfByte, 0, paramArrayOfByte.length);
-  }
+    public void setByteStream(ByteStream bytestream)
+    {
+        setBuffer(bytestream.getBuffer(), 0, bytestream.size());
+    }
 
-  public long skip(long paramLong)
-    throws IOException
-  {
-    paramLong = Math.min(paramLong, this.iLen - this.iSeek);
-    this.iSeek = (int)(this.iSeek + paramLong);
-    return paramLong;
-  }
+    public void close()
+        throws IOException
+    {
+    }
 
-  public boolean markSupported()
-  {
-    return true;
-  }
+    public int read(byte abyte0[])
+        throws IOException
+    {
+        return read(abyte0, 0, abyte0.length);
+    }
 
-  public void mark(int paramInt)
-  {
-    this.iSeekStart = this.iSeek;
-  }
+    public long skip(long l)
+        throws IOException
+    {
+        l = Math.min(l, iLen - iSeek);
+        iSeek += l;
+        return l;
+    }
+
+    public boolean markSupported()
+    {
+        return true;
+    }
+
+    public void mark(int i)
+    {
+        iSeekStart = iSeek;
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.util.ByteInputStream
- * JD-Core Version:    0.6.0
- */

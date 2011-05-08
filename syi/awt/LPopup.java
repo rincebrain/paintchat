@@ -1,107 +1,101 @@
 package syi.awt;
 
-import java.awt.AWTEvent;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
 public class LPopup extends Component
 {
-  private String[] strs = null;
-  private int seek = 0;
-  private ActionListener listener = null;
-  private int minWidth = 10;
 
-  public LPopup()
-  {
-    enableEvents(48L);
-    setVisible(false);
-  }
+    private String strs[];
+    private int seek;
+    private ActionListener listener;
+    private int minWidth;
 
-  public void add(String paramString)
-  {
-    Object localObject;
-    if ((this.strs == null) || (this.seek >= this.strs.length))
+    public LPopup()
     {
-      localObject = new String[(int)((this.seek + 1) * 1.5D)];
-      if (this.strs != null)
-        for (int i = 0; i < this.strs.length; i++)
-          localObject[i] = this.strs[i];
-      this.strs = ((String)localObject);
+        strs = null;
+        seek = 0;
+        listener = null;
+        minWidth = 10;
+        enableEvents(48L);
+        setVisible(false);
     }
-    this.strs[(this.seek++)] = paramString;
-    try
-    {
-      localObject = getFontMetrics(getFont());
-      this.minWidth = Math.max(((FontMetrics)localObject).stringWidth(paramString), this.minWidth);
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-    }
-  }
 
-  public void add(String paramString, int paramInt)
-  {
-  }
-
-  public void addActionListener(ActionListener paramActionListener)
-  {
-  }
-
-  public Dimension getPreferredSize()
-  {
-    try
+    public void add(String s)
     {
-      FontMetrics localFontMetrics = getFontMetrics(getFont());
-      return new Dimension(this.minWidth, localFontMetrics.getMaxDescent() + localFontMetrics.getMaxAscent());
+        if(strs == null || seek >= strs.length)
+        {
+            String as[] = new String[(int)((double)(seek + 1) * 1.5D)];
+            if(strs != null)
+            {
+                for(int i = 0; i < strs.length; i++)
+                {
+                    as[i] = strs[i];
+                }
+
+            }
+            strs = as;
+        }
+        strs[seek++] = s;
+        try
+        {
+            FontMetrics fontmetrics = getFontMetrics(getFont());
+            minWidth = Math.max(fontmetrics.stringWidth(s), minWidth);
+        }
+        catch(RuntimeException _ex) { }
     }
-    catch (RuntimeException localRuntimeException)
+
+    public void add(String s, int i)
     {
     }
-    return new Dimension(10, 10);
-  }
 
-  public void paint(Graphics paramGraphics)
-  {
-    try
-    {
-      Dimension localDimension = getSize();
-      paramGraphics.setColor(getForeground());
-      paramGraphics.drawRect(0, 0, localDimension.width - 1, localDimension.height - 1);
-      paramGraphics.setColor(Color.white);
-      paramGraphics.fillRect(1, 1, localDimension.width - 2, localDimension.height - 2);
-    }
-    catch (Throwable localThrowable)
+    public void addActionListener(ActionListener actionlistener)
     {
     }
-  }
 
-  protected void processMouseEvent(MouseEvent paramMouseEvent)
-  {
-    try
+    public Dimension getPreferredSize()
     {
-      int i = paramMouseEvent.getID();
+        try
+        {
+            FontMetrics fontmetrics = getFontMetrics(getFont());
+            return new Dimension(minWidth, fontmetrics.getMaxDescent() + fontmetrics.getMaxAscent());
+        }
+        catch(RuntimeException _ex)
+        {
+            return new Dimension(10, 10);
+        }
     }
-    catch (Throwable localThrowable)
+
+    public void paint(Graphics g)
+    {
+        try
+        {
+            Dimension dimension = getSize();
+            g.setColor(getForeground());
+            g.drawRect(0, 0, dimension.width - 1, dimension.height - 1);
+            g.setColor(Color.white);
+            g.fillRect(1, 1, dimension.width - 2, dimension.height - 2);
+        }
+        catch(Throwable _ex) { }
+    }
+
+    protected void processMouseEvent(MouseEvent mouseevent)
+    {
+        int i;
+        try
+        {
+            i = mouseevent.getID();
+        }
+        catch(Throwable _ex) { }
+    }
+
+    public void removeAt(int i)
     {
     }
-  }
 
-  public void removeAt(int paramInt)
-  {
-  }
-
-  public void update(Graphics paramGraphics)
-  {
-    paint(paramGraphics);
-  }
+    public void update(Graphics g)
+    {
+        paint(g);
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.awt.LPopup
- * JD-Core Version:    0.6.0
- */

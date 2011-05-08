@@ -1,11 +1,6 @@
 package paintchat_server;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.net.InetAddress;
 import paintchat.Config;
 import paintchat.MgText;
@@ -13,340 +8,416 @@ import paintchat.debug.DebugListener;
 import syi.util.PProperties;
 import syi.util.Vector2;
 
+// Referenced classes of package paintchat_server:
+//            TextTalkerListener, XMLTalker, ChatLogOutputStream, Server
+
 public class TextServer
 {
-  private boolean isLive = true;
-  private TextTalkerListener[] talkers = new TextTalkerListener[10];
-  private int countTalker = 0;
-  private XMLTalker[] xmlTalkers = new XMLTalker[10];
-  private int countXMLTalker = 0;
-  private ChatLogOutputStream outLog;
-  private DebugListener debug;
-  private Config config;
-  private String strPassword;
-  private Vector2 mgtexts = new Vector2();
-  private boolean isCash = true;
-  private int iMaxCash;
-  public Vector2 vKillIP = new Vector2();
-  private int iUniqueLast = 1;
-  private Server server;
 
-  public void mInit(Server paramServer, Config paramConfig, DebugListener paramDebugListener)
-  {
-    if (!this.isLive)
-      return;
-    this.server = paramServer;
-    this.config = paramConfig;
-    this.debug = paramDebugListener;
-    this.strPassword = paramConfig.getString("Admin_Password", null);
-    boolean bool = paramConfig.getBool("Server_Log_Text", false);
-    this.isCash = paramConfig.getBool("Server_Cash_Text", true);
-    File localFile = new File(paramConfig.getString("Server_Log_Text_Dir", "save_server"));
-    this.outLog = new ChatLogOutputStream(localFile, paramDebugListener, bool);
-    this.iMaxCash = Math.max(paramConfig.getInt("Server_Cash_Text_Size", 128), 5);
-    if (paramConfig.getBool("Server_Load_Text", false))
-      this.outLog.loadLog(this.mgtexts, this.iMaxCash, true);
-  }
+    private boolean isLive;
+    private TextTalkerListener talkers[];
+    private int countTalker;
+    private XMLTalker xmlTalkers[];
+    private int countXMLTalker;
+    private ChatLogOutputStream outLog;
+    private DebugListener debug;
+    private Config config;
+    private String strPassword;
+    private Vector2 mgtexts;
+    private boolean isCash;
+    private int iMaxCash;
+    public Vector2 vKillIP;
+    private int iUniqueLast;
+    private Server server;
 
-  public synchronized void mStop()
-  {
-    if (!this.isLive)
-      return;
-    this.isLive = false;
-    for (int i = 0; i < this.countTalker; i++)
+    public TextServer()
     {
-      TextTalkerListener localTextTalkerListener = this.talkers[i];
-      if (localTextTalkerListener == null)
-        continue;
-      localTextTalkerListener.mStop();
+        isLive = true;
+        talkers = new TextTalkerListener[10];
+        countTalker = 0;
+        xmlTalkers = new XMLTalker[10];
+        countXMLTalker = 0;
+        mgtexts = new Vector2();
+        isCash = true;
+        vKillIP = new Vector2();
+        iUniqueLast = 1;
     }
-    if (this.outLog != null)
-      this.outLog.close();
-    if (this.mgtexts.size() > 0)
-      try
-      {
-        BufferedWriter localBufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(this.outLog.getTmpFile()), "UTF8"));
-        int j = this.mgtexts.size();
-        for (int k = 0; k < j; k++)
+
+    public void mInit(Server server1, Config config1, DebugListener debuglistener)
+    {
+        if(!isLive)
         {
-          MgText localMgText = (MgText)this.mgtexts.get(k);
-          switch (localMgText.head)
-          {
-          case 1:
-            localBufferedWriter.write("Login name=" + localMgText.toString());
-            break;
-          case 2:
-            localBufferedWriter.write("Logout name=" + localMgText.getUserName());
-            break;
-          default:
-            localBufferedWriter.write(localMgText.getUserName() + '>' + localMgText.toString());
-          }
-          localBufferedWriter.newLine();
+            return;
         }
-        localBufferedWriter.flush();
-        localBufferedWriter.close();
-      }
-      catch (IOException localIOException)
-      {
-      }
-  }
-
-  public synchronized void addTalker(TextTalkerListener paramTextTalkerListener)
-  {
-    if (!this.isLive)
-      return;
-    MgText localMgText = paramTextTalkerListener.getHandleName();
-    String str1 = localMgText.toString();
-    if ((str1.length() <= 0) || (!paramTextTalkerListener.isValidate()))
-    {
-      paramTextTalkerListener.mStop();
-      return;
-    }
-    localMgText.ID = getUniqueID();
-    String str2 = getUniqueName(str1);
-    if (str1 != str2)
-    {
-      localMgText.setData(localMgText.ID, localMgText.head, getUniqueName(str1));
-      str1 = localMgText.toString();
-      localMgText.setUserName(str1);
-    }
-    localMgText.toBin(false);
-    int i = this.countTalker;
-    for (int j = 0; j < i; j++)
-    {
-      if (this.talkers[j].isGuest())
-        continue;
-      paramTextTalkerListener.send(this.talkers[j].getHandleName());
-    }
-    if (this.isCash)
-      paramTextTalkerListener.sendUpdate(this.mgtexts);
-    if (!paramTextTalkerListener.isGuest())
-      addText(paramTextTalkerListener, new MgText(localMgText.ID, 1, str1));
-    if (this.countTalker + 1 >= this.talkers.length)
-    {
-      TextTalkerListener[] arrayOfTextTalkerListener = new TextTalkerListener[this.talkers.length + 1];
-      System.arraycopy(this.talkers, 0, arrayOfTextTalkerListener, 0, this.talkers.length);
-      this.talkers = arrayOfTextTalkerListener;
-    }
-    this.talkers[this.countTalker] = paramTextTalkerListener;
-    this.countTalker += 1;
-  }
-
-  public void doAdmin(String paramString, int paramInt)
-  {
-    if (paramString.indexOf("kill") >= 0)
-    {
-      killTalker(paramInt);
-    }
-    else
-    {
-      TextTalkerListener localTextTalkerListener = getTalker(paramInt);
-      localTextTalkerListener.send(new MgText(paramInt, 102, paramString));
-    }
-  }
-
-  public synchronized void removeTalker(TextTalkerListener paramTextTalkerListener)
-  {
-    if (!this.isLive)
-      return;
-    boolean bool = paramTextTalkerListener.isGuest();
-    paramTextTalkerListener.mStop();
-    MgText localMgText = new MgText();
-    localMgText.setData(paramTextTalkerListener.getHandleName());
-    localMgText.head = 2;
-    localMgText.toBin(false);
-    int i = this.countTalker;
-    for (int j = 0; j < i; j++)
-      if (this.talkers[j] == paramTextTalkerListener)
-      {
-        this.talkers[j] = null;
-        if (j + 1 < i)
+        server = server1;
+        config = config1;
+        debug = debuglistener;
+        strPassword = config1.getString("Admin_Password", null);
+        boolean flag = config1.getBool("Server_Log_Text", false);
+        isCash = config1.getBool("Server_Cash_Text", true);
+        File file = new File(config1.getString("Server_Log_Text_Dir", "save_server"));
+        outLog = new ChatLogOutputStream(file, debuglistener, flag);
+        iMaxCash = Math.max(config1.getInt("Server_Cash_Text_Size", 128), 5);
+        if(config1.getBool("Server_Load_Text", false))
         {
-          System.arraycopy(this.talkers, j + 1, this.talkers, j, i - (j + 1));
-          this.talkers[(i - 1)] = null;
+            outLog.loadLog(mgtexts, iMaxCash, true);
         }
-        this.countTalker -= 1;
-        i--;
-        j--;
-      }
-      else
-      {
-        if (bool)
-          continue;
-        this.talkers[j].send(localMgText);
-      }
-  }
-
-  public synchronized void killTalker(int paramInt)
-  {
-    TextTalkerListener localTextTalkerListener = getTalker(paramInt);
-    if (localTextTalkerListener == null)
-      return;
-    MgText localMgText = localTextTalkerListener.getHandleName();
-    this.vKillIP.add(localTextTalkerListener.getAddress());
-    localTextTalkerListener.kill();
-    addText(localTextTalkerListener, new MgText(0, 6, "kill done name=+" + localMgText.toString() + " address=" + localTextTalkerListener.getAddress()));
-  }
-
-  public synchronized void addText(TextTalkerListener paramTextTalkerListener, MgText paramMgText)
-  {
-    if (!this.isLive)
-      return;
-    for (int i = 0; i < this.countTalker; i++)
-    {
-      TextTalkerListener localTextTalkerListener = this.talkers[i];
-      if ((localTextTalkerListener == paramTextTalkerListener) || (localTextTalkerListener == null))
-        continue;
-      if (localTextTalkerListener.isValidate())
-      {
-        localTextTalkerListener.send(paramMgText);
-      }
-      else
-      {
-        removeTalker(localTextTalkerListener);
-        i--;
-      }
     }
-    if (this.isCash)
+
+    public synchronized void mStop()
     {
-      this.mgtexts.add(paramMgText);
-      if (this.mgtexts.size() >= this.iMaxCash)
-        this.mgtexts.remove(5);
+        if(!isLive)
+        {
+            return;
+        }
+        isLive = false;
+        for(int i = 0; i < countTalker; i++)
+        {
+            TextTalkerListener texttalkerlistener = talkers[i];
+            if(texttalkerlistener != null)
+            {
+                texttalkerlistener.mStop();
+            }
+        }
+
+        if(outLog != null)
+        {
+            outLog.close();
+        }
+        if(mgtexts.size() > 0)
+        {
+            try
+            {
+                BufferedWriter bufferedwriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outLog.getTmpFile()), "UTF8"));
+                int j = mgtexts.size();
+                for(int k = 0; k < j; k++)
+                {
+                    MgText mgtext = (MgText)mgtexts.get(k);
+                    switch(mgtext.head)
+                    {
+                    case 1: // '\001'
+                        bufferedwriter.write("Login name=" + mgtext.toString());
+                        break;
+
+                    case 2: // '\002'
+                        bufferedwriter.write("Logout name=" + mgtext.getUserName());
+                        break;
+
+                    default:
+                        bufferedwriter.write(mgtext.getUserName() + '>' + mgtext.toString());
+                        break;
+                    }
+                    bufferedwriter.newLine();
+                }
+
+                bufferedwriter.flush();
+                bufferedwriter.close();
+            }
+            catch(IOException _ex) { }
+        }
     }
-    if (this.outLog != null)
-      this.outLog.write(paramMgText);
-  }
 
-  public int getUserCount()
-  {
-    return this.countTalker;
-  }
-
-  public void clearKillIP()
-  {
-    this.vKillIP.removeAll();
-  }
-
-  public synchronized void clearDeadTalker()
-  {
-    for (int i = 0; i < this.countTalker; i++)
+    public synchronized void addTalker(TextTalkerListener texttalkerlistener)
     {
-      TextTalkerListener localTextTalkerListener = this.talkers[i];
-      if ((localTextTalkerListener != null) && (localTextTalkerListener.isValidate()))
-        continue;
-      if (localTextTalkerListener != null)
-      {
-        removeTalker(localTextTalkerListener);
-      }
-      else
-      {
-        if (i < this.countTalker - 1)
-          System.arraycopy(this.talkers, i + 1, this.talkers, i, this.countTalker - (i + 1));
-        this.countTalker -= 1;
-      }
-      i = -1;
-    }
-  }
+        if(!isLive)
+        {
+            return;
+        }
+        MgText mgtext = texttalkerlistener.getHandleName();
+        String s = mgtext.toString();
+        if(s.length() <= 0 || !texttalkerlistener.isValidate())
+        {
+            texttalkerlistener.mStop();
+            return;
+        }
+        mgtext.ID = getUniqueID();
+        String s1 = getUniqueName(s);
+        if(s != s1)
+        {
+            mgtext.setData(mgtext.ID, mgtext.head, getUniqueName(s));
+            s = mgtext.toString();
+            mgtext.setUserName(s);
+        }
+        mgtext.toBin(false);
+        int i = countTalker;
+        for(int j = 0; j < i; j++)
+        {
+            if(!talkers[j].isGuest())
+            {
+                texttalkerlistener.send(talkers[j].getHandleName());
+            }
+        }
 
-  public synchronized TextTalkerListener getTalker(InetAddress paramInetAddress)
-  {
-    if (paramInetAddress == null)
-      return null;
-    for (int i = 0; i < this.countTalker; i++)
+        if(isCash)
+        {
+            texttalkerlistener.sendUpdate(mgtexts);
+        }
+        if(!texttalkerlistener.isGuest())
+        {
+            addText(texttalkerlistener, new MgText(mgtext.ID, (byte)1, s));
+        }
+        if(countTalker + 1 >= talkers.length)
+        {
+            TextTalkerListener atexttalkerlistener[] = new TextTalkerListener[talkers.length + 1];
+            System.arraycopy(talkers, 0, atexttalkerlistener, 0, talkers.length);
+            talkers = atexttalkerlistener;
+        }
+        talkers[countTalker] = texttalkerlistener;
+        countTalker++;
+    }
+
+    public void doAdmin(String s, int i)
     {
-      TextTalkerListener localTextTalkerListener = this.talkers[i];
-      if ((localTextTalkerListener != null) && (localTextTalkerListener.getAddress().equals(paramInetAddress)))
-        return localTextTalkerListener;
+        if(s.indexOf("kill") >= 0)
+        {
+            killTalker(i);
+        } else
+        {
+            TextTalkerListener texttalkerlistener = getTalker(i);
+            texttalkerlistener.send(new MgText(i, (byte)102, s));
+        }
     }
-    return null;
-  }
 
-  public synchronized TextTalkerListener getTalker(int paramInt)
-  {
-    if (paramInt <= 0)
-      return null;
-    for (int i = 0; i < this.countTalker; i++)
+    public synchronized void removeTalker(TextTalkerListener texttalkerlistener)
     {
-      TextTalkerListener localTextTalkerListener = this.talkers[i];
-      if ((localTextTalkerListener != null) && (localTextTalkerListener.getHandleName().ID == paramInt))
-        return localTextTalkerListener;
+        if(!isLive)
+        {
+            return;
+        }
+        boolean flag = texttalkerlistener.isGuest();
+        texttalkerlistener.mStop();
+        MgText mgtext = new MgText();
+        mgtext.setData(texttalkerlistener.getHandleName());
+        mgtext.head = 2;
+        mgtext.toBin(false);
+        int i = countTalker;
+        for(int j = 0; j < i; j++)
+        {
+            if(talkers[j] == texttalkerlistener)
+            {
+                talkers[j] = null;
+                if(j + 1 < i)
+                {
+                    System.arraycopy(talkers, j + 1, talkers, j, i - (j + 1));
+                    talkers[i - 1] = null;
+                }
+                countTalker--;
+                i--;
+                j--;
+            } else
+            if(!flag)
+            {
+                talkers[j].send(mgtext);
+            }
+        }
+
     }
-    return null;
-  }
 
-  public synchronized TextTalkerListener getTalkerAt(int paramInt)
-  {
-    if ((paramInt < 0) || (paramInt >= this.countTalker))
-      return null;
-    return this.talkers[paramInt];
-  }
-
-  private int getUniqueID()
-  {
-    int i = this.iUniqueLast;
-    label54: for (int j = 0; j < this.countTalker; j = 0)
+    public synchronized void killTalker(int i)
     {
-      TextTalkerListener localTextTalkerListener;
-      if (((localTextTalkerListener = this.talkers[(j++)]) == null) || (localTextTalkerListener.getHandleName().ID != i))
-        break label54;
-      i++;
-      if (i < 65535)
-        continue;
-      i = 1;
+        TextTalkerListener texttalkerlistener = getTalker(i);
+        if(texttalkerlistener == null)
+        {
+            return;
+        } else
+        {
+            MgText mgtext = texttalkerlistener.getHandleName();
+            vKillIP.add(texttalkerlistener.getAddress());
+            texttalkerlistener.kill();
+            addText(texttalkerlistener, new MgText(0, (byte)6, "kill done name=+" + mgtext.toString() + " address=" + texttalkerlistener.getAddress()));
+            return;
+        }
     }
-    this.iUniqueLast = (i >= 65535 ? 1 : i + 1);
-    return i;
-  }
 
-  private String getUniqueName(String paramString)
-  {
-    int i = 2;
-    String str = paramString;
-    label71: for (int j = 0; j < this.countTalker; j = 0)
+    public synchronized void addText(TextTalkerListener texttalkerlistener, MgText mgtext)
     {
-      TextTalkerListener localTextTalkerListener;
-      if (((localTextTalkerListener = this.talkers[(j++)]) == null) || (!str.equals(localTextTalkerListener.getHandleName().toString())))
-        break label71;
-      str = paramString + i;
-      i++;
+        if(!isLive)
+        {
+            return;
+        }
+        for(int i = 0; i < countTalker; i++)
+        {
+            TextTalkerListener texttalkerlistener1 = talkers[i];
+            if(texttalkerlistener1 != texttalkerlistener && texttalkerlistener1 != null)
+            {
+                if(texttalkerlistener1.isValidate())
+                {
+                    texttalkerlistener1.send(mgtext);
+                } else
+                {
+                    removeTalker(texttalkerlistener1);
+                    i--;
+                }
+            }
+        }
+
+        if(isCash)
+        {
+            mgtexts.add(mgtext);
+            if(mgtexts.size() >= iMaxCash)
+            {
+                mgtexts.remove(5);
+            }
+        }
+        if(outLog != null)
+        {
+            outLog.write(mgtext);
+        }
     }
-    return str;
-  }
 
-  public String getPassword()
-  {
-    return this.strPassword;
-  }
-
-  public synchronized void getUserListXML(StringBuffer paramStringBuffer)
-  {
-    int i = this.countTalker;
-    for (int j = 0; j < i; j++)
+    public int getUserCount()
     {
-      TextTalkerListener localTextTalkerListener = this.talkers[j];
-      if ((localTextTalkerListener == null) || (localTextTalkerListener.isGuest()))
-        continue;
-      MgText localMgText = localTextTalkerListener.getHandleName();
-      String str = localMgText.toString();
-      if ((str == null) || (str.length() <= 0))
-        continue;
-      paramStringBuffer.append("<in id=\"" + localMgText.ID + "\">" + str + "</in>");
+        return countTalker;
     }
-  }
 
-  public synchronized MgText getInfomation()
-  {
-    return this.server.getInfomation();
-  }
+    public void clearKillIP()
+    {
+        vKillIP.removeAll();
+    }
 
-  public void writeLog(String paramString)
-  {
-    if (this.outLog != null)
-      this.outLog.write(paramString);
-  }
+    public synchronized void clearDeadTalker()
+    {
+        for(int i = 0; i < countTalker; i++)
+        {
+            TextTalkerListener texttalkerlistener = talkers[i];
+            if(texttalkerlistener == null || !texttalkerlistener.isValidate())
+            {
+                if(texttalkerlistener != null)
+                {
+                    removeTalker(texttalkerlistener);
+                } else
+                {
+                    if(i < countTalker - 1)
+                    {
+                        System.arraycopy(talkers, i + 1, talkers, i, countTalker - (i + 1));
+                    }
+                    countTalker--;
+                }
+                i = -1;
+            }
+        }
+
+    }
+
+    public synchronized TextTalkerListener getTalker(InetAddress inetaddress)
+    {
+        if(inetaddress == null)
+        {
+            return null;
+        }
+        for(int i = 0; i < countTalker; i++)
+        {
+            TextTalkerListener texttalkerlistener = talkers[i];
+            if(texttalkerlistener != null && texttalkerlistener.getAddress().equals(inetaddress))
+            {
+                return texttalkerlistener;
+            }
+        }
+
+        return null;
+    }
+
+    public synchronized TextTalkerListener getTalker(int i)
+    {
+        if(i <= 0)
+        {
+            return null;
+        }
+        for(int j = 0; j < countTalker; j++)
+        {
+            TextTalkerListener texttalkerlistener = talkers[j];
+            if(texttalkerlistener != null && texttalkerlistener.getHandleName().ID == i)
+            {
+                return texttalkerlistener;
+            }
+        }
+
+        return null;
+    }
+
+    public synchronized TextTalkerListener getTalkerAt(int i)
+    {
+        if(i < 0 || i >= countTalker)
+        {
+            return null;
+        } else
+        {
+            return talkers[i];
+        }
+    }
+
+    private int getUniqueID()
+    {
+        int i = iUniqueLast;
+        TextTalkerListener texttalkerlistener;
+        for(int j = 0; j < countTalker;)
+        {
+            if((texttalkerlistener = talkers[j++]) != null && texttalkerlistener.getHandleName().ID == i)
+            {
+                if(++i >= 65535)
+                {
+                    i = 1;
+                }
+                j = 0;
+            }
+        }
+
+        iUniqueLast = i < 65535 ? i + 1 : 1;
+        return i;
+    }
+
+    private String getUniqueName(String s)
+    {
+        int i = 2;
+        String s1 = s;
+        TextTalkerListener texttalkerlistener;
+        for(int j = 0; j < countTalker;)
+        {
+            if((texttalkerlistener = talkers[j++]) != null && s1.equals(texttalkerlistener.getHandleName().toString()))
+            {
+                s1 = s + i;
+                i++;
+                j = 0;
+            }
+        }
+
+        return s1;
+    }
+
+    public String getPassword()
+    {
+        return strPassword;
+    }
+
+    public synchronized void getUserListXML(StringBuffer stringbuffer)
+    {
+        int i = countTalker;
+        for(int j = 0; j < i; j++)
+        {
+            TextTalkerListener texttalkerlistener = talkers[j];
+            if(texttalkerlistener != null && !texttalkerlistener.isGuest())
+            {
+                MgText mgtext = texttalkerlistener.getHandleName();
+                String s = mgtext.toString();
+                if(s != null && s.length() > 0)
+                {
+                    stringbuffer.append("<in id=\"" + mgtext.ID + "\">" + s + "</in>");
+                }
+            }
+        }
+
+    }
+
+    public synchronized MgText getInfomation()
+    {
+        return server.getInfomation();
+    }
+
+    public void writeLog(String s)
+    {
+        if(outLog != null)
+        {
+            outLog.write(s);
+        }
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_server.TextServer
- * JD-Core Version:    0.6.0
- */

@@ -1,125 +1,143 @@
 package paintchat_server;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import syi.util.Io;
 
 public class PchOutputStream extends OutputStream
 {
-  private OutputStream out;
-  private boolean isWriteHeader = false;
-  public static String OPTION_MGCOUNT = "mg_count";
-  public static String OPTION_VERSION = "version";
-  private int write_size = 0;
 
-  public PchOutputStream(OutputStream paramOutputStream, boolean paramBoolean)
-  {
-    this.out = paramOutputStream;
-    this.isWriteHeader = paramBoolean;
-  }
+    private OutputStream out;
+    private boolean isWriteHeader;
+    public static String OPTION_MGCOUNT = "mg_count";
+    public static String OPTION_VERSION = "version";
+    private int write_size;
 
-  public void close()
-    throws IOException
-  {
-    if (!this.isWriteHeader)
-      writeHeader();
-    this.out.close();
-  }
-
-  public void flush()
-    throws IOException
-  {
-    if (!this.isWriteHeader)
-      writeHeader();
-    this.out.flush();
-  }
-
-  public void write(byte[] paramArrayOfByte)
-    throws IOException
-  {
-    write(paramArrayOfByte, 0, paramArrayOfByte.length);
-  }
-
-  public void write(byte[] paramArrayOfByte, int paramInt1, int paramInt2)
-    throws IOException
-  {
-    if (!this.isWriteHeader)
-      writeHeader();
-    Io.wShort(this.out, paramInt2);
-    this.out.write(paramArrayOfByte, paramInt1, paramInt2);
-  }
-
-  public void write(int paramInt)
-    throws IOException
-  {
-    if (!this.isWriteHeader)
-      writeHeader();
-    this.out.write(paramInt);
-  }
-
-  public void write(File paramFile)
-    throws IOException
-  {
-    if (!this.isWriteHeader)
-      writeHeader();
-    int i = 0;
-    int j = (int)paramFile.length();
-    byte[] arrayOfByte = (byte[])null;
-    if (j <= 2)
-      return;
-    FileInputStream localFileInputStream = null;
-    try
+    public PchOutputStream(OutputStream outputstream, boolean flag)
     {
-      localFileInputStream = new FileInputStream(paramFile);
-      while (i < j)
-      {
-        int k = Io.readUShort(localFileInputStream);
-        if ((arrayOfByte == null) || (arrayOfByte.length < k))
-          arrayOfByte = new byte[k];
-        Io.rFull(localFileInputStream, arrayOfByte, 0, k);
-        write(arrayOfByte, 0, k);
-      }
+        isWriteHeader = false;
+        write_size = 0;
+        out = outputstream;
+        isWriteHeader = flag;
     }
-    catch (IOException localIOException1)
+
+    public void close()
+        throws IOException
     {
+        if(!isWriteHeader)
+        {
+            writeHeader();
+        }
+        out.close();
     }
-    if (localFileInputStream != null)
-      try
-      {
-        localFileInputStream.close();
-      }
-      catch (IOException localIOException2)
-      {
-      }
-  }
 
-  private void writeHeader()
-    throws IOException
-  {
-    if (this.isWriteHeader)
-      return;
-    this.out.write(13);
-    this.out.write(10);
-    this.isWriteHeader = true;
-  }
+    public void flush()
+        throws IOException
+    {
+        if(!isWriteHeader)
+        {
+            writeHeader();
+        }
+        out.flush();
+    }
 
-  public void writeHeader(String paramString1, String paramString2)
-    throws IOException
-  {
-    if (this.isWriteHeader)
-      return;
-    this.out.write((paramString1 + "=" + paramString2 + "\r\n").getBytes("UTF8"));
-  }
+    public void write(byte abyte0[])
+        throws IOException
+    {
+        write(abyte0, 0, abyte0.length);
+    }
 
-  public int size()
-  {
-    return this.write_size;
-  }
+    public void write(byte abyte0[], int i, int j)
+        throws IOException
+    {
+        if(!isWriteHeader)
+        {
+            writeHeader();
+        }
+        Io.wShort(out, j);
+        out.write(abyte0, i, j);
+    }
+
+    public void write(int i)
+        throws IOException
+    {
+        if(!isWriteHeader)
+        {
+            writeHeader();
+        }
+        out.write(i);
+    }
+
+    public void write(File file)
+        throws IOException
+    {
+        if(!isWriteHeader)
+        {
+            writeHeader();
+        }
+        int i = 0;
+        int j = (int)file.length();
+        byte abyte0[] = (byte[])null;
+        if(j <= 2)
+        {
+            return;
+        }
+        FileInputStream fileinputstream = null;
+        try
+        {
+            fileinputstream = new FileInputStream(file);
+            while(i < j) 
+            {
+                int k = Io.readUShort(fileinputstream);
+                if(abyte0 == null || abyte0.length < k)
+                {
+                    abyte0 = new byte[k];
+                }
+                Io.rFull(fileinputstream, abyte0, 0, k);
+                write(abyte0, 0, k);
+            }
+        }
+        catch(IOException _ex) { }
+        if(fileinputstream != null)
+        {
+            try
+            {
+                fileinputstream.close();
+            }
+            catch(IOException _ex) { }
+        }
+    }
+
+    private void writeHeader()
+        throws IOException
+    {
+        if(isWriteHeader)
+        {
+            return;
+        } else
+        {
+            out.write(13);
+            out.write(10);
+            isWriteHeader = true;
+            return;
+        }
+    }
+
+    public void writeHeader(String s, String s1)
+        throws IOException
+    {
+        if(isWriteHeader)
+        {
+            return;
+        } else
+        {
+            out.write((s + "=" + s1 + "\r\n").getBytes("UTF8"));
+            return;
+        }
+    }
+
+    public int size()
+    {
+        return write_size;
+    }
+
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_server.PchOutputStream
- * JD-Core Version:    0.6.0
- */

@@ -1,101 +1,121 @@
 package syi.util;
 
+
 public class Vector2
 {
-  private Object[] elements = null;
-  private int seek = 0;
-  private float sizeAdd = 1.5F;
-  private int sizeDefault = 25;
 
-  public Vector2()
-  {
-    this(10);
-  }
+    private Object elements[];
+    private int seek;
+    private float sizeAdd;
+    private int sizeDefault;
 
-  public Vector2(int paramInt)
-  {
-    paramInt = paramInt <= 0 ? 50 : paramInt;
-    this.sizeDefault = paramInt;
-    this.elements = new Object[paramInt];
-  }
-
-  public final synchronized void add(Object[] paramArrayOfObject)
-  {
-    if (paramArrayOfObject.length + this.seek >= this.elements.length)
-      moreData(paramArrayOfObject.length + this.seek);
-    System.arraycopy(paramArrayOfObject, 0, this.elements, this.seek, paramArrayOfObject.length);
-    this.seek += paramArrayOfObject.length;
-  }
-
-  public final synchronized void add(Object paramObject)
-  {
-    if (this.seek >= this.elements.length)
-      moreData(this.seek + 1);
-    this.elements[(this.seek++)] = paramObject;
-  }
-
-  public final synchronized void copy(Object[] paramArrayOfObject, int paramInt1, int paramInt2, int paramInt3)
-  {
-    paramInt3 = paramInt1 + paramInt3 > this.seek ? this.seek - paramInt1 : paramInt3;
-    if (paramInt3 <= 0)
-      return;
-    System.arraycopy(this.elements, paramInt1, paramArrayOfObject, paramInt2, paramInt3);
-  }
-
-  public final synchronized void copy(Vector2 paramVector2)
-  {
-    int i = this.seek;
-    for (int j = 0; j < i; j++)
-      paramVector2.add(this.elements[j]);
-  }
-
-  public final synchronized void gc()
-  {
-    int i = Math.max(this.seek, this.sizeDefault) + 3;
-    if (this.elements.length > i)
+    public Vector2()
     {
-      Object[] arrayOfObject = new Object[i];
-      System.arraycopy(this.elements, 0, arrayOfObject, 0, this.seek);
-      this.elements = arrayOfObject;
+        this(10);
     }
-  }
 
-  public final synchronized Object get(int paramInt)
-  {
-    return paramInt >= this.seek ? null : this.elements[paramInt];
-  }
+    public Vector2(int i)
+    {
+        elements = null;
+        seek = 0;
+        sizeAdd = 1.5F;
+        sizeDefault = 25;
+        i = i > 0 ? i : 50;
+        sizeDefault = i;
+        elements = new Object[i];
+    }
 
-  private final void moreData(int paramInt)
-  {
-    Object[] arrayOfObject = new Object[paramInt + Math.max((int)(paramInt * this.sizeAdd), 1)];
-    System.arraycopy(this.elements, 0, arrayOfObject, 0, this.elements.length);
-    this.elements = arrayOfObject;
-  }
+    public final synchronized void add(Object aobj[])
+    {
+        if(aobj.length + seek >= elements.length)
+        {
+            moreData(aobj.length + seek);
+        }
+        System.arraycopy(((Object) (aobj)), 0, ((Object) (elements)), seek, aobj.length);
+        seek += aobj.length;
+    }
 
-  public final synchronized void remove(int paramInt)
-  {
-    paramInt = Math.min(paramInt, this.seek);
-    if (paramInt <= 0)
-      return;
-    if (this.seek != paramInt)
-      System.arraycopy(this.elements, paramInt, this.elements, 0, this.seek - paramInt);
-    for (int i = this.seek - paramInt; i < this.seek; i++)
-      this.elements[i] = null;
-    this.seek -= paramInt;
-  }
+    public final synchronized void add(Object obj)
+    {
+        if(seek >= elements.length)
+        {
+            moreData(seek + 1);
+        }
+        elements[seek++] = obj;
+    }
 
-  public final synchronized void removeAll()
-  {
-    remove(this.seek);
-  }
+    public final synchronized void copy(Object aobj[], int i, int j, int k)
+    {
+        k = i + k <= seek ? k : seek - i;
+        if(k <= 0)
+        {
+            return;
+        } else
+        {
+            System.arraycopy(((Object) (elements)), i, ((Object) (aobj)), j, k);
+            return;
+        }
+    }
 
-  public final int size()
-  {
-    return this.seek;
-  }
+    public final synchronized void copy(Vector2 vector2)
+    {
+        int i = seek;
+        for(int j = 0; j < i; j++)
+        {
+            vector2.add(elements[j]);
+        }
+
+    }
+
+    public final synchronized void gc()
+    {
+        int i = Math.max(seek, sizeDefault) + 3;
+        if(elements.length > i)
+        {
+            Object aobj[] = new Object[i];
+            System.arraycopy(((Object) (elements)), 0, ((Object) (aobj)), 0, seek);
+            elements = aobj;
+        }
+    }
+
+    public final synchronized Object get(int i)
+    {
+        return i < seek ? elements[i] : null;
+    }
+
+    private final void moreData(int i)
+    {
+        Object aobj[] = new Object[i + Math.max((int)((float)i * sizeAdd), 1)];
+        System.arraycopy(((Object) (elements)), 0, ((Object) (aobj)), 0, elements.length);
+        elements = aobj;
+    }
+
+    public final synchronized void remove(int i)
+    {
+        i = Math.min(i, seek);
+        if(i <= 0)
+        {
+            return;
+        }
+        if(seek != i)
+        {
+            System.arraycopy(((Object) (elements)), i, ((Object) (elements)), 0, seek - i);
+        }
+        for(int j = seek - i; j < seek; j++)
+        {
+            elements[j] = null;
+        }
+
+        seek -= i;
+    }
+
+    public final synchronized void removeAll()
+    {
+        remove(seek);
+    }
+
+    public final int size()
+    {
+        return seek;
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.util.Vector2
- * JD-Core Version:    0.6.0
- */

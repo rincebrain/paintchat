@@ -2,22 +2,18 @@ package paintchat_client;
 
 import paintchat.M;
 
-public abstract interface IMi
+public interface IMi
 {
-  public abstract void changeSize();
 
-  public abstract void scroll(boolean paramBoolean, int paramInt1, int paramInt2);
+    public abstract void changeSize();
 
-  public abstract void send(M paramM);
+    public abstract void scroll(boolean flag, int i, int j);
 
-  public abstract void setARGB(int paramInt);
+    public abstract void send(M m);
 
-  public abstract void setLineSize(int paramInt);
+    public abstract void setARGB(int i);
 
-  public abstract void undo(boolean paramBoolean);
+    public abstract void setLineSize(int i);
+
+    public abstract void undo(boolean flag);
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_client.IMi
- * JD-Core Version:    0.6.0
- */

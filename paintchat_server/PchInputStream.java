@@ -1,107 +1,105 @@
 package paintchat_server;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import paintchat.Res;
-import syi.util.ByteInputStream;
-import syi.util.ByteStream;
-import syi.util.Io;
-import syi.util.VectorBin;
+import syi.util.*;
 
 public class PchInputStream
 {
-  private VectorBin lines = new VectorBin();
-  private Res res = new Res();
-  private InputStream in;
-  boolean isRead = false;
-  private int iMax = 10000000;
 
-  public PchInputStream(InputStream paramInputStream, int paramInt)
-  {
-    this.in = paramInputStream;
-    this.iMax = Math.max(paramInt, 0);
-  }
+    private VectorBin lines;
+    private Res res;
+    private InputStream in;
+    boolean isRead;
+    private int iMax;
 
-  public VectorBin getLines()
-  {
-    getPch();
-    return this.lines;
-  }
-
-  public Res getStatus()
-  {
-    getPch();
-    return this.res;
-  }
-
-  private void getPch()
-  {
-    if (this.isRead)
-      return;
-    this.isRead = true;
-    ByteStream localByteStream = new ByteStream();
-    byte[] arrayOfByte = { 13, 10, 13, 10 };
-    int j = 0;
-    try
+    public PchInputStream(InputStream inputstream, int i)
     {
-      while (true)
-      {
-        int i = Io.r(this.in);
-        if (i < 0)
-          throw new EOFException();
-        if (arrayOfByte[j] == i)
+        lines = new VectorBin();
+        res = new Res();
+        isRead = false;
+        iMax = 0x989680;
+        in = inputstream;
+        iMax = Math.max(i, 0);
+    }
+
+    public VectorBin getLines()
+    {
+        getPch();
+        return lines;
+    }
+
+    public Res getStatus()
+    {
+        getPch();
+        return res;
+    }
+
+    private void getPch()
+    {
+        if(isRead)
         {
-          j++;
-          if (j >= arrayOfByte.length)
-            break;
+            return;
         }
-        else
+        isRead = true;
+        ByteStream bytestream = new ByteStream();
+        byte abyte0[] = {
+            13, 10, 13, 10
+        };
+        int j = 0;
+        try
         {
-          j = 0;
+            do
+            {
+                int i = Io.r(in);
+                if(i < 0)
+                {
+                    throw new EOFException();
+                }
+                if(abyte0[j] == i)
+                {
+                    if(++j >= abyte0.length)
+                    {
+                        break;
+                    }
+                } else
+                {
+                    j = 0;
+                }
+                bytestream.write(i);
+            } while(true);
+            if(bytestream.size() > 0)
+            {
+                ByteInputStream byteinputstream = new ByteInputStream();
+                byteinputstream.setByteStream(bytestream);
+                res.load(byteinputstream);
+            }
+            do
+            {
+                int k = Io.readUShort(in);
+                if(k < 0)
+                {
+                    break;
+                }
+                if(k >= 2)
+                {
+                    byte abyte1[] = new byte[k];
+                    Io.rFull(in, abyte1, 0, k);
+                    lines.add(abyte1);
+                    for(; lines.size() > 0 && lines.getSizeBytes() > iMax; lines.remove(1)) { }
+                }
+            } while(true);
         }
-        localByteStream.write(i);
-      }
-      if (localByteStream.size() > 0)
-      {
-        ByteInputStream localByteInputStream = new ByteInputStream();
-        localByteInputStream.setByteStream(localByteStream);
-        this.res.load(localByteInputStream);
-      }
-      while (true)
-      {
-        j = Io.readUShort(this.in);
-        if (j < 0)
-          break;
-        if (j >= 2)
+        catch(EOFException _ex) { }
+        catch(IOException ioexception)
         {
-          arrayOfByte = new byte[j];
-          Io.rFull(this.in, arrayOfByte, 0, j);
-          this.lines.add(arrayOfByte);
-          while ((this.lines.size() > 0) && (this.lines.getSizeBytes() > this.iMax))
-            this.lines.remove(1);
+            ioexception.printStackTrace();
         }
-      }
+        try
+        {
+            in.close();
+            in = null;
+        }
+        catch(IOException _ex) { }
     }
-    catch (EOFException localEOFException)
-    {
-    }
-    catch (IOException localIOException1)
-    {
-      localIOException1.printStackTrace();
-    }
-    try
-    {
-      this.in.close();
-      this.in = null;
-    }
-    catch (IOException localIOException2)
-    {
-    }
-  }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_server.PchInputStream
- * JD-Core Version:    0.6.0
- */

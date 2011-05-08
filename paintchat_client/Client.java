@@ -5,34 +5,39 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import syi.util.ThreadPool;
 
+// Referenced classes of package paintchat_client:
+//            Pl
+
 public class Client extends Applet
 {
-  private Pl pl;
 
-  public void destroy()
-  {
-    if (this.pl != null)
-      this.pl.destroy();
-  }
+    private Pl pl;
 
-  public void init()
-  {
-    try
+    public Client()
     {
-      setLayout(new BorderLayout());
-      this.pl = new Pl(this);
-      add(this.pl, "Center");
-      validate();
-      ThreadPool.poolStartThread(this.pl, 'i');
     }
-    catch (Throwable localThrowable)
+
+    public void destroy()
     {
-      localThrowable.printStackTrace();
+        if(pl != null)
+        {
+            pl.destroy();
+        }
     }
-  }
+
+    public void init()
+    {
+        try
+        {
+            setLayout(new BorderLayout());
+            pl = new Pl(this);
+            add(pl, "Center");
+            validate();
+            ThreadPool.poolStartThread(pl, 'i');
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_client.Client
- * JD-Core Version:    0.6.0
- */

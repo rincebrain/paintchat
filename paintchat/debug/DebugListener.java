@@ -1,13 +1,10 @@
 package paintchat.debug;
 
-public abstract interface DebugListener
+
+public interface DebugListener
 {
-  public abstract void log(Object paramObject);
 
-  public abstract void logDebug(Object paramObject);
+    public abstract void log(Object obj);
+
+    public abstract void logDebug(Object obj);
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.debug.DebugListener
- * JD-Core Version:    0.6.0
- */

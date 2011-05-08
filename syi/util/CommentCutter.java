@@ -1,259 +1,312 @@
 package syi.util;
 
-import java.awt.Dialog;
-import java.awt.FileDialog;
-import java.awt.Frame;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
+import java.awt.*;
+import java.io.*;
 
 class CommentCutter
 {
-  private Reader In = null;
-  private Writer Out = null;
-  private int[][] flagLine = null;
-  private int[][] flagWhole = null;
-  private int[][] flagWholeEnd = null;
-  private int[] countLine = null;
-  private int[] countWhole = null;
-  private int[] cash = new int[3];
-  private int countCash = 0;
-  private int oldCh = 32;
 
-  public CommentCutter()
-  {
-  }
+    private Reader In;
+    private Writer Out;
+    private int flagLine[][];
+    private int flagWhole[][];
+    private int flagWholeEnd[][];
+    private int countLine[];
+    private int countWhole[];
+    private int cash[];
+    private int countCash;
+    private int oldCh;
 
-  public CommentCutter(Reader paramReader, Writer paramWriter)
-  {
-    this.In = paramReader;
-    this.Out = paramWriter;
-  }
-
-  private void addDefault()
-  {
-    addLineFlag(new int[] { 47, 47 });
-    addWholeFlag(new int[] { 47, 37 }, new int[] { 37, 47 });
-  }
-
-  public void addLineFlag(int[] paramArrayOfInt)
-  {
-    synchronized (this)
+    public CommentCutter()
     {
-      if (this.flagLine == null)
-      {
-        this.flagLine = new int[0];
-        this.countLine = new int[0];
-      }
-      int[][] arrayOfInt = new int[this.flagLine.length + 1];
-      int[] arrayOfInt1 = new int[this.flagLine.length + 1];
-      for (int i = 0; i < this.flagLine.length - 1; i++)
-        arrayOfInt[i] = this.flagLine[i];
-      arrayOfInt[i] = paramArrayOfInt;
-      this.flagLine = arrayOfInt;
-      this.countLine = arrayOfInt1;
+        In = null;
+        Out = null;
+        flagLine = null;
+        flagWhole = null;
+        flagWholeEnd = null;
+        countLine = null;
+        countWhole = null;
+        cash = new int[3];
+        countCash = 0;
+        oldCh = 32;
     }
-  }
 
-  public void addWholeFlag(int[] paramArrayOfInt1, int[] paramArrayOfInt2)
-  {
-    synchronized (this)
+    public CommentCutter(Reader reader, Writer writer)
     {
-      if (this.flagWhole == null)
-      {
-        this.flagWhole = new int[0];
-        this.flagWholeEnd = new int[0];
-        this.countWhole = new int[0];
-      }
-      int[][] arrayOfInt1 = new int[this.flagWhole.length + 1];
-      int[][] arrayOfInt2 = new int[this.flagWholeEnd.length + 1];
-      int[] arrayOfInt = new int[this.countWhole.length + 1];
-      for (int i = 0; i < this.flagLine.length - 1; i++)
-      {
-        arrayOfInt1[i] = this.flagWhole[i];
-        arrayOfInt2[i] = this.flagWholeEnd[i];
-      }
-      arrayOfInt1[i] = paramArrayOfInt1;
-      arrayOfInt2[i] = paramArrayOfInt2;
-      this.flagWhole = arrayOfInt1;
-      this.flagWholeEnd = arrayOfInt2;
-      this.countWhole = arrayOfInt;
+        In = null;
+        Out = null;
+        flagLine = null;
+        flagWhole = null;
+        flagWholeEnd = null;
+        countLine = null;
+        countWhole = null;
+        cash = new int[3];
+        countCash = 0;
+        oldCh = 32;
+        In = reader;
+        Out = writer;
     }
-  }
 
-  private void cleanCounter()
-  {
-    for (int i = 0; i < this.countLine.length; i++)
-      this.countLine[i] = 0;
-    for (i = 0; i < this.countWhole.length; i++)
-      this.countWhole[i] = 0;
-    this.countCash = 0;
-  }
-
-  public void cut()
-    throws IOException
-  {
-    synchronized (this)
+    private void addDefault()
     {
-      try
-      {
-        if ((this.flagLine == null) && (this.flagWhole == null))
-          addDefault();
-        cleanCounter();
-        findFlags();
-      }
-      catch (EOFException localEOFException)
-      {
-      }
-      this.In.close();
-      this.Out.flush();
-      this.Out.close();
+        addLineFlag(new int[] {
+            47, 47
+        });
+        addWholeFlag(new int[] {
+            47, 37
+        }, new int[] {
+            37, 47
+        });
     }
-  }
 
-  private void cutArray(int[] paramArrayOfInt)
-    throws IOException
-  {
-    int j = 0;
-    int k = paramArrayOfInt.length;
-    int i;
-    while ((i = this.In.read()) != -1)
+    public void addLineFlag(int ai[])
     {
-      j = paramArrayOfInt[j] == i ? j + 1 : 0;
-      if (j == k)
-        break;
+        synchronized(this)
+        {
+            if(flagLine == null)
+            {
+                flagLine = new int[0][];
+                countLine = new int[0];
+            }
+            int ai1[][] = new int[flagLine.length + 1][];
+            int ai2[] = new int[flagLine.length + 1];
+            int i;
+            for(i = 0; i < flagLine.length - 1; i++)
+            {
+                ai1[i] = flagLine[i];
+            }
+
+            ai1[i] = ai;
+            flagLine = ai1;
+            countLine = ai2;
+        }
     }
-  }
 
-  private void cutCRLF()
-    throws IOException
-  {
-    int i;
-    while ((i = this.In.read()) != -1)
-      if ((i == 13) || (i == 10))
-        break;
-  }
-
-  private void findFlags()
-    throws IOException
-  {
-    int i;
-    while ((i = this.In.read()) != -1)
+    public void addWholeFlag(int ai[], int ai1[])
     {
-      if (Character.isWhitespace((char)i))
-        i = 32;
-      if (!switchFlag(i))
-        continue;
-      out(i);
+        synchronized(this)
+        {
+            if(flagWhole == null)
+            {
+                flagWhole = new int[0][];
+                flagWholeEnd = new int[0][];
+                countWhole = new int[0];
+            }
+            int ai2[][] = new int[flagWhole.length + 1][];
+            int ai3[][] = new int[flagWholeEnd.length + 1][];
+            int ai4[] = new int[countWhole.length + 1];
+            int i;
+            for(i = 0; i < flagLine.length - 1; i++)
+            {
+                ai2[i] = flagWhole[i];
+                ai3[i] = flagWholeEnd[i];
+            }
+
+            ai2[i] = ai;
+            ai3[i] = ai1;
+            flagWhole = ai2;
+            flagWholeEnd = ai3;
+            countWhole = ai4;
+        }
     }
-  }
 
-  private void inCash(int paramInt)
-  {
-    if (this.countCash >= this.cash.length)
+    private void cleanCounter()
     {
-      int[] arrayOfInt = new int[this.cash.length];
-      System.arraycopy(this.cash, 0, arrayOfInt, 0, this.cash.length);
-      this.cash = arrayOfInt;
+        for(int i = 0; i < countLine.length; i++)
+        {
+            countLine[i] = 0;
+        }
+
+        for(int j = 0; j < countWhole.length; j++)
+        {
+            countWhole[j] = 0;
+        }
+
+        countCash = 0;
     }
-    this.cash[(this.countCash++)] = paramInt;
-  }
 
-  public static void main(String[] paramArrayOfString)
-  {
-    try
+    public void cut()
+        throws IOException
     {
-      String str1 = "c:\\Windows\\ﾃﾞｽｸﾄｯﾌﾟ\\";
-      String str2 = "";
-      FileDialog localFileDialog = new FileDialog(new Frame(), "コメントをカットするファイルを指定", 0);
-      localFileDialog.setDirectory(str1);
-      localFileDialog.setFile(str2);
-      localFileDialog.show();
-      str1 = localFileDialog.getDirectory();
-      str2 = localFileDialog.getFile();
-      if ((str1 == null) || (str1.equals("null")) || (str2 == null) || (str2.equals(null)))
+        synchronized(this)
+        {
+            try
+            {
+                if(flagLine == null && flagWhole == null)
+                {
+                    addDefault();
+                }
+                cleanCounter();
+                findFlags();
+            }
+            catch(EOFException _ex) { }
+            In.close();
+            Out.flush();
+            Out.close();
+        }
+    }
+
+    private void cutArray(int ai[])
+        throws IOException
+    {
+        int j = 0;
+        int k = ai.length;
+        int i;
+        while((i = In.read()) != -1) 
+        {
+            j = ai[j] != i ? 0 : j + 1;
+            if(j == k)
+            {
+                break;
+            }
+        }
+    }
+
+    private void cutCRLF()
+        throws IOException
+    {
+        int i;
+        while((i = In.read()) != -1) 
+        {
+            if(i == 13 || i == 10)
+            {
+                break;
+            }
+        }
+    }
+
+    private void findFlags()
+        throws IOException
+    {
+        int i;
+        while((i = In.read()) != -1) 
+        {
+            if(Character.isWhitespace((char)i))
+            {
+                i = 32;
+            }
+            if(switchFlag(i))
+            {
+                out(i);
+            }
+        }
+    }
+
+    private void inCash(int i)
+    {
+        if(countCash >= cash.length)
+        {
+            int ai[] = new int[cash.length];
+            System.arraycopy(cash, 0, ai, 0, cash.length);
+            cash = ai;
+        }
+        cash[countCash++] = i;
+    }
+
+    public static void main(String args[])
+    {
+        try
+        {
+            String s = "c:\\Windows\\\uFF83\uFF9E\uFF7D\uFF78\uFF84\uFF6F\uFF8C\uFF9F\\";
+            String s1 = "";
+            FileDialog filedialog = new FileDialog(new Frame(), "\u30B3\u30E1\u30F3\u30C8\u3092\u30AB\u30C3\u30C8\u3059\u308B\u30D5\u30A1\u30A4\u30EB" +
+"\u3092\u6307\u5B9A"
+, 0);
+            filedialog.setDirectory(s);
+            filedialog.setFile(s1);
+            filedialog.show();
+            s = filedialog.getDirectory();
+            s1 = filedialog.getFile();
+            if(s == null || s.equals("null") || s1 == null || s1.equals(null))
+            {
+                System.exit(0);
+            }
+            File file = new File(s, s1);
+            filedialog.setMode(1);
+            filedialog.setTitle("\u30AB\u30C3\u30C8\u3057\u305F\u30D5\u30A1\u30A4\u30EB\u3092\u4FDD\u5B58\u3059\u308B" +
+"\u5834\u6240\u3092\u6307\u5B9A"
+);
+            filedialog.show();
+            s = filedialog.getDirectory();
+            s1 = filedialog.getFile();
+            if(s == null || s.equals("null") || s1 == null || s1.equals(null))
+            {
+                System.exit(0);
+            }
+            File file1 = new File(s, s1);
+            CommentCutter commentcutter = new CommentCutter(new BufferedReader(new InputStreamReader(new FileInputStream(file), "JISAutoDetect")), new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file1))));
+            commentcutter.cut();
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
         System.exit(0);
-      File localFile1 = new File(str1, str2);
-      localFileDialog.setMode(1);
-      localFileDialog.setTitle("カットしたファイルを保存する場所を指定");
-      localFileDialog.show();
-      str1 = localFileDialog.getDirectory();
-      str2 = localFileDialog.getFile();
-      if ((str1 == null) || (str1.equals("null")) || (str2 == null) || (str2.equals(null)))
-        System.exit(0);
-      File localFile2 = new File(str1, str2);
-      CommentCutter localCommentCutter = new CommentCutter(new BufferedReader(new InputStreamReader(new FileInputStream(localFile1), "JISAutoDetect")), new BufferedWriter(new OutputStreamWriter(new FileOutputStream(localFile2))));
-      localCommentCutter.cut();
     }
-    catch (Throwable localThrowable)
+
+    private void out(int i)
+        throws IOException
     {
-      localThrowable.printStackTrace();
+        if(i == 32 && oldCh == 32)
+        {
+            return;
+        } else
+        {
+            Out.write(i);
+            oldCh = i;
+            return;
+        }
     }
-    System.exit(0);
-  }
 
-  private void out(int paramInt)
-    throws IOException
-  {
-    if ((paramInt == 32) && (this.oldCh == 32))
-      return;
-    this.Out.write(paramInt);
-    this.oldCh = paramInt;
-  }
-
-  private void outCash()
-    throws IOException
-  {
-    for (int i = 0; i < this.countCash; i++)
-      out(this.cash[i]);
-    this.countCash = 0;
-  }
-
-  public void setInOut(Reader paramReader, Writer paramWriter)
-  {
-    synchronized (this)
+    private void outCash()
+        throws IOException
     {
-      this.Out = paramWriter;
-      this.In = paramReader;
-    }
-  }
+        for(int i = 0; i < countCash; i++)
+        {
+            out(cash[i]);
+        }
 
-  private boolean switchFlag(int paramInt)
-    throws IOException
-  {
-    int i = 1;
-    for (int j = 0; j < this.flagLine.length; j++)
-      if (this.flagLine[j][this.countLine[j]] == paramInt)
-      {
-        i = 0;
-        this.countLine[j] += 1;
-        if (this.countLine[j] < this.flagLine[j].length)
-          continue;
-        cleanCounter();
-        cutCRLF();
-        return false;
-      }
-      else
-      {
-        this.countLine[j] = 0;
-      }
-    if (i == 0)
-      inCash(paramInt);
-    else
-      outCash();
-    return i;
-  }
+        countCash = 0;
+    }
+
+    public void setInOut(Reader reader, Writer writer)
+    {
+        synchronized(this)
+        {
+            Out = writer;
+            In = reader;
+        }
+    }
+
+    private boolean switchFlag(int i)
+        throws IOException
+    {
+        boolean flag = true;
+        for(int j = 0; j < flagLine.length; j++)
+        {
+            if(flagLine[j][countLine[j]] == i)
+            {
+                flag = false;
+                countLine[j]++;
+                if(countLine[j] >= flagLine[j].length)
+                {
+                    cleanCounter();
+                    cutCRLF();
+                    return false;
+                }
+            } else
+            {
+                countLine[j] = 0;
+            }
+        }
+
+        if(!flag)
+        {
+            inCash(i);
+        } else
+        {
+            outCash();
+        }
+        return flag;
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.util.CommentCutter
- * JD-Core Version:    0.6.0
- */

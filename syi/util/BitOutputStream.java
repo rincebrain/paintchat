@@ -5,66 +5,64 @@ import java.io.OutputStream;
 
 public class BitOutputStream extends OutputStream
 {
-  private int bit_count = 0;
-  private int bit;
-  private OutputStream out;
 
-  public BitOutputStream(OutputStream paramOutputStream)
-  {
-    this.out = paramOutputStream;
-  }
+    private int bit_count;
+    private int bit;
+    private OutputStream out;
 
-  public void close()
-    throws IOException
-  {
-    if (this.bit_count > 0)
-      wBit(0, 8 - this.bit_count);
-    flush();
-    this.out.close();
-  }
-
-  public void flush()
-    throws IOException
-  {
-    this.out.flush();
-  }
-
-  public void wBit(int paramInt1, int paramInt2)
-    throws IOException
-  {
-    while (paramInt2 > 0)
+    public BitOutputStream(OutputStream outputstream)
     {
-      int i;
-      if ((this.bit_count == 0) && (paramInt2 >= 8))
-      {
-        i = 8;
-        this.out.write(paramInt1 & 0xFF);
-      }
-      else
-      {
-        i = Math.min(8 - this.bit_count, paramInt2);
-        this.bit |= paramInt1 << this.bit_count;
-        this.bit_count += i;
-        if (this.bit_count >= 8)
-        {
-          this.out.write(this.bit);
-          this.bit = 0;
-          this.bit_count = 0;
-        }
-      }
-      paramInt1 >>>= i;
-      paramInt2 -= i;
+        bit_count = 0;
+        out = outputstream;
     }
-  }
 
-  public void write(int paramInt)
-    throws IOException
-  {
-    wBit(paramInt, 8);
-  }
+    public void close()
+        throws IOException
+    {
+        if(bit_count > 0)
+        {
+            wBit(0, 8 - bit_count);
+        }
+        flush();
+        out.close();
+    }
+
+    public void flush()
+        throws IOException
+    {
+        out.flush();
+    }
+
+    public void wBit(int i, int j)
+        throws IOException
+    {
+        int k;
+        for(; j > 0; j -= k)
+        {
+            if(bit_count == 0 && j >= 8)
+            {
+                k = 8;
+                out.write(i & 0xff);
+            } else
+            {
+                k = Math.min(8 - bit_count, j);
+                bit |= i << bit_count;
+                bit_count += k;
+                if(bit_count >= 8)
+                {
+                    out.write(bit);
+                    bit = 0;
+                    bit_count = 0;
+                }
+            }
+            i >>>= k;
+        }
+
+    }
+
+    public void write(int i)
+        throws IOException
+    {
+        wBit(i, 8);
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     syi.util.BitOutputStream
- * JD-Core Version:    0.6.0
- */

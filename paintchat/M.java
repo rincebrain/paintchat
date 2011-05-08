@@ -1,3201 +1,3867 @@
 package paintchat;
 
-import F;
 import java.applet.Applet;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.image.ColorModel;
-import java.awt.image.DirectColorModel;
-import java.awt.image.MemoryImageSource;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.awt.*;
+import java.awt.image.*;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.util.Hashtable;
 import syi.awt.Awt;
 import syi.util.ByteStream;
 
+// Referenced classes of package paintchat:
+//            LO, Res, SRaster
+
 public class M
 {
-  private Info info;
-  private User user;
-  public int iHint = 0;
-  public int iPen = 0;
-  public int iPenM = 0;
-  public int iTT = 0;
-  public int iColor = 0;
-  public int iColorMask = 0;
-  public int iAlpha = 255;
-  public int iAlpha2;
-  public int iSA = 65280;
-  public int iLayer = 0;
-  public int iLayerSrc = 1;
-  public int iMask = 0;
-  public int iSize = 0;
-  public int iSS = 65280;
-  public int iCount = -8;
-  public int iSOB;
-  public boolean isAFix;
-  public boolean isOver;
-  public boolean isCount = true;
-  public boolean isAnti;
-  public boolean isAllL;
-  public byte[] strHint;
-  private int iSeek;
-  private int iOffset;
-  private byte[] offset;
-  public static final int H_FLINE = 0;
-  public static final int H_LINE = 1;
-  public static final int H_BEZI = 2;
-  public static final int H_RECT = 3;
-  public static final int H_FRECT = 4;
-  public static final int H_OVAL = 5;
-  public static final int H_FOVAL = 6;
-  public static final int H_FILL = 7;
-  public static final int H_TEXT = 8;
-  public static final int H_COPY = 9;
-  public static final int H_CLEAR = 10;
-  public static final int H_SP = 11;
-  public static final int H_VTEXT = 12;
-  public static final int H_L = 14;
-  public static final int P_SOLID = 0;
-  public static final int P_PEN = 1;
-  public static final int P_SUISAI = 2;
-  public static final int P_SUISAI2 = 3;
-  public static final int P_WHITE = 4;
-  public static final int P_SWHITE = 5;
-  public static final int P_LIGHT = 6;
-  public static final int P_DARK = 7;
-  public static final int P_BOKASHI = 8;
-  public static final int P_MOSAIC = 9;
-  public static final int P_FILL = 10;
-  public static final int P_LPEN = 11;
-  public static final int P_NULL = 14;
-  public static final int P_LR = 17;
-  public static final int P_UD = 18;
-  public static final int P_R = 19;
-  public static final int P_FUSION = 20;
-  public static final int PM_PEN = 0;
-  public static final int PM_SUISAI = 1;
-  public static final int PM_MANY = 2;
-  public static final int M_N = 0;
-  public static final int M_M = 1;
-  public static final int M_R = 2;
-  public static final int M_ADD = 3;
-  public static final int M_SUB = 4;
-  private static final int F1O = 4;
-  private static final int F1C = 8;
-  private static final int F1A = 16;
-  private static final int F1S = 32;
-  private static final int F2H = 1;
-  private static final int F2PM = 2;
-  private static final int F2M = 4;
-  private static final int F2P = 8;
-  private static final int F2T = 16;
-  private static final int F2L = 32;
-  private static final int F2LS = 64;
-  private static final int F3A = 1;
-  private static final int F3C = 2;
-  private static final int F3CM = 4;
-  private static final int F3S = 8;
-  private static final int F3E = 16;
-  private static final int F3SA = 32;
-  private static final int F3SS = 64;
-  private static final int DEF_COUNT = -8;
-  private static final String ENCODE = "UTF8";
-  private static float[] b255 = new float[256];
-  static float[] b255d = new float[256];
-  private static ColorModel color_model = null;
-  private static final M mgDef = new M();
-
-  public M()
-  {
-  }
-
-  public M(Info paramInfo, User paramUser)
-  {
-    this.info = paramInfo;
-    this.user = paramUser;
-  }
-
-  private final void copy(int[][] paramArrayOfInt1, int[][] paramArrayOfInt2)
-  {
-    for (int i = 0; i < paramArrayOfInt2.length; i++)
-      System.arraycopy(paramArrayOfInt1[i], 0, paramArrayOfInt2[i], 0, paramArrayOfInt2[i].length);
-  }
-
-  public final void dBuffer()
-  {
-    dBuffer(!this.user.isDirect, this.user.X, this.user.Y, this.user.X2, this.user.Y2);
-  }
-
-  private final void dBuffer(boolean paramBoolean, int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    try
+    public class User
     {
-      int i = this.info.scale;
-      int j = this.info.Q;
-      int k = this.info.W;
-      int m = this.info.H;
-      int n = this.info.scaleX;
-      int i1 = this.info.scaleY;
-      int i3 = i == 1 ? 1 : 0;
-      int[] arrayOfInt = this.user.buffer;
-      Color localColor = Color.white;
-      Graphics localGraphics = this.info.g;
-      if (localGraphics == null)
-        return;
-      paramInt1 /= j;
-      paramInt2 /= j;
-      paramInt3 /= j;
-      paramInt4 /= j;
-      paramInt1 = paramInt1 <= n ? n : paramInt1;
-      paramInt2 = paramInt2 <= i1 ? i1 : paramInt2;
-      int i2 = this.info.vWidth / i + n;
-      paramInt3 = paramInt3 > i2 ? i2 : paramInt3;
-      paramInt3 = paramInt3 > k ? k : paramInt3;
-      i2 = this.info.vHeight / i + i1;
-      paramInt4 = paramInt4 > i2 ? i2 : paramInt4;
-      paramInt4 = paramInt4 > m ? m : paramInt4;
-      if ((paramInt3 <= paramInt1) || (paramInt4 <= paramInt2))
-        return;
-      k = paramInt3 - paramInt1;
-      int i4 = k * i;
-      int i5 = (paramInt1 - n) * i;
-      int i6 = paramInt2;
-      i2 = arrayOfInt.length / (k * j * j);
-      while (true)
-      {
-        m = Math.min(i2, paramInt4 - i6);
-        if (m <= 0)
-          break;
-        Image localImage = paramBoolean ? mkMPic(paramInt1, i6, k, m, j) : mkLPic(null, paramInt1, i6, k, m, j);
-        if (i3 != 0)
-          localGraphics.drawImage(localImage, i5, i6 - i1, localColor, null);
-        else
-          localGraphics.drawImage(localImage, i5, (i6 - i1) * i, i4, m * i, localColor, null);
-        i6 += m;
-      }
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-      localRuntimeException.printStackTrace();
-    }
-  }
 
-  private final void dBz(int[] paramArrayOfInt)
-    throws InterruptedException
-  {
-    try
-    {
-      int i = paramArrayOfInt[0];
-      int j = 0;
-      float f3;
-      float f4;
-      for (int k = 1; k < 4; k++)
-      {
-        f3 = paramArrayOfInt[k] >> 16;
-        f4 = (short)paramArrayOfInt[k];
-        (i >> 16);
-        (short)i;
-        j = (int)(j + Math.sqrt(f3 * f3 + f4 * f4));
-        i = paramArrayOfInt[k];
-      }
-      if (j <= 0)
-        return;
-      k = -100;
-      int m = -100;
-      int n = -1000;
-      int i1 = -1000;
-      int i2 = 0;
-      boolean bool = this.isAnti;
-      int i3 = this.user.pW / 2;
-      for (i = j; i > 0; i--)
-      {
-        float f2 = i / j;
-        float f1 = (float)Math.pow(1.0F - f2, 3.0D);
-        f3 = f1 * (paramArrayOfInt[3] >> 16);
-        f4 = f1 * (short)paramArrayOfInt[3];
-        f1 = 3.0F * (1.0F - f2) * (1.0F - f2) * f2;
-        f3 += f1 * (paramArrayOfInt[2] >> 16);
-        f4 += f1 * (short)paramArrayOfInt[2];
-        f1 = 3.0F * f2 * f2 * (1.0F - f2);
-        f3 += f1 * (paramArrayOfInt[1] >> 16);
-        f4 += f1 * (short)paramArrayOfInt[1];
-        f1 = f2 * f2 * f2;
-        f3 += f1 * (paramArrayOfInt[0] >> 16);
-        f4 += f1 * (short)paramArrayOfInt[0];
-        k = (int)f3 + i3;
-        m = (int)f4 + i3;
-        if ((k == n) && (m == i1))
-          continue;
-        if (bool)
+        private Image image;
+        private SRaster raster;
+        private int buffer[];
+        private int argb[];
+        public int points[];
+        private int ps2[];
+        private int p[];
+        private int pW;
+        private int pM;
+        private int pA;
+        private int pS;
+        private float pV;
+        private float pTT[];
+        private int pTTW;
+        private boolean isDirect;
+        public int wait;
+        public boolean isPre;
+        private int pX[];
+        private int pY[];
+        private int oX;
+        private int oY;
+        private float fX;
+        private float fY;
+        private int iDCount;
+        private int X;
+        private int Y;
+        private int X2;
+        private int Y2;
+        private int count;
+        private int countMax;
+
+        private void setup(M m)
         {
-          shift(k, m);
-          i2++;
-          if (i2 >= 4)
-            dFLine2(this.iSize);
-        }
-        else
-        {
-          dFLine(k, m, this.iSize);
-        }
-        n = k;
-        i1 = m;
-      }
-      this.user.X -= 1;
-      this.user.Y -= 1;
-      this.user.X2 += 2;
-      this.user.Y2 += 2;
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-      localRuntimeException.printStackTrace();
-    }
-  }
-
-  public void dClear()
-  {
-    if (this.iPen == 14)
-      return;
-    for (int i = 0; i < this.info.L; i++)
-    {
-      if ((i < 64) && ((this.info.unpermission & 1 << i) != 0L))
-        continue;
-      this.info.layers[i].clear();
-    }
-    this.user.isDirect = true;
-    setD(0, 0, this.info.W, this.info.H);
-    if (this.user.wait >= 0)
-      dBuffer();
-  }
-
-  private void dFusion(byte[] paramArrayOfByte)
-  {
-    LO[] arrayOfLO = this.info.layers;
-    LO localLO2 = new LO();
-    LO localLO3 = new LO();
-    int i = this.info.W;
-    int j = paramArrayOfByte.length / 4;
-    int[] arrayOfInt = this.user.buffer;
-    int k = arrayOfInt.length / i;
-    int n = 0;
-    LO localLO1;
-    while (n < this.info.H)
-    {
-      int m = Math.min(this.info.H - n, k);
-      (i * m);
-      i1 = 0;
-      Object localObject = null;
-      for (int i2 = 0; i2 < j; i2++)
-      {
-        localLO1 = arrayOfLO[paramArrayOfByte[(i1++)]];
-        localLO2.setField(localLO1);
-        localLO1.iAlpha = b255[(paramArrayOfByte[(i1++)] & 0xFF)];
-        localLO1.iCopy = paramArrayOfByte[(i1++)];
-        i1++;
-        localLO1.normalize(localLO1.iAlpha, 0, n, i, n + m);
-        if (localObject == null)
-        {
-          localObject = localLO1;
-          localLO3.setField(localLO2);
-          localLO1.reserve();
-        }
-        else
-        {
-          if (localLO1.iCopy == 1)
-          {
-            memset(arrayOfInt, 16777215);
-            for (int i3 = 0; i3 < i2 - 2; i3++)
-              arrayOfLO[i3].draw(arrayOfInt, 0, n, i, n + m, i);
-          }
-          localLO1.dAdd(localObject.offset, 0, n, i, n + m, arrayOfInt);
-          localLO1.clear(0, n, i, n + m);
-          localLO1.setField(localLO2);
-        }
-      }
-      if (localObject != arrayOfLO[this.iLayer])
-      {
-        localObject.copyTo(0, n, i, n + m, arrayOfLO[this.iLayer], 0, n, null);
-        localObject.clear(0, n, i, n + m);
-      }
-      n += k;
-    }
-    localLO2.iAlpha = 1.0F;
-    localLO2.iCopy = 0;
-    localLO2.isDraw = true;
-    for (int i1 = 0; i1 < j; i1++)
-    {
-      localLO1 = arrayOfLO[paramArrayOfByte[(i1 * 4)]];
-      localLO2.name = localLO1.name;
-      localLO1.setField(localLO2);
-    }
-  }
-
-  private void dCopy(int[] paramArrayOfInt)
-  {
-    int i = paramArrayOfInt[0];
-    int j = i >> 16;
-    int k = (short)i;
-    i = paramArrayOfInt[1];
-    int m = i >> 16;
-    int n = (short)i;
-    i = paramArrayOfInt[2];
-    int i1 = i >> 16;
-    int i2 = (short)i;
-    this.info.layers[this.iLayerSrc].copyTo(j, k, m, n, this.info.layers[this.iLayer], i1, i2, this.user.buffer);
-    setD(i1, i2, i1 + (m - j), i2 + (n - k));
-  }
-
-  public final void dEnd()
-    throws InterruptedException
-  {
-    if (!this.user.isDirect)
-      dFlush();
-    ByteStream localByteStream = this.info.workOut;
-    if (localByteStream.size() > 0)
-    {
-      this.offset = localByteStream.writeTo(this.offset, 0);
-      this.iOffset = localByteStream.size();
-    }
-    if (this.user.wait == -1)
-      dBuffer();
-  }
-
-  private void dFill(byte[] paramArrayOfByte, int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    int i = (byte)this.iAlpha;
-    int j = this.info.W;
-    try
-    {
-      int i2 = paramInt3 - paramInt1;
-      label170: 
-      while (paramInt2 < paramInt4)
-      {
-        int k;
-        int m = k = paramInt2 * j + paramInt1;
-        for (int i1 = 0; i1 < i2; i1++)
-        {
-          if (paramArrayOfByte[k] == i)
-            break;
-          k++;
-        }
-        while (i1 < i2)
-        {
-          if (paramArrayOfByte[k] != i)
-            break;
-          k++;
-          i1++;
-        }
-        m = k;
-        if (i1 >= i2)
-          break label170;
-        while (i1 < i2)
-        {
-          if (paramArrayOfByte[k] == i)
-            break;
-          k++;
-          i1++;
-        }
-        int n = k;
-        if (i1 >= i2)
-          break label170;
-        while (m < n)
-        {
-          paramArrayOfByte[m] = i;
-          m++;
-        }
-        paramInt2++;
-      }
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-      System.out.println(localRuntimeException);
-    }
-  }
-
-  private void dFill(int[] paramArrayOfInt, int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    int i = this.iAlpha;
-    int j = this.info.W;
-    try
-    {
-      int i1 = paramInt3 - paramInt1;
-      while (paramInt2 < paramInt4)
-      {
-        int k = paramInt2 * j + paramInt1;
-        int i2 = k + i1;
-        while (k < i2)
-        {
-          if (paramArrayOfInt[k] == i)
-            break;
-          k++;
-        }
-        if (k < i2 - 1)
-        {
-          k++;
-          while (k < i2)
-          {
-            if (paramArrayOfInt[k] != i)
-              break;
-            k++;
-          }
-          if (k < i2 - 1)
-          {
-            int m = k;
-            k++;
-            while (k < i2)
+            pV = M.b255[m.info.bPen[m.iPenM].length - 1];
+            m.getPM();
+            count = 0;
+            iDCount = 0;
+            oX = -1000;
+            oY = -1000;
+            isDirect = m.iPen == 3 || m.iHint == 9 || m.isOver;
+            if(info.L <= m.iLayer)
             {
-              if (paramArrayOfInt[k] == i)
-                break;
-              k++;
+                info.setL(m.iLayer + 1);
             }
-            if (k < i2)
+            info.layers[m.iLayer].isDraw = true;
+            if(m.iTT >= 12)
             {
-              int n = k;
-              while (m < n)
-              {
-                paramArrayOfInt[m] = i;
-                m++;
-              }
+                pTT = info.getTT(m.iTT);
+                pTTW = (int)Math.sqrt(pTT.length);
             }
-          }
         }
-        paramInt2++;
-      }
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-      System.out.println(localRuntimeException);
-    }
-  }
 
-  private void dFill(int paramInt1, int paramInt2)
-  {
-    int i = this.info.W;
-    int j = this.info.H;
-    int k = (byte)this.iAlpha;
-    byte[] arrayOfByte = this.info.iMOffs;
-    try
-    {
-      int[] arrayOfInt = this.user.buffer;
-      int m = 0;
-      if ((paramInt1 < 0) || (paramInt1 >= i) || (paramInt2 < 0) || (paramInt2 >= j))
-        return;
-      int i4 = pix(paramInt1, paramInt2);
-      int i5 = this.iAlpha << 24 | this.iColor;
-      if (i4 == i5)
-        return;
-      arrayOfInt[(m++)] = (s(i4, paramInt1, paramInt2) << 16 | paramInt2);
-      while (m > 0)
-      {
-        m--;
-        int n = arrayOfInt[m];
-        paramInt1 = n >>> 16;
-        paramInt2 = n & 0xFFFF;
-        int i1 = i * paramInt2;
-        int i2 = 0;
-        int i3 = 0;
-        while (true)
+        public void setIm(M m)
         {
-          arrayOfByte[(i1 + paramInt1)] = k;
-          if ((paramInt2 > 0) && (pix(paramInt1, paramInt2 - 1) == i4) && (arrayOfByte[(i1 - i + paramInt1)] == 0))
-          {
-            if (i2 == 0)
+            if(m.isText())
             {
-              i2 = 1;
-              arrayOfInt[(m++)] = (s(i4, paramInt1, paramInt2 - 1) << 16 | paramInt2 - 1);
+                return;
             }
-          }
-          else
-            i2 = 0;
-          if ((paramInt2 < j - 1) && (pix(paramInt1, paramInt2 + 1) == i4) && (arrayOfByte[(i1 + i + paramInt1)] == 0))
-          {
-            if (i3 == 0)
+            if(pM != m.iPenM || pA != m.iAlpha || pS != m.iSize)
             {
-              i3 = 1;
-              arrayOfInt[(m++)] = (s(i4, paramInt1, paramInt2 + 1) << 16 | paramInt2 + 1);
-            }
-          }
-          else
-            i3 = 0;
-          if ((paramInt1 <= 0) || (pix(paramInt1 - 1, paramInt2) != i4) || (arrayOfByte[(i1 + paramInt1 - 1)] != 0))
-            break;
-          paramInt1--;
-        }
-      }
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-      System.out.println(localRuntimeException);
-    }
-    setD(0, 0, i, j);
-    t();
-  }
-
-  private final void dFLine(float paramFloat1, float paramFloat2, int paramInt)
-    throws InterruptedException
-  {
-    int i = this.user.wait;
-    float f1 = this.user.fX;
-    float f2 = this.user.fY;
-    float f3 = paramFloat1 - f1;
-    float f4 = paramFloat2 - f2;
-    float f5 = Math.max(Math.abs(f3), Math.abs(f4));
-    int j = (int)f1;
-    int k = (int)f2;
-    int m = this.user.oX;
-    int n = this.user.oY;
-    float f8 = 0.25F;
-    if (!this.isCount)
-      this.user.count = 0;
-    int i3 = ss(paramInt);
-    int i4 = sa(paramInt);
-    int i5 = Math.max(i3, this.iSize);
-    float f9 = this.iSize;
-    float f10 = this.iAlpha;
-    float f11 = f5 == 0.0F ? 0.0F : (i3 - f9) / f5;
-    f11 = f11 <= -1.0F ? -1.0F : f11 >= 1.0F ? 1.0F : f11;
-    float f12 = f5 == 0.0F ? 0.0F : (i4 - f10) / f5;
-    f12 = f12 <= -1.0F ? -1.0F : f12 >= 1.0F ? 1.0F : f12;
-    float f13 = f3 == 0.0F ? 0.0F : f3 / f5;
-    float f14 = f4 == 0.0F ? 0.0F : f4 / f5;
-    float f15 = f1;
-    float f16 = f2;
-    if (f5 <= 0.0F)
-      f5 += 1.0F;
-    f13 *= f8;
-    f14 *= f8;
-    f11 *= f8;
-    f12 *= f8;
-    int i6 = (int)(f5 / f8);
-    for (int i7 = 0; i7 < i6; i7++)
-    {
-      if ((m != j) || (n != k))
-      {
-        this.user.count -= 1;
-        m = j;
-        n = k;
-      }
-      if (this.user.count <= 0)
-      {
-        this.user.count = this.user.countMax;
-        this.iSize = (int)f9;
-        this.iAlpha = (int)f10;
-        getPM();
-        int i1 = j - (this.user.pW >>> 1);
-        int i2 = k - (this.user.pW >>> 1);
-        float f6 = f15 - (int)f15;
-        float f7 = f16 - (int)f16;
-        if (f6 < 0.0F)
-        {
-          i1--;
-          f6 += 1.0F;
-        }
-        if (f7 < 0.0F)
-        {
-          i2--;
-          f7 += 1.0F;
-        }
-        if ((f6 != 1.0F) && (f7 != 1.0F))
-          dPen(i1, i2, (1.0F - f6) * (1.0F - f7));
-        if (f6 != 0.0F)
-          dPen(i1 + 1, i2, f6 * (1.0F - f7));
-        if (f7 != 0.0F)
-          dPen(i1, i2 + 1, (1.0F - f6) * f7);
-        if ((f6 != 0.0F) && (f7 != 0.0F))
-          dPen(i1 + 1, i2 + 1, f6 * f7);
-        if (i > 0)
-        {
-          dBuffer(!this.user.isDirect, i1, i2, i1 + this.user.pW, i2 + this.user.pW);
-          if (i > 1)
-          {
-            Thread.currentThread();
-            Thread.sleep(i);
-          }
-        }
-      }
-      j = (int)(f15 += f13);
-      k = (int)(f16 += f14);
-      f9 += f11;
-      f10 += f12;
-    }
-    this.user.fX = f15;
-    this.user.fY = f16;
-    this.user.oX = m;
-    this.user.oY = n;
-    i7 = (int)Math.sqrt(this.info.bPen[this.iPenM][i5].length) / 2;
-    int i8 = (int)Math.min(f1, paramFloat1) - i7;
-    int i9 = (int)Math.min(f2, paramFloat2) - i7;
-    int i10 = (int)Math.max(f1, paramFloat1) + i7 + this.info.Q + 1;
-    int i11 = (int)Math.max(f2, paramFloat2) + i7 + this.info.Q + 1;
-    if (i == 0)
-      dBuffer(!this.user.isDirect, i8, i9, i10, i11);
-    addD(i8, i9, i10, i11);
-  }
-
-  private final void dFLine(int paramInt1, int paramInt2, int paramInt3)
-    throws InterruptedException
-  {
-    int i = this.user.wait;
-    int j = (int)this.user.fX;
-    int k = (int)this.user.fY;
-    int m = paramInt1 - j;
-    int n = paramInt2 - k;
-    int i1 = Math.max(Math.abs(m), Math.abs(n));
-    int i2 = j;
-    int i3 = k;
-    int i4 = this.user.oX;
-    int i5 = this.user.oY;
-    if (!this.isCount)
-      this.user.count = 0;
-    int i8 = ss(paramInt3);
-    int i9 = sa(paramInt3);
-    int i10 = Math.max(i8, this.iSize);
-    float f1 = this.iSize;
-    float f2 = this.iAlpha;
-    float f3 = i1 == 0 ? 0.0F : (i8 - f1) / i1;
-    f3 = f3 <= -1.0F ? -1.0F : f3 >= 1.0F ? 1.0F : f3;
-    float f4 = i1 == 0 ? 0.0F : (i9 - f2) / i1;
-    f4 = f4 <= -10.0F ? -10.0F : f4 >= 5.0F ? 5.0F : f4;
-    float f5 = m == 0 ? 0.0F : m / i1;
-    float f6 = n == 0 ? 0.0F : n / i1;
-    float f7 = j;
-    float f8 = k;
-    if (i1 <= 0)
-      i1++;
-    for (int i11 = 0; i11 < i1; i11++)
-    {
-      if ((i4 != i2) || (i5 != i3))
-      {
-        this.user.count -= 1;
-        i4 = i2;
-        i5 = i3;
-        if (this.user.count <= 0)
-        {
-          this.user.count = this.user.countMax;
-          this.iSize = (int)f1;
-          this.iAlpha = (int)f2;
-          getPM();
-          int i6 = i2 - (this.user.pW >>> 1);
-          int i7 = i3 - (this.user.pW >>> 1);
-          dPen(i6, i7, 1.0F);
-          if (i > 0)
-          {
-            dBuffer(!this.user.isDirect, i6, i7, i6 + this.user.pW, i7 + this.user.pW);
-            if (i > 1)
-            {
-              Thread.currentThread();
-              Thread.sleep(i);
-            }
-          }
-        }
-      }
-      i2 = (int)(f7 += f5);
-      i3 = (int)(f8 += f6);
-      f1 += f3;
-      f2 += f4;
-    }
-    this.user.fX = (f7 - f5);
-    this.user.fY = (f8 - f6);
-    this.user.oX = i4;
-    this.user.oY = i5;
-    i11 = (int)Math.sqrt(this.info.bPen[this.iPenM][i10].length) / 2;
-    int i12 = Math.min(j, i2) - i11;
-    int i13 = Math.min(k, i3) - i11;
-    int i14 = Math.max(j, i2) + i11 + this.info.Q;
-    int i15 = Math.max(k, i3) + i11 + this.info.Q;
-    if (i == 0)
-      dBuffer(!this.user.isDirect, i12, i13, i14, i15);
-    addD(i12, i13, i14, i15);
-  }
-
-  private final void dFLine2(int paramInt)
-    throws InterruptedException
-  {
-    try
-    {
-      int i = this.user.pX[0];
-      int j = this.user.pY[0];
-      int k = this.user.pX[1];
-      int m = this.user.pY[1];
-      int n = this.user.pX[2];
-      int i1 = this.user.pY[2];
-      int i2 = this.user.pX[3];
-      int i3 = this.user.pY[3];
-      boolean bool = this.isAnti;
-      float f1 = this.user.fX;
-      float f2 = this.user.fY;
-      int i7 = (int)f1;
-      int i8 = (int)f2;
-      int i9 = i7;
-      int i10 = i8;
-      int i11 = this.user.oX;
-      int i12 = this.user.oY;
-      int i13 = this.user.wait;
-      if (!this.isCount)
-        this.user.count = 0;
-      int i16 = 2 * k;
-      int i17 = 2 * m;
-      int i18 = 2 * i - 5 * k + 4 * n - i2;
-      int i19 = 2 * j - 5 * m + 4 * i1 - i3;
-      int i20 = -i + 3 * k - 3 * n + i2;
-      int i21 = -j + 3 * m - 3 * i1 + i3;
-      float f12 = this.iSize;
-      float f13 = this.iAlpha;
-      int i22 = ss(paramInt);
-      int i23 = sa(paramInt);
-      float f14 = (i22 - this.iSize) * 0.25F;
-      f14 = f14 >= 1.5F ? 1.5F : f14 <= -1.5F ? -1.5F : f14;
-      float f15 = (i23 - this.iAlpha) * 0.25F;
-      int i24 = (int)Math.sqrt(Math.max(this.info.getPenMask()[this.iPenM][this.iSize].length, this.info.getPenMask()[this.iPenM][i22].length));
-      int i25 = this.info.Q;
-      float f18 = 0.0F;
-      while (f18 < 1.0F)
-      {
-        float f8 = f18 * f18;
-        float f9 = f8 * f18;
-        float f3 = 0.5F * (i16 + (-i + n) * f18 + i18 * f8 + i20 * f9);
-        float f4 = 0.5F * (i17 + (-j + i1) * f18 + i19 * f8 + i21 * f9);
-        float f5 = Math.max(Math.abs(f3 - f1), Math.abs(f4 - f2));
-        if (f5 >= 1.0F)
-        {
-          float f6 = (f3 - f1) / f5 * 0.25F;
-          f6 = f6 >= 1.0F ? 1.0F : f6 <= -1.0F ? -1.0F : f6;
-          float f7 = (f4 - f2) / f5 * 0.25F;
-          f7 = f7 >= 1.0F ? 1.0F : f7 <= -1.0F ? -1.0F : f7;
-          int i5 = (int)(f5 / 0.25F);
-          if (i5 < 16)
-            i5 = 1;
-          float f16 = f14 / i5;
-          float f17 = f15 / i5;
-          i7 = Math.min(Math.min((int)f1, (int)f3), i7);
-          i8 = Math.min(Math.min((int)f2, (int)f4), i8);
-          i9 = Math.max(Math.max((int)f1, (int)f3), i9);
-          i10 = Math.max(Math.max((int)f2, (int)f4), i10);
-          for (int i4 = 0; i4 < i5; i4++)
-          {
-            int i14 = (int)f1;
-            int i15 = (int)f2;
-            if ((i11 != i14) || (i12 != i15))
-            {
-              i11 = i14;
-              i12 = i15;
-              this.user.count -= 1;
-            }
-            else
-            {
-              f12 += f16;
-              f13 += f17;
-            }
-            if (this.user.count > 0)
-            {
-              f1 += f6;
-              f2 += f7;
-            }
-            else
-            {
-              this.iSize = (int)f12;
-              this.iAlpha = (int)f13;
-              getPM();
-              i6 = this.user.pW / 2;
-              i14 -= i6;
-              i15 -= i6;
-              this.user.count = this.user.countMax;
-              if (bool)
-              {
-                float f10 = f1 - (int)f1;
-                float f11 = f2 - (int)f2;
-                if (f10 < 0.0F)
+                int ai[] = m.info.bPen[m.iPenM][m.iSize];
+                int i = ai.length;
+                if(p == null || p.length < i)
                 {
-                  i14--;
-                  f10 += 1.0F;
+                    p = new int[i];
                 }
-                if (f11 < 0.0F)
+                float f = M.b255[m.iAlpha];
+                for(int j = 0; j < i; j++)
                 {
-                  i15--;
-                  f11 += 1.0F;
+                    float f1 = (float)ai[j] * f;
+                    p[j] = f1 > 1.0F || f1 <= 0.0F ? (int)f1 : 1;
                 }
-                if ((f10 != 1.0F) && (f11 != 1.0F))
-                  dPen(i14, i15, (1.0F - f10) * (1.0F - f11));
-                if (f10 != 0.0F)
-                  dPen(i14 + 1, i15, f10 * (1.0F - f11));
-                if (f11 != 0.0F)
-                  dPen(i14, i15 + 1, (1.0F - f10) * f11);
-                if ((f10 != 0.0F) && (f11 != 0.0F))
-                  dPen(i14 + 1, i15 + 1, f10 * f11);
-              }
-              else
-              {
-                dPen(i14, i15, 1.0F);
-              }
-              if (i13 > 0)
-              {
-                dBuffer(!this.user.isDirect, i14, i15, i14 + i6 * 2, i15 + i6 * 2);
-                if (i13 > 1)
+
+                pW = m.iPen = (int)Math.sqrt(i);
+                pM = m.iPenM;
+                pA = m.iAlpha;
+                pS = m.iSize;
+            }
+        }
+
+        public int getPixel(int i, int j)
+        {
+            int k = info.imW;
+            if(i < 0 || j < 0 || i >= k || j >= info.imH)
+            {
+                return 0;
+            }
+            int l = info.Q;
+            mkLPic(buffer, i, j, 1, 1, l);
+            int _tmp = info.L;
+            int _tmp1 = info.m.iLayer;
+            LO alo[] = info.layers;
+            i *= l;
+            j *= l;
+            float f = 0.0F;
+            for(int i1 = info.m.iLayer; i1 >= 0; i1--)
+            {
+                f += (1.0F - f) * M.b255[alo[i1].getPixel(i, j) >>> 24] * alo[i1].iAlpha;
+                if(f >= 1.0F)
                 {
-                  Thread.currentThread();
-                  Thread.sleep(i13);
+                    break;
                 }
-              }
-              f1 += f6;
-              f2 += f7;
             }
-          }
-        }
-        f18 += 0.25F;
-      }
-      this.user.oX = i11;
-      this.user.oY = i12;
-      this.user.fX = f1;
-      this.user.fY = f2;
-      int i6 = i24 / 2;
-      i7 -= i6;
-      i8 -= i6;
-      i9 += i6 + 1;
-      i10 += i6 + 1;
-      addD(i7, i8, i9, i10);
-      if (this.user.wait == 0)
-        dBuffer(!this.user.isDirect, i7, i8, i9 + i25, i10 + i25);
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-      localRuntimeException.printStackTrace();
-    }
-  }
 
-  private final void dFlush()
-  {
-    if (this.user.isPre)
-      return;
-    int k = this.info.W;
-    LO localLO2 = this.info.H;
-    LO localLO3 = this.user.X <= 0 ? 0 : this.user.X;
-    LO localLO4 = this.user.Y <= 0 ? 0 : this.user.Y;
-    int m = this.user.X2 >= k ? k : this.user.X2;
-    int n = this.user.Y2 >= localLO2 ? localLO2 : this.user.Y2;
-    if ((m - localLO3 <= 0) || (n - localLO4 <= 0) || (this.iLayer >= this.info.L))
-      return;
-    byte[] arrayOfByte = this.info.iMOffs;
-    LO localLO5 = this.info.layers[this.iLayer];
-    LO localLO8;
-    int[] arrayOfInt1;
-    int i;
-    int j;
-    switch (this.iPen)
-    {
-    case 17:
-      localLO5.dLR(localLO3, localLO4, m, n);
-      dCMask(localLO3, localLO4, m, n);
-      break;
-    case 18:
-      localLO5.dUD(localLO3, localLO4, m, n);
-      dCMask(localLO3, localLO4, m, n);
-      break;
-    case 19:
-      localLO5.dR(localLO3, localLO4, m, n, null);
-      dCMask(localLO3, localLO4, m, n);
-      addD(localLO3, localLO4, localLO3 + Math.max(m - localLO3, n - localLO4), localLO4 + Math.max(m - localLO3, n - localLO4));
-      break;
-    case 20:
-      int i1 = this.iOffset > 8 ? this.offset[8] : 0;
-      LO localLO6 = this.info.layers[this.iLayerSrc];
-      localLO8 = localLO5;
-      localLO6.normalize(b255[(this.iAlpha2 & 0xFF)], localLO3, localLO4, m, n);
-      localLO8.normalize(b255[(this.iAlpha2 >>> 8)], localLO3, localLO4, m, n);
-      if (localLO6.offset == null)
-      {
-        dCMask(localLO3, localLO4, m, n);
-      }
-      else
-      {
-        localLO8.reserve();
-        LO localLO9 = localLO8;
-        LO localLO10 = localLO6;
-        if (this.iLayer < this.iLayerSrc)
-        {
-          localLO9 = localLO6;
-          localLO10 = localLO8;
+            return ((int)(f * 255F) << 24) + (buffer[0] & 0xffffff);
         }
-        LO localLO12 = new LO();
-        LO localLO13 = new LO();
-        localLO12.setField(localLO9);
-        localLO13.setField(localLO10);
-        localLO9.iCopy = i1;
-        localLO10.reserve();
-        localLO9.dAdd(localLO10.offset, localLO3, localLO4, m, n, null);
-        if (localLO8 != localLO10)
-          localLO10.copyTo(localLO3, localLO4, m, n, localLO9, localLO3, localLO4, null);
-        localLO6.clear(localLO3, localLO4, m, n);
-        localLO6.isDraw = true;
-        dCMask(localLO3, localLO4, m, n);
-        localLO9.setField(localLO12);
-        localLO10.setField(localLO13);
-      }
-      break;
-    case 9:
-      localLO5.reserve();
-      arrayOfInt1 = localLO5.offset;
-      LO localLO7 = this.iAlpha / 10 + 1;
-      localLO3 = localLO3 / localLO7 * localLO7;
-      localLO4 = localLO4 / localLO7 * localLO7;
-      int[] arrayOfInt2 = this.user.argb;
-      localLO8 = localLO4;
-      int i2;
-      while (i2 < n)
-      {
-        LO localLO1 = localLO3;
-        while (j < m)
+
+        public int[] getBuffer()
         {
-          int i5 = Math.min(localLO7, k - localLO1);
-          LO localLO14 = Math.min(localLO7, localLO2 - localLO8);
-          for (int i6 = 0; i6 < 4; i6++)
-            arrayOfInt2[i6] = 0;
-          int i7 = 0;
-          int i3;
-          for (LO localLO11 = 0; localLO11 < localLO14; localLO11++)
-            for (i3 = 0; i3 < i5; i3++)
+            return buffer;
+        }
+
+        public long getRect()
+        {
+            return (long)(X > 0 ? X : 0) << 48 | (long)(Y > 0 ? Y : 0) << 32 | (long)(X2 << 16) | (long)Y2;
+        }
+
+        public void setRect(int i, int j, int k, int l)
+        {
+            X = i;
+            Y = j;
+            X2 = k;
+            Y2 = l;
+        }
+
+        public final void addRect(int i, int j, int k, int l)
+        {
+            setRect(Math.min(i, X), Math.min(j, Y), Math.max(k, X2), Math.max(l, Y2));
+        }
+
+        public Image mkImage(int i, int j)
+        {
+            raster.newPixels(image, buffer, i, j);
+            return image;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        public User()
+        {
+            image = null;
+            raster = null;
+            buffer = new int[0x10000];
+            argb = new int[4];
+            points = new int[6];
+            ps2 = null;
+            p = null;
+            pM = -1;
+            pA = -1;
+            pS = -1;
+            pV = 1.0F;
+            pTT = null;
+            wait = 0;
+            isPre = false;
+            pX = new int[4];
+            pY = new int[4];
+            count = 0;
+        }
+    }
+
+    public class Info
+    {
+
+        private ByteStream workOut;
+        public boolean isLEdit;
+        public boolean isFill;
+        public boolean isClean;
+        public long permission;
+        public long unpermission;
+        private Res cnf;
+        private String dirTT;
+        public Graphics g;
+        private int vWidth;
+        private int vHeight;
+        private Dimension vD;
+        private Component component;
+        public int Q;
+        public int L;
+        public LO layers[];
+        public int scale;
+        public int scaleX;
+        public int scaleY;
+        private byte iMOffs[];
+        public int imH;
+        public int imW;
+        public int W;
+        public int H;
+        private int bPen[][][];
+        private float bTT[][];
+        public M m;
+
+        public void setSize(int i, int j, int k)
+        {
+            int l = i * k;
+            int i1 = j * k;
+            if(l != W || i1 != H)
             {
-              i8 = pix(localLO1 + i3, localLO8 + localLO11);
-              i = (localLO8 + localLO11) * k + localLO1 + i3;
-              for (i6 = 0; i6 < 4; i6++)
-                arrayOfInt2[i6] += (i8 >>> i6 * 8 & 0xFF);
-              i7++;
+                for(int j1 = 0; j1 < L; j1++)
+                {
+                    layers[j1].setSize(l, i1);
+                }
+
             }
-          int i8 = arrayOfInt2[3] << 24 | arrayOfInt2[2] / i7 << 16 | arrayOfInt2[1] / i7 << 8 | arrayOfInt2[0] / i7;
-          for (int i4 = localLO8; i4 < localLO8 + localLO14; i4++)
-          {
-            i = k * i4 + localLO1;
-            for (i3 = 0; i3 < i5; i3++)
+            imW = i;
+            imH = j;
+            W = l;
+            H = i1;
+            Q = k;
+            int k1 = W * H;
+            if(iMOffs == null || iMOffs.length < k1)
             {
-              if (arrayOfByte[i] != 0)
-              {
-                arrayOfByte[i] = 0;
-                arrayOfInt1[i] = i8;
-              }
-              i++;
+                iMOffs = new byte[k1];
             }
-          }
-          localLO1 += localLO7;
         }
-        localLO8 += localLO7;
-      }
-      break;
-    case 3:
-      dCMask(localLO3, localLO4, m, n);
-      break;
-    default:
-      if ((this.iHint == 14) || (this.iHint == 9))
-      {
-        dCMask(localLO3, localLO4, m, n);
-      }
-      else
-      {
-        localLO5.reserve();
-        arrayOfInt1 = localLO5.offset;
-        while (localLO4 < n)
+
+        public void setLayers(LO alo[])
         {
-          i = localLO4 * k + localLO3;
-          for (j = localLO3; j < m; j++)
-          {
-            arrayOfInt1[i] = getM(arrayOfInt1[i], arrayOfByte[i] & 0xFF, i);
-            arrayOfByte[i] = 0;
-            i++;
-          }
-          localLO4++;
+            L = alo.length;
+            layers = alo;
         }
-      }
-    }
-    if (this.user.wait >= 0)
-      dBuffer();
-  }
 
-  private final void dCMask(int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    int i = paramInt3 - paramInt1;
-    int j = this.info.W;
-    int k = paramInt2 * j + paramInt1;
-    byte[] arrayOfByte = this.info.iMOffs;
-    for (int m = 0; m < i; m++)
-      arrayOfByte[(k + m)] = 0;
-    paramInt2++;
-    m = k;
-    k += j;
-    while (paramInt2 < paramInt4)
-    {
-      System.arraycopy(arrayOfByte, m, arrayOfByte, k, i);
-      k += j;
-      paramInt2++;
-    }
-  }
-
-  private final boolean dNext()
-    throws InterruptedException
-  {
-    if (this.iSeek >= this.iOffset)
-      return false;
-    int i = this.user.pX[3] + rPo();
-    int j = this.user.pY[3] + rPo();
-    int k = this.iSOB != 0 ? ru() : 0;
-    shift(i, j);
-    this.user.iDCount += 1;
-    if (this.iHint != 11)
-    {
-      if (this.isAnti)
-        dFLine(i, j, k);
-      else
-        dFLine(i, j, k);
-    }
-    else if (this.user.iDCount >= 2)
-      dFLine2(k);
-    return true;
-  }
-
-  public final void dNext(int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-    throws InterruptedException, IOException
-  {
-    int i = this.info.scale;
-    paramInt1 = (paramInt1 / i + this.info.scaleX) * this.info.Q;
-    paramInt2 = (paramInt2 / i + this.info.scaleY) * this.info.Q;
-    if (Math.abs(paramInt1 - this.user.pX[3]) + Math.abs(paramInt2 - this.user.pY[3]) < paramInt4)
-      return;
-    wPo(paramInt1 - this.user.pX[3]);
-    wPo(paramInt2 - this.user.pY[3]);
-    shift(paramInt1, paramInt2);
-    this.user.iDCount += 1;
-    if (this.iSOB != 0)
-      this.info.workOut.write(paramInt3);
-    if (this.iHint == 11)
-    {
-      if (this.user.iDCount >= 2)
-        dFLine2(paramInt3);
-    }
-    else if (this.isAnti)
-      dFLine(paramInt1, paramInt2, paramInt3);
-    else
-      dFLine(paramInt1, paramInt2, paramInt3);
-  }
-
-  private final void dPen(int paramInt1, int paramInt2, float paramFloat)
-  {
-    if (this.iPen == 3)
-    {
-      if (!this.user.isPre)
-        dPY(paramInt1, paramInt2);
-      return;
-    }
-    dPenM(paramInt1, paramInt2, paramFloat);
-    if (this.isOver)
-      dFlush();
-  }
-
-  private final void dPenM(int paramInt1, int paramInt2, float paramFloat)
-  {
-    int m = 0;
-    int[] arrayOfInt1 = getPM();
-    int i2 = this.info.W;
-    int i3 = this.user.pW;
-    int i4 = i3 * Math.max(-paramInt2, 0) + Math.max(-paramInt1, 0);
-    int i5 = Math.min(paramInt1 + i3, i2);
-    int i6 = Math.min(paramInt2 + i3, this.info.H);
-    if ((i5 <= 0) || (i6 <= 0))
-      return;
-    paramInt1 = paramInt1 <= 0 ? 0 : paramInt1;
-    paramInt2 = paramInt2 <= 0 ? 0 : paramInt2;
-    int[] arrayOfInt2 = this.info.layers[this.iLayer].offset;
-    byte[] arrayOfByte = this.info.iMOffs;
-    for (int j = paramInt2; j < i6; j++)
-    {
-      int k = i2 * j + paramInt1;
-      m = i4;
-      i4 += i3;
-      for (int i = paramInt1; i < i5; i++)
-        if (isM(arrayOfInt2[k]))
+        public void setComponent(Component component1, Graphics g1, int i, int j)
         {
-          k++;
-          m++;
+            component = component1;
+            vWidth = i;
+            vHeight = j;
+            g = g1;
         }
-        else
+
+        public void setL(int i)
         {
-          int n = arrayOfByte[k] & 0xFF;
-          int i1 = arrayOfInt1[(m++)];
-          if (i1 == 0)
-            k++;
-          else
-            switch (this.iPen)
+            int j = layers != null ? layers.length : 0;
+            int k = Math.min(j, i);
+            if(j != i)
             {
-            case 1:
-            case 20:
-              i1 = Math.max((int)(i1 * b255[(255 - n >>> 1)] * paramFloat), 1);
-              arrayOfByte[(k++)] = (byte)Math.min(n + i1, 255);
-              break;
-            case 2:
-            case 5:
-            case 6:
-            case 7:
-              if ((i1 = (int)(i1 * getTT(i, j))) != 0)
-                arrayOfByte[k] = (byte)Math.min(n + Math.max((int)(i1 * b255[(255 - n >>> 2)]), 1), 255);
-              k++;
-              break;
-            default:
-              arrayOfByte[(k++)] = (byte)Math.max((int)(i1 * getTT(i, j)), n);
+                LO alo[] = new LO[i];
+                if(layers != null)
+                {
+                    System.arraycopy(layers, 0, alo, 0, k);
+                }
+                for(int l = 0; l < i; l++)
+                {
+                    if(alo[l] == null)
+                    {
+                        alo[l] = LO.getLO(W, H);
+                    }
+                }
+
+                layers = alo;
             }
+            L = i;
         }
-    }
-  }
 
-  private final void dPY(int paramInt1, int paramInt2)
-  {
-    this.info.layers[this.iLayer].reserve();
-    int j = 0;
-    int[] arrayOfInt1 = getPM();
-    int m = this.info.W;
-    int n = this.user.pW;
-    int i1 = n * Math.max(-paramInt2, 0) + Math.max(-paramInt1, 0);
-    int i2 = i1;
-    int i3 = Math.min(paramInt1 + n, m);
-    int i4 = Math.min(paramInt2 + n, this.info.H);
-    paramInt1 = paramInt1 <= 0 ? 0 : paramInt1;
-    paramInt2 = paramInt2 <= 0 ? 0 : paramInt2;
-    if ((i3 - paramInt1 <= 0) || (i4 - paramInt2 <= 0))
-      return;
-    int[] arrayOfInt2 = this.info.layers[this.iLayer].offset;
-    int i5 = 0;
-    int i10 = 0;
-    int i11 = 0;
-    int i12 = 0;
-    int i13 = 0;
-    int i;
-    int i17;
-    int k;
-    int i14;
-    for (int i15 = paramInt2; i15 < i4; i15++)
-    {
-      i = m * i15 + paramInt1;
-      j = i2;
-      i2 += n;
-      for (i17 = paramInt1; i17 < i3; i17++)
-        if (((k = arrayOfInt1[(j++)]) == 0) || (isM(i14 = arrayOfInt2[(i++)])))
+        public void delL(int i)
         {
-          i++;
-        }
-        else
-        {
-          i10 += (i14 >>> 24);
-          i11 += (i14 >>> 16 & 0xFF);
-          i12 += (i14 >>> 8 & 0xFF);
-          i13 += (i14 & 0xFF);
-          i5++;
-        }
-    }
-    if (i5 == 0)
-      return;
-    i10 /= i5;
-    i11 /= i5;
-    i12 /= i5;
-    i13 /= i5;
-    if (this.iAlpha > 0)
-    {
-      float f2 = b255[this.iAlpha] / 3.0F;
-      i17 = this.iColor >>> 16 & 0xFF;
-      int i18 = this.iColor >>> 8 & 0xFF;
-      int i19 = this.iColor & 0xFF;
-      i10 = Math.max((int)(i10 + (255 - i10) * f2), 1);
-      i = (int)((i17 - i11) * f2);
-      i11 += (i17 < i11 ? -1 : i17 > i11 ? 1 : i != 0 ? i : 0);
-      i = (int)((i18 - i12) * f2);
-      i12 += (i18 < i12 ? -1 : i18 > i12 ? 1 : i != 0 ? i : 0);
-      i = (int)((i19 - i13) * f2);
-      i13 += (i19 < i13 ? -1 : i19 > i13 ? 1 : i != 0 ? i : 0);
-    }
-    i2 = i1;
-    for (int i16 = paramInt2; i16 < i4; i16++)
-    {
-      i = m * i16 + paramInt1;
-      j = i2;
-      i2 += n;
-      for (i17 = paramInt1; i17 < i3; i17++)
-      {
-        k = arrayOfInt1[(j++)];
-        i14 = arrayOfInt2[i];
-        float f1;
-        if ((k == 0) || (isM(i14)) || ((f1 = getTT(i17, i16) * b255[k]) == 0.0F))
-        {
-          i++;
-        }
-        else
-        {
-          int i6 = i14 >>> 24;
-          int i7 = i14 >>> 16 & 0xFF;
-          int i9 = i14 >>> 8 & 0xFF;
-          int i8 = i14 & 0xFF;
-          i5 = (int)((i10 - i6) * f1);
-          i6 += (i10 < i6 ? -1 : i10 > i6 ? 1 : i5 != 0 ? i5 : 0);
-          i5 = (int)((i11 - i7) * f1);
-          i7 += (i11 < i7 ? -1 : i11 > i7 ? 1 : i5 != 0 ? i5 : 0);
-          i5 = (int)((i12 - i9) * f1);
-          i9 += (i12 < i9 ? -1 : i12 > i9 ? 1 : i5 != 0 ? i5 : 0);
-          i5 = (int)((i13 - i8) * f1);
-          i8 += (i13 < i8 ? -1 : i13 > i8 ? 1 : i5 != 0 ? i5 : 0);
-          arrayOfInt2[(i++)] = ((i6 << 24) + (i7 << 16) + (i9 << 8) + i8);
-        }
-      }
-    }
-  }
-
-  public final void draw()
-    throws InterruptedException
-  {
-    try
-    {
-      if (this.info == null)
-        return;
-      this.iSeek = 0;
-      switch (this.iHint)
-      {
-      case 0:
-      case 1:
-      case 11:
-        dStart();
-        while (dNext());
-        break;
-      case 10:
-        dClear();
-        break;
-      default:
-        dRetouch();
-      }
-    }
-    catch (InterruptedException localInterruptedException)
-    {
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-    dEnd();
-  }
-
-  private void dRect(int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    int i = this.info.W;
-    int j = this.info.H;
-    byte[] arrayOfByte = this.info.iMOffs;
-    int i1 = (byte)this.iAlpha;
-    if (paramInt1 < 0)
-      paramInt1 = 0;
-    if (paramInt2 < 0)
-      paramInt2 = 0;
-    if (paramInt3 > i)
-      paramInt3 = i;
-    if (paramInt4 > j)
-      paramInt4 = j;
-    if ((paramInt1 >= paramInt3) || (paramInt2 >= paramInt4) || (i1 == 0))
-      return;
-    setD(paramInt1, paramInt2, paramInt3, paramInt4);
-    this.info.layers[this.iLayer].reserve();
-    int[] arrayOfInt = this.info.layers[this.iLayer].offset;
-    int i2;
-    int k;
-    int n;
-    int i3;
-    int i4;
-    int i5;
-    int i6;
-    switch (this.iHint)
-    {
-    case 3:
-      for (i2 = paramInt2; i2 < paramInt4; i2++)
-      {
-        k = i2 * i + paramInt1;
-        for (n = paramInt1; n < paramInt3; n++)
-        {
-          if (!isM(arrayOfInt[k]))
-            arrayOfByte[k] = i1;
-          k++;
-        }
-      }
-      break;
-    case 4:
-      i2 = paramInt1;
-      i3 = paramInt2;
-      i4 = paramInt3;
-      i5 = paramInt4;
-      i6 = 0;
-      break;
-    case 5:
-    case 6:
-      while (true)
-      {
-        k = i * i3 + i2;
-        int m = i * (i5 - 1) + i2;
-        for (n = i2; n < i4; n++)
-        {
-          if (!isM(arrayOfInt[k]))
-            arrayOfByte[k] = i1;
-          if (!isM(arrayOfInt[m]))
-            arrayOfByte[m] = i1;
-          k++;
-          m++;
-        }
-        k = i * i3 + i2;
-        m = i * i3 + i4 - 1;
-        for (int i7 = i3; i7 < i5; i7++)
-        {
-          if (!isM(arrayOfInt[k]))
-            arrayOfByte[k] = i1;
-          if (!isM(arrayOfInt[m]))
-            arrayOfByte[m] = i1;
-          k += i;
-          m += i;
-        }
-        i2++;
-        i4--;
-        i3++;
-        i5--;
-        if ((i4 <= i2) || (i5 <= i3))
-          break;
-        i6++;
-        if (i6 < this.iSize + 1)
-          continue;
-        break;
-        i2 = paramInt3 - paramInt1 - 1;
-        i3 = paramInt4 - paramInt2 - 1;
-        i6 = i2 / 2;
-        i7 = i3 / 2;
-        int i8 = Math.min(Math.min(this.iSize + 1, i6), i7);
-        for (int i9 = 0; i9 < i8; i9++)
-        {
-          float f = 0.0F;
-          while (f < 7.0F)
-          {
-            i4 = paramInt1 + i6 + (int)Math.round(Math.cos(f) * (i6 - i9));
-            i5 = paramInt2 + i7 + (int)Math.round(Math.sin(f) * (i7 - i9));
-            arrayOfByte[(i * i5 + i4)] = i1;
-            f = (float)(f + 0.001D);
-          }
-        }
-        if ((this.iHint == 5) && (i6 > 0) && (i7 > 0))
-        {
-          i9 = this.iColor;
-          this.iColor = i1;
-          dFill(arrayOfByte, paramInt1, paramInt2, paramInt3, paramInt4);
-          this.iColor = i9;
-        }
-        for (i9 = paramInt2; i9 < paramInt4; i9++)
-        {
-          k = i9 * i + paramInt1;
-          for (n = paramInt1; n < paramInt3; n++)
-          {
-            if (isM(arrayOfInt[k]))
-              arrayOfByte[k] = 0;
-            k++;
-          }
-        }
-      }
-    }
-    t();
-  }
-
-  public void dRetouch()
-    throws InterruptedException
-  {
-    try
-    {
-      getPM();
-      this.user.setup(this);
-      int i = this.user.pW / 2;
-      int j = this.info.W;
-      int k = this.info.H;
-      LO[] arrayOfLO = this.info.layers;
-      setD(0, 0, 0, 0);
-      int[] arrayOfInt1 = this.user.points;
-      int m = isText() ? 1 : 4;
-      for (int n = 0; (n < m) && (this.iSeek < this.iOffset); n++)
-        arrayOfInt1[n] = ((r2() & 0xFFFF) << 16 | r2() & 0xFFFF);
-      n = arrayOfInt1[0] >> 16;
-      int i1 = (short)arrayOfInt1[0];
-      Object localObject1;
-      int i3;
-      switch (this.iHint)
-      {
-      case 2:
-        int i2 = this.user.wait;
-        this.user.wait = -2;
-        dStart(n + i, i1 + i, 0, false, false);
-        dBz(arrayOfInt1);
-        this.user.wait = i2;
-        break;
-      case 8:
-      case 12:
-        localObject1 = new String(this.offset, this.iSeek, this.iOffset - this.iSeek, "UTF8");
-        i3 = ((String)localObject1).indexOf(0);
-        dText(((String)localObject1).substring(i3 + 1), n, i1);
-        break;
-      case 9:
-        dCopy(arrayOfInt1);
-        break;
-      case 7:
-        dFill(n, i1);
-        break;
-      case 14:
-        localObject1 = arrayOfLO[this.iLayer];
-        Object localObject2;
-        switch (i1)
-        {
-        case 0:
-          this.info.swapL(this.iLayerSrc, this.iLayer);
-          break;
-        case 1:
-          this.info.setL(arrayOfInt1[1]);
-          break;
-        case 2:
-          this.info.delL(this.iLayerSrc);
-          break;
-        case 3:
-          if (this.iLayer > this.iLayerSrc)
-            for (i3 = this.iLayerSrc; i3 < this.iLayer; i3++)
-              this.info.swapL(i3, i3 + 1);
-          if (this.iLayer >= this.iLayerSrc)
-            break;
-          for (i3 = this.iLayerSrc; i3 > this.iLayer; i3--)
-            this.info.swapL(i3, i3 - 1);
-          break;
-        case 6:
-          try
-          {
-            localObject2 = this.info.component.getToolkit();
-            n = arrayOfInt1[1] >> 16;
-            i1 = (short)arrayOfInt1[1];
-            if ((arrayOfInt1[2] & 0xFF) == 1)
-              localImage = ((Toolkit)localObject2).createImage(this.offset, this.iSeek, this.iOffset - this.iSeek);
-            else
-              localImage = ((Toolkit)localObject2).createImage((byte[])this.info.cnf.getRes(new String(this.offset, this.iSeek, this.iOffset - this.iSeek, "UTF8")));
-            if (localImage == null)
-              break;
-            Awt.wait(localImage);
-            int i5 = localImage.getWidth(null);
-            int i6 = localImage.getHeight(null);
-            int[] arrayOfInt2 = Awt.getPix(localImage);
-            localImage.flush();
-            Image localImage = null;
-            if ((i5 <= 0) || (i6 <= 0))
-              break;
-            arrayOfLO[this.iLayer].toCopy(i5, i6, arrayOfInt2, n, i1);
-          }
-          catch (Throwable localThrowable2)
-          {
-            localThrowable2.printStackTrace();
-          }
-        case 7:
-          int i4 = this.offset[4];
-          localObject2 = new byte[i4 * 4];
-          System.arraycopy(this.offset, 6, localObject2, 0, i4 * 4);
-          dFusion(localObject2);
-          break;
-        case 5:
-        case 8:
-          ((LO)localObject1).iAlpha = b255[(this.offset[4] & 0xFF)];
-          break;
-        case 9:
-          ((LO)localObject1).iCopy = this.offset[4];
-          break;
-        case 10:
-          ((LO)localObject1).name = new String(this.offset, 4, this.iOffset - 4, "UTF8");
-        case 4:
-        }
-        setD(0, 0, j, k);
-        break;
-      case 3:
-      case 4:
-      case 5:
-      case 6:
-      case 10:
-      case 11:
-      case 13:
-      default:
-        dRect(n, i1, arrayOfInt1[1] >> 16, (short)arrayOfInt1[1]);
-      }
-      if (this.isOver)
-        dFlush();
-      if (this.user.wait >= 0)
-        dBuffer();
-    }
-    catch (Throwable localThrowable1)
-    {
-      localThrowable1.printStackTrace();
-    }
-  }
-
-  private void dStart()
-  {
-    try
-    {
-      int i = r2();
-      int j = r2();
-      this.user.setup(this);
-      this.info.layers[this.iLayer].reserve();
-      int k = this.iSOB != 0 ? ru() : 0;
-      if (this.iSOB != 0)
-      {
-        this.iSize = ss(k);
-        this.iAlpha = sa(k);
-      }
-      memset(this.user.pX, i);
-      memset(this.user.pY, j);
-      int m = this.user.pW / 2;
-      setD(i - m - 1, j - m - 1, i + m, j + m);
-      this.user.fX = i;
-      this.user.fY = j;
-      if ((this.iHint != 11) && (!this.isAnti))
-        dFLine(i, j, k);
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-      localRuntimeException.printStackTrace();
-    }
-    catch (InterruptedException localInterruptedException)
-    {
-    }
-  }
-
-  public void dStart(int paramInt1, int paramInt2, int paramInt3, boolean paramBoolean1, boolean paramBoolean2)
-  {
-    try
-    {
-      this.user.setup(this);
-      this.info.layers[this.iLayer].reserve();
-      this.iSize = ss(paramInt3);
-      this.iAlpha = sa(paramInt3);
-      this.user.setup(this);
-      if (paramBoolean2)
-      {
-        int i = this.info.scale;
-        paramInt1 = (paramInt1 / i + this.info.scaleX) * this.info.Q;
-        paramInt2 = (paramInt2 / i + this.info.scaleY) * this.info.Q;
-      }
-      if (paramBoolean1)
-      {
-        ByteStream localByteStream = getWork();
-        localByteStream.w(paramInt1, 2);
-        localByteStream.w(paramInt2, 2);
-        if (this.iSOB != 0)
-          localByteStream.write(paramInt3);
-      }
-      memset(this.user.pX, paramInt1);
-      memset(this.user.pY, paramInt2);
-      int j = this.user.pW / 2;
-      setD(paramInt1 - j - 1, paramInt2 - j - 1, paramInt1 + j, paramInt2 + j);
-      this.user.fX = paramInt1;
-      this.user.fY = paramInt2;
-      if ((this.iHint != 11) && (!this.isAnti))
-        dFLine(paramInt1, paramInt2, paramInt3);
-    }
-    catch (IOException localIOException)
-    {
-      localIOException.printStackTrace();
-    }
-    catch (InterruptedException localInterruptedException)
-    {
-      localInterruptedException.printStackTrace();
-    }
-  }
-
-  private void dText(String paramString, int paramInt1, int paramInt2)
-  {
-    try
-    {
-      int i = this.info.W;
-      int j = this.info.H;
-      int[] arrayOfInt1 = this.info.layers[this.iLayer].offset;
-      byte[] arrayOfByte = this.info.iMOffs;
-      float f = b255[this.iAlpha];
-      if (f == 0.0F)
-        return;
-      Font localFont = getFont(this.iSize);
-      FontMetrics localFontMetrics = this.info.component.getFontMetrics(localFont);
-      if ((paramString == null) || (paramString.length() <= 0))
-        return;
-      this.info.layers[this.iLayer].reserve();
-      int k = this.iHint == 8 ? 1 : 0;
-      int m = localFontMetrics.getMaxAdvance();
-      int n = localFontMetrics.getMaxAscent() + localFontMetrics.getMaxDescent() + localFontMetrics.getLeading() + 2;
-      int i1 = localFontMetrics.getMaxAscent() + localFontMetrics.getLeading() / 2 + 1;
-      int i4 = paramString.length();
-      if (k != 0)
-      {
-        i2 = m * (i4 + 1) + 2;
-        i3 = n;
-      }
-      else
-      {
-        m = localFontMetrics.getMaxAdvance();
-        i2 = m + 2;
-        i3 = (n + this.iCount) * (i4 + 1);
-      }
-      int i2 = Math.min(i2, i);
-      int i3 = Math.min(i3, j);
-      setD(paramInt1, paramInt2, paramInt1 + i2, paramInt2 + i3);
-      Image localImage = this.info.component.createImage(i2, i3);
-      Graphics localGraphics = localImage.getGraphics();
-      localGraphics.setFont(localFont);
-      localGraphics.setColor(Color.black);
-      localGraphics.fillRect(0, 0, i2, i3);
-      localGraphics.setColor(Color.blue);
-      if (k != 0)
-      {
-        localGraphics.drawString(paramString, 1, i1);
-      }
-      else
-      {
-        int i5 = i1;
-        for (i6 = 0; i6 < i4; i6++)
-        {
-          localGraphics.drawString(String.valueOf(paramString.charAt(i6)), 1, i5);
-          i5 += n + this.iCount;
-        }
-      }
-      localGraphics.dispose();
-      localGraphics = null;
-      localFont = null;
-      localFontMetrics = null;
-      int[] arrayOfInt2 = Awt.getPix(localImage);
-      localImage.flush();
-      localImage = null;
-      int i6 = 0;
-      int i8 = Math.min(i - paramInt1, i2);
-      int i9 = Math.min(j - paramInt2, i3);
-      for (int i10 = 0; i10 < i9; i10++)
-      {
-        i6 = i10 * i2;
-        int i7 = (i10 + paramInt2) * i + paramInt1;
-        for (int i11 = 0; i11 < i8; i11++)
-        {
-          if (!isM(arrayOfInt1[i7]))
-            arrayOfByte[i7] = (byte)(int)((arrayOfInt2[i6] & 0xFF) * f);
-          i6++;
-          i7++;
-        }
-      }
-      setD(paramInt1, paramInt2, paramInt1 + i2, paramInt2 + i3);
-      t();
-    }
-    catch (Exception localException)
-    {
-      localException.printStackTrace();
-    }
-  }
-
-  private final int fu(int paramInt1, int paramInt2, int paramInt3)
-  {
-    if (paramInt3 == 0)
-      return paramInt1;
-    int i = paramInt1 >>> 24;
-    int j = i + (int)(paramInt3 * b255[(255 - i)]);
-    float f = b255[Math.min((int)(paramInt3 * b255d[j]), 255)];
-    int k = paramInt1 >>> 16 & 0xFF;
-    int m = paramInt1 >>> 8 & 0xFF;
-    int n = paramInt1 & 0xFF;
-    return j << 24 | k + (int)(((paramInt2 >>> 16 & 0xFF) - k) * f) << 16 | m + (int)(((paramInt2 >>> 8 & 0xFF) - m) * f) << 8 | n + (int)(((paramInt2 & 0xFF) - n) * f);
-  }
-
-  public final void get(OutputStream paramOutputStream, ByteStream paramByteStream, M paramM)
-  {
-    try
-    {
-      paramByteStream.reset();
-      int i = 0;
-      int j = 0;
-      int k = getFlag(paramM);
-      int m = k >>> 8 & 0xFF;
-      int n = k & 0xFF;
-      paramByteStream.write(k >>> 16);
-      paramByteStream.write(m);
-      paramByteStream.write(n);
-      if ((m & 0x1) != 0)
-      {
-        i = this.iHint;
-        j = 1;
-      }
-      if ((m & 0x2) != 0)
-      {
-        if (j != 0)
-          paramByteStream.write(i << 4 | this.iPenM);
-        else
-          i = this.iPenM;
-        j = j != 0 ? 0 : 1;
-      }
-      if ((m & 0x4) != 0)
-      {
-        if (j != 0)
-          paramByteStream.write(i << 4 | this.iMask);
-        else
-          i = this.iMask;
-        j = j != 0 ? 0 : 1;
-      }
-      if (j != 0)
-        paramByteStream.write(i << 4);
-      if ((m & 0x8) != 0)
-        paramByteStream.write(this.iPen);
-      if ((m & 0x10) != 0)
-        paramByteStream.write(this.iTT);
-      if ((m & 0x20) != 0)
-        paramByteStream.write(this.iLayer);
-      if ((m & 0x40) != 0)
-        paramByteStream.write(this.iLayerSrc);
-      if ((n & 0x1) != 0)
-        paramByteStream.write(this.iAlpha);
-      if ((n & 0x2) != 0)
-        paramByteStream.w(this.iColor, 3);
-      if ((n & 0x4) != 0)
-        paramByteStream.w(this.iColorMask, 3);
-      if ((n & 0x8) != 0)
-        paramByteStream.write(this.iSize);
-      if ((n & 0x10) != 0)
-        paramByteStream.write(this.iCount);
-      if ((n & 0x20) != 0)
-        paramByteStream.w(this.iSA, 2);
-      if ((n & 0x40) != 0)
-        paramByteStream.w(this.iSS, 2);
-      if (this.iPen == 20)
-        paramByteStream.w2(this.iAlpha2);
-      if (isText())
-        if (this.strHint == null)
-        {
-          paramByteStream.w2(0);
-        }
-        else
-        {
-          paramByteStream.w2(this.strHint.length);
-          paramByteStream.write(this.strHint);
-        }
-      if ((this.offset != null) && (this.iOffset > 0))
-        paramByteStream.write(this.offset, 0, this.iOffset);
-      paramOutputStream.write(paramByteStream.size() >>> 8);
-      paramOutputStream.write(paramByteStream.size() & 0xFF);
-      paramByteStream.writeTo(paramOutputStream);
-    }
-    catch (IOException localIOException)
-    {
-      localIOException.printStackTrace();
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-      localRuntimeException.printStackTrace();
-    }
-  }
-
-  private final int getFlag(M paramM)
-  {
-    int j = 0;
-    if (this.isAllL)
-      j |= 1;
-    if (this.isAFix)
-      j |= 2;
-    if (this.isAnti)
-      j |= 16;
-    if (this.isCount)
-      j |= 8;
-    if (this.isOver)
-      j |= 4;
-    j |= this.iSOB << 6;
-    int i = j << 16;
-    if (paramM == null)
-      return i | 0xFFFF;
-    j = 0;
-    if (this.iHint != paramM.iHint)
-      j |= 1;
-    if (this.iPenM != paramM.iPenM)
-      j |= 2;
-    if (this.iMask != paramM.iMask)
-      j |= 4;
-    if (this.iPen != paramM.iPen)
-      j |= 8;
-    if (this.iTT != paramM.iTT)
-      j |= 16;
-    if (this.iLayer != paramM.iLayer)
-      j |= 32;
-    if (this.iLayerSrc != paramM.iLayerSrc)
-      j |= 64;
-    i |= j << 8;
-    j = 0;
-    if (this.iAlpha != paramM.iAlpha)
-      j |= 1;
-    if (this.iColor != paramM.iColor)
-      j |= 2;
-    if (this.iColorMask != paramM.iColorMask)
-      j |= 4;
-    if (this.iSize != paramM.iSize)
-      j |= 8;
-    if (this.iCount != paramM.iCount)
-      j |= 16;
-    if (this.iSA != paramM.iSA)
-      j |= 32;
-    if (this.iSS != paramM.iSS)
-      j |= 64;
-    return i | j;
-  }
-
-  public Image getImage(int paramInt1, int paramInt2, int paramInt3, int paramInt4, int paramInt5)
-  {
-    paramInt2 = Math.round(paramInt2 / this.info.scale) + this.info.scaleX;
-    paramInt3 = Math.round(paramInt3 / this.info.scale) + this.info.scaleY;
-    paramInt4 /= this.info.scale;
-    paramInt5 /= this.info.scale;
-    int i = this.info.Q;
-    if (i <= 1)
-      return this.info.component.createImage(new MemoryImageSource(paramInt4, paramInt5, this.info.layers[paramInt1].offset, paramInt3 * this.info.W + paramInt2, this.info.W));
-    Image localImage1 = this.info.component.createImage(new MemoryImageSource(paramInt4 * i, paramInt5 * i, this.info.layers[paramInt1].offset, paramInt3 * i * this.info.W + paramInt2 * i, this.info.W));
-    Image localImage2 = localImage1.getScaledInstance(paramInt4, paramInt5, 2);
-    localImage1.flush();
-    return localImage2;
-  }
-
-  private final int getM(int paramInt1, int paramInt2, int paramInt3)
-  {
-    if (paramInt2 == 0)
-      return paramInt1;
-    int i;
-    int j;
-    int k;
-    int m;
-    float f2;
-    switch (this.iPen)
-    {
-    case 12:
-    case 13:
-    case 14:
-    case 15:
-    case 16:
-    case 17:
-    case 18:
-    case 19:
-    default:
-      return fu(paramInt1, this.iColor, paramInt2);
-    case 4:
-    case 5:
-      i = paramInt1 >>> 24;
-      j = i - (int)(i * b255[paramInt2]);
-      return j == 0 ? 16777215 : j << 24 | paramInt1 & 0xFFFFFF;
-    case 6:
-    case 11:
-      i = paramInt1 >>> 24;
-      j = paramInt1 >>> 16 & 0xFF;
-      k = paramInt1 >>> 8 & 0xFF;
-      m = paramInt1 & 0xFF;
-      f2 = b255[paramInt2];
-      return (i << 24) + (Math.min(j + (int)(j * f2), 255) << 16) + (Math.min(k + (int)(k * f2), 255) << 8) + Math.min(m + (int)(m * f2), 255);
-    case 7:
-      i = paramInt1 >>> 24;
-      j = paramInt1 >>> 16 & 0xFF;
-      k = paramInt1 >>> 8 & 0xFF;
-      m = paramInt1 & 0xFF;
-      f2 = b255[paramInt2];
-      return (i << 24) + (Math.max(j - (int)((255 - j) * f2), 0) << 16) + (Math.max(k - (int)((255 - k) * f2), 0) << 8) + Math.max(m - (int)((255 - m) * f2), 0);
-    case 8:
-      (paramInt1 >>> 24);
-      (paramInt1 >>> 16 & 0xFF);
-      (paramInt1 >>> 8 & 0xFF);
-      (paramInt1 & 0xFF);
-      float f1 = b255[paramInt2];
-      int[] arrayOfInt1 = this.user.argb;
-      int[] arrayOfInt2 = this.info.layers[this.iLayer].offset;
-      int n = this.info.W;
-      for (int i1 = 0; i1 < 4; i1++)
-        arrayOfInt1[i1] = 0;
-      k = paramInt3 % n;
-      paramInt3 += (k == n - 1 ? -1 : k == 0 ? 1 : 0);
-      paramInt3 += (paramInt3 > n * (this.info.H - 1) ? -n : paramInt3 < n ? n : 0);
-      for (i1 = -1; i1 < 2; i1++)
-        for (int i2 = -1; i2 < 2; i2++)
-        {
-          k = arrayOfInt2[(paramInt3 + i2 + i1 * n)];
-          (k >>> 24);
-          for (int i3 = 0; i3 < 4; i3++)
-            arrayOfInt1[i3] += (k >>> (i3 << 3) & 0xFF);
-        }
-      for (i1 = 0; i1 < 4; i1++)
-      {
-        k = paramInt1 >>> (i1 << 3) & 0xFF;
-        arrayOfInt1[i1] = (k + (int)((arrayOfInt1[i1] / 9 - k) * f1));
-      }
-      return arrayOfInt1[3] << 24 | arrayOfInt1[2] << 16 | arrayOfInt1[1] << 8 | arrayOfInt1[0];
-    case 9:
-    case 20:
-      if (paramInt2 == 0)
-        return paramInt1;
-      return paramInt2 << 24 | 0xFF0000;
-    case 10:
-    }
-    return paramInt2 << 24 | this.iColor;
-  }
-
-  public final byte[] getOffset()
-  {
-    return this.offset;
-  }
-
-  private final int[] getPM()
-  {
-    if ((isText()) || ((this.iHint >= 3) && (this.iHint <= 6)))
-      return null;
-    int[] arrayOfInt1 = this.user.p;
-    if ((this.user.pM != this.iPenM) || (this.user.pA != this.iAlpha) || (this.user.pS != this.iSize))
-    {
-      int[][] arrayOfInt = this.info.bPen[this.iPenM];
-      int[] arrayOfInt2 = arrayOfInt[this.iSize];
-      int i = arrayOfInt2.length;
-      if ((arrayOfInt1 == null) || (arrayOfInt1.length < i))
-        arrayOfInt1 = new int[i];
-      float f = b255[this.iAlpha];
-      for (int j = 0; j < i; j++)
-        arrayOfInt1[j] = (int)(arrayOfInt2[j] * f);
-      this.user.pW = (int)Math.sqrt(i);
-      this.user.pM = this.iPenM;
-      this.user.pA = this.iAlpha;
-      this.user.pS = this.iSize;
-      this.user.p = arrayOfInt1;
-      this.user.countMax = (this.iCount >= 0 ? this.iCount : (int)(this.user.pW / (float)Math.sqrt(arrayOfInt[(arrayOfInt.length - 1)].length) * -this.iCount));
-      this.user.count = Math.min(this.user.countMax, this.user.count);
-    }
-    return arrayOfInt1;
-  }
-
-  private final float getTT(int paramInt1, int paramInt2)
-  {
-    if (this.iTT == 0)
-      return 1.0F;
-    if (this.iTT < 12)
-      return isTone(this.iTT - 1, paramInt1, paramInt2) ? 0 : 1;
-    int i = this.user.pTTW;
-    return this.user.pTT[(paramInt2 % i * i + paramInt1 % i)];
-  }
-
-  private final ByteStream getWork()
-  {
-    this.info.workOut.reset();
-    return this.info.workOut;
-  }
-
-  private final boolean isM(int paramInt)
-  {
-    if (this.iMask == 0)
-      return false;
-    paramInt &= 16777215;
-    return this.iColorMask == paramInt;
-  }
-
-  public static final boolean isTone(int paramInt1, int paramInt2, int paramInt3)
-  {
-    switch (paramInt1)
-    {
-    default:
-      break;
-    case 10:
-      if (((paramInt2 + 3) % 4 != 0) || ((paramInt3 + 2) % 4 != 0))
-        break;
-      return true;
-    case 9:
-    case 8:
-      if ((((paramInt2 + 1) % 4 == 0) && ((paramInt3 + 2) % 4 == 0)) || (paramInt2 % 2 == 0) || ((paramInt3 + 1) % 2 == 0))
-        break;
-      return true;
-      break;
-    case 7:
-    case 6:
-    case 5:
-      if ((((paramInt2 + 2) % 4 == 0) && ((paramInt3 + 3) % 4 == 0)) || ((paramInt2 % 4 == 0) && ((paramInt3 + 1) % 4 == 0)) || ((paramInt2 + 1) % 2 == (paramInt3 + 1) % 2))
-        break;
-      return true;
-    case 4:
-    case 3:
-      if ((((paramInt2 + 1) % 4 == 0) && ((paramInt3 + 3) % 4 == 0)) || ((paramInt2 % 2 == 0) && (paramInt3 % 2 == 0)))
-        break;
-      return true;
-    case 2:
-    case 1:
-    case 0:
-      if ((((paramInt2 + 2) % 4 == 0) && ((paramInt3 + 4) % 4 == 0)) || (((paramInt2 + 2) % 4 == 0) && ((paramInt3 + 2) % 4 == 0)) || ((paramInt2 % 4 == 0) && (paramInt3 % 4 == 0)))
-        break;
-      return true;
-    }
-    return false;
-  }
-
-  private int[] loadIm(Object paramObject, boolean paramBoolean)
-  {
-    try
-    {
-      Component localComponent = this.info.component;
-      Image localImage = localComponent.getToolkit().createImage((byte[])this.info.cnf.getRes(paramObject));
-      this.info.cnf.remove(paramObject);
-      Awt.wait(localImage);
-      int[] arrayOfInt = Awt.getPix(localImage);
-      int i = arrayOfInt.length;
-      localImage.flush();
-      localImage = null;
-      int j;
-      if (paramBoolean)
-        for (j = 0; j < i; j++)
-          arrayOfInt[j] = (arrayOfInt[j] & 0xFF ^ 0xFF);
-      else
-        for (j = 0; j < i; j++)
-          arrayOfInt[j] &= 255;
-      return arrayOfInt;
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-    }
-    return null;
-  }
-
-  public final void m_paint(int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    int i = this.info.scale;
-    int j = this.info.Q;
-    paramInt1 = (paramInt1 / i + this.info.scaleX) * j;
-    paramInt2 = (paramInt2 / i + this.info.scaleY) * j;
-    paramInt3 = paramInt3 / i * j;
-    paramInt4 = paramInt4 / i * j;
-    dBuffer(false, paramInt1, paramInt2, paramInt1 + paramInt3, paramInt2 + paramInt4);
-  }
-
-  public final void memset(float[] paramArrayOfFloat, float paramFloat)
-  {
-    int i = paramArrayOfFloat.length >>> 1;
-    for (int j = 0; j < i; j++)
-      paramArrayOfFloat[j] = paramFloat;
-    System.arraycopy(paramArrayOfFloat, 0, paramArrayOfFloat, i - 1, i);
-    paramArrayOfFloat[(i + i - 1)] = paramFloat;
-  }
-
-  public final void memset(int[] paramArrayOfInt, int paramInt)
-  {
-    int i = paramArrayOfInt.length >>> 1;
-    for (int j = 0; j < i; j++)
-      paramArrayOfInt[j] = paramInt;
-    System.arraycopy(paramArrayOfInt, 0, paramArrayOfInt, i - 1, i);
-    paramArrayOfInt[(i + i - 1)] = paramInt;
-  }
-
-  public final void memset(byte[] paramArrayOfByte, byte paramByte)
-  {
-    int i = paramArrayOfByte.length >>> 1;
-    for (int j = 0; j < i; j++)
-      paramArrayOfByte[j] = paramByte;
-    System.arraycopy(paramArrayOfByte, 0, paramArrayOfByte, i - 1, i);
-    paramArrayOfByte[(i + i - 1)] = paramByte;
-  }
-
-  public final Image mkLPic(int[] paramArrayOfInt, int paramInt1, int paramInt2, int paramInt3, int paramInt4, int paramInt5)
-  {
-    paramInt1 *= paramInt5;
-    paramInt2 *= paramInt5;
-    paramInt3 *= paramInt5;
-    paramInt4 *= paramInt5;
-    int i = paramArrayOfInt == null ? 1 : 0;
-    int j = this.info.L;
-    LO[] arrayOfLO = this.info.layers;
-    if (i != 0)
-      paramArrayOfInt = this.user.buffer;
-    memset(paramArrayOfInt, 16777215);
-    for (int k = 0; k < j; k++)
-      arrayOfLO[k].draw(paramArrayOfInt, paramInt1, paramInt2, paramInt1 + paramInt3, paramInt2 + paramInt4, paramInt3);
-    if (i != 0)
-      this.user.raster.newPixels(this.user.image, paramInt3, paramInt4, paramInt5);
-    else
-      this.user.raster.scale(paramArrayOfInt, paramInt3, paramInt4, paramInt5);
-    return this.user.image;
-  }
-
-  private final Image mkMPic(int paramInt1, int paramInt2, int paramInt3, int paramInt4, int paramInt5)
-  {
-    paramInt1 *= paramInt5;
-    paramInt2 *= paramInt5;
-    paramInt3 *= paramInt5;
-    paramInt4 *= paramInt5;
-    int[] arrayOfInt1 = this.user.buffer;
-    int i = this.info.L;
-    LO[] arrayOfLO = this.info.layers;
-    memset(arrayOfInt1, 16777215);
-    for (int j = 0; j < i; j++)
-      if (j == this.iLayer)
-      {
-        byte[] arrayOfByte = this.info.iMOffs;
-        int[] arrayOfInt2 = arrayOfLO[j].offset;
-        int i5 = this.info.W;
-        float f1 = arrayOfLO[j].iAlpha;
-        if (arrayOfInt2 == null)
-          continue;
-        int i4;
-        int i1;
-        int i2;
-        int i3;
-        int i7;
-        int i6;
-        float f2;
-        int k;
-        int m;
-        int n;
-        switch (arrayOfLO[j].iCopy)
-        {
-        case 1:
-          for (i4 = 0; i4 < paramInt4; i4++)
-          {
-            i1 = i5 * (i4 + paramInt2) + paramInt1;
-            i2 = paramInt3 * i4;
-            for (i3 = 0; i3 < paramInt3; i3++)
+            int j = layers.length;
+            if(i >= j)
             {
-              i7 = arrayOfInt1[i2];
-              i6 = getM(arrayOfInt2[i1], arrayOfByte[i1] & 0xFF, i1);
-              f2 = b255[(i6 >>> 24)] * f1;
-              if (f2 > 0.0F)
-                arrayOfInt1[i2] = (((i7 >>> 16 & 0xFF) - (int)(b255[(i7 >>> 16 & 0xFF)] * ((i6 >>> 16 & 0xFF ^ 0xFF) * f2)) << 16) + ((i7 >>> 8 & 0xFF) - (int)(b255[(i7 >>> 8 & 0xFF)] * ((i6 >>> 8 & 0xFF ^ 0xFF) * f2)) << 8) + ((i7 & 0xFF) - (int)(b255[(i7 & 0xFF)] * ((i6 & 0xFF ^ 0xFF) * f2))));
-              i2++;
-              i1++;
+                return;
             }
-          }
-          break;
-        case 2:
-          for (i4 = 0; i4 < paramInt4; i4++)
-          {
-            i1 = i5 * (i4 + paramInt2) + paramInt1;
-            i2 = paramInt3 * i4;
-            for (i3 = 0; i3 < paramInt3; i3++)
+            LO alo[] = new LO[j - 1];
+            int k = 0;
+            for(int l = 0; l < j; l++)
             {
-              i7 = arrayOfInt1[i2];
-              i6 = getM(arrayOfInt2[i1], arrayOfByte[i1] & 0xFF, i1);
-              f2 = b255[(i6 >>> 24)] * f1;
-              i6 ^= 16777215;
-              k = i7 >>> 16 & 0xFF;
-              m = i7 >>> 8 & 0xFF;
-              n = i7 & 0xFF;
-              arrayOfInt1[(i2++)] = (f2 == 1.0F ? i6 : k + (int)(((i6 >>> 16 & 0xFF) - k) * f2) << 16 | m + (int)(((i6 >>> 8 & 0xFF) - m) * f2) << 8 | n + (int)(((i6 & 0xFF) - n) * f2));
-              i1++;
+                if(l != i)
+                {
+                    alo[k++] = layers[l];
+                }
             }
-          }
-          break;
-        default:
-          for (i4 = 0; i4 < paramInt4; i4++)
-          {
-            i1 = i5 * (i4 + paramInt2) + paramInt1;
-            i2 = paramInt3 * i4;
-            for (i3 = 0; i3 < paramInt3; i3++)
+
+            layers = alo;
+            L = j - 1;
+        }
+
+        public void swapL(int i, int j)
+        {
+            int k = Math.max(i, j);
+            if(k >= L)
             {
-              i7 = arrayOfInt1[i2];
-              i6 = getM(arrayOfInt2[i1], arrayOfByte[i1] & 0xFF, i1);
-              f2 = b255[(i6 >>> 24)] * f1;
-              if (f2 == 1.0F)
-              {
-                arrayOfInt1[(i2++)] = i6;
-              }
-              else
-              {
-                k = i7 >>> 16 & 0xFF;
-                m = i7 >>> 8 & 0xFF;
-                n = i7 & 0xFF;
-                arrayOfInt1[(i2++)] = (k + (int)(((i6 >>> 16 & 0xFF) - k) * f2) << 16 | m + (int)(((i6 >>> 8 & 0xFF) - m) * f2) << 8 | n + (int)(((i6 & 0xFF) - n) * f2));
-              }
-              i1++;
+                setL(k);
             }
-          }
-          break;
+            layers[i].isDraw = true;
+            layers[j].isDraw = true;
+            layers[i].swap(layers[j]);
         }
-      }
-      else
-      {
-        arrayOfLO[j].draw(arrayOfInt1, paramInt1, paramInt2, paramInt1 + paramInt3, paramInt2 + paramInt4, paramInt3);
-      }
-    this.user.raster.newPixels(this.user.image, paramInt3, paramInt4, paramInt5);
-    return this.user.image;
-  }
 
-  public Info newInfo(Applet paramApplet, Component paramComponent, Res paramRes)
-  {
-    if (this.info != null)
-      return this.info;
-    this.info = new Info();
-    this.info.cnf = paramRes;
-    this.info.component = paramComponent;
-    Info localInfo = this.info;
-    M localM = this.info.m;
-    float f1 = 3.141593F;
-    for (int i = 1; i < 256; i++)
-    {
-      b255[i] = (i / 255.0F);
-      b255d[i] = (255.0F / i);
-    }
-    b255[0] = 0.0F;
-    b255d[0] = 0.0F;
-    int[][][] arrayOfInt = this.info.bPen;
-    int i5 = 0;
-    int i7 = 1;
-    int i9 = 255;
-    localM.iAlpha = 255;
-    set(localM);
-    int[][] arrayOfInt1 = new int[23];
-    int n;
-    int i8;
-    for (i = 0; i < 23; i++)
-    {
-      n = i7 * i7;
-      int j;
-      if (i7 <= 6)
-      {
-        int[] tmp185_183 = new int[n];
-        arrayOfInt2 = tmp185_183;
-        arrayOfInt1[i] = tmp185_183;
-        i8 = i7;
-        for (j = 0; j < n; j++)
-          arrayOfInt2[j] = ((j < i7) || (n - j < i7) || (j % i7 == 0) || (j % i7 == i7 - 1) ? i9 : localM.iAlpha);
-        if (i7 >= 3)
+        public boolean addScale(int i, boolean flag)
         {
-          int tmp296_295 = (arrayOfInt2[(i7 * (i7 - 1))] = arrayOfInt2[(n - 1)] = 0);
-          arrayOfInt2[(i7 - 1)] = tmp296_295;
-          arrayOfInt2[0] = tmp296_295;
+            if(flag)
+            {
+                if(i <= 0)
+                {
+                    scale = 1;
+                    setQuality(1 - i);
+                } else
+                {
+                    setQuality(1);
+                    scale = i;
+                }
+                return true;
+            }
+            int j = scale + i;
+            if(j > 32)
+            {
+                return false;
+            }
+            if(j <= 0)
+            {
+                scale = 1;
+                setQuality((Q + 1) - j);
+            } else
+            if(Q >= 2)
+            {
+                setQuality(Q - 1);
+            } else
+            {
+                setQuality(1);
+                scale = j;
+            }
+            return true;
         }
-      }
-      else
-      {
-        i8 = i7 + 1;
-        int[] tmp319_317 = new int[i8 * i8];
-        arrayOfInt2 = tmp319_317;
-        arrayOfInt1[i] = tmp319_317;
-        int i6 = (i7 - 1) / 2;
-        int i1 = (int)(Math.round(2.0F * f1 * i6) * 3.0F);
-        for (j = 0; j < i1; j++)
+
+        public void setQuality(int i)
         {
-          int i4 = Math.min(i6 + (int)Math.round(i6 * Math.cos(j)), i7);
-          i5 = Math.min(i6 + (int)Math.round(i6 * Math.sin(j)), i7);
-          arrayOfInt2[(i5 * i8 + i4)] = i9;
+            Q = i;
+            imW = W / Q;
+            imH = H / Q;
         }
-        localInfo.W = (localInfo.H = i8);
-        dFill(arrayOfInt2, 0, 0, i8, i8);
-      }
-      i7 += (i < 18 ? 2 : i <= 7 ? 1 : 4);
-    }
-    arrayOfInt[0] = arrayOfInt1;
-    localM.iAlpha = 255;
-    arrayOfInt1 = new int[32];
-    arrayOfInt1[0] = { 128 };
-    arrayOfInt1[1] = { 255 };
-    arrayOfInt1[2] = { 0, 128, 0, 128, 255, 128, 0, 128 };
-    arrayOfInt1[3] = { 128, 174, 128, 174, 255, 174, 128, 174, 128 };
-    arrayOfInt1[4] = { 174, 255, 174, 255, 255, 255, 174, 255, 174 };
-    arrayOfInt1[5] = new int[9];
-    memset(arrayOfInt1[5], 255);
-    arrayOfInt1[6] = { 0, 128, 128, 0, 128, 255, 255, 128, 128, 255, 255, 128, 0, 128, 128 };
-    int[] arrayOfInt2 = arrayOfInt1[7] =  = new int[16];
-    memset(arrayOfInt2, 255);
-    char tmp857_856 = (arrayOfInt2[15] = arrayOfInt2[12] = '');
-    arrayOfInt2[3] = tmp857_856;
-    arrayOfInt2[0] = tmp857_856;
-    memset(arrayOfInt1[8] =  = new int[16], 255);
-    i7 = 3;
-    int m;
-    for (i = 9; i < 32; i++)
-    {
-      i8 = i7 + 3;
-      float f6 = i7 / 2.0F;
-      int[] tmp911_909 = new int[i8 * i8];
-      arrayOfInt2 = tmp911_909;
-      arrayOfInt1[i] = tmp911_909;
-      int i2 = (int)(Math.round(2.0F * f1 * f6) * (2 + i / 16)) + i * 2;
-      for (int k = 0; k < i2; k++)
-      {
-        float f2;
-        int i10 = (int)(f2 = f6 + 1.5F + f6 * (float)Math.cos(k));
-        float f3;
-        int i11 = (int)(f3 = f6 + 1.5F + f6 * (float)Math.sin(k));
-        float f4 = f2 - i10;
-        float f5 = f3 - i11;
-        int i12 = i11 * i8 + i10;
-        arrayOfInt2[i12] += (int)((1.0F - f4) * 255.0F);
-        arrayOfInt2[(i12 + 1)] += (int)(f4 * 255.0F);
-        arrayOfInt2[(i12 + i8)] += (int)((1.0F - f5) * 255.0F);
-        arrayOfInt2[(i12 + i8 + 1)] += (int)(f5 * 255.0F);
-      }
-      n = i8 * i8;
-      for (m = 0; m < n; m++)
-        arrayOfInt2[m] = Math.min(arrayOfInt2[m], 255);
-      i7 += 2;
-      localInfo.W = (localInfo.H = i8);
-      dFill(arrayOfInt2, 0, 0, i8, i8);
-    }
-    arrayOfInt[1] = arrayOfInt1;
-    set(null);
-    localM.set(null);
-    if (paramRes != null)
-    {
-      for (i = 0; i < 16; i++)
-      {
-        for (int i3 = 0; paramRes.get("pm" + i + '/' + i3 + ".gif") != null; i3++);
-        if (i3 <= 0)
-          continue;
-        arrayOfInt[i] = new int[i3];
-        for (m = 0; m < i3; m++)
-          arrayOfInt[i][m] = loadIm("pm" + i + '/' + m + ".gif", true);
-      }
-      this.info.bTT = new float[paramRes.getP("tt_size", 31)];
-    }
-    String str = paramApplet.getParameter("tt.zip");
-    if ((str != null) && (str.length() > 0))
-      this.info.dirTT = str;
-    return this.info;
-  }
 
-  public User newUser(Component paramComponent)
-  {
-    if (this.user == null)
-    {
-      this.user = new User();
-      if (color_model == null)
-        color_model = new DirectColorModel(24, 16711680, 65280, 255);
-      this.user.raster = new SRaster(color_model, this.user.buffer, 128, 128);
-      this.user.image = paramComponent.createImage(this.user.raster);
-    }
-    return this.user;
-  }
-
-  public final int pix(int paramInt1, int paramInt2)
-  {
-    if (!this.isAllL)
-      return this.info.layers[this.iLayer].getPixel(paramInt1, paramInt2);
-    int i = this.info.L;
-    int k = 0;
-    int n = 16777215;
-    (this.info.W * paramInt2 + paramInt1);
-    for (int i2 = 0; i2 < i; i2++)
-    {
-      int i1 = this.info.layers[i2].getPixel(paramInt1, paramInt2);
-      float f = b255[(i1 >>> 24)];
-      if (f == 0.0F)
-        continue;
-      if (f == 1.0F)
-      {
-        n = i1;
-        k = 255;
-      }
-      k = (int)(k + (255 - k) * f);
-      int j = 0;
-      for (int i3 = 16; i3 >= 0; i3 -= 8)
-      {
-        int m = n >>> i3 & 0xFF;
-        j |= m + (int)(((i1 >>> i3 & 0xFF) - m) * f) << i3;
-      }
-      n = j;
-    }
-    return k << 24 | n;
-  }
-
-  private final byte r()
-  {
-    if (this.iSeek >= this.iOffset)
-      return 0;
-    return this.offset[(this.iSeek++)];
-  }
-
-  private final int r(byte[] paramArrayOfByte, int paramInt1, int paramInt2)
-  {
-    int i = 0;
-    for (int j = paramInt2 - 1; j >= 0; j--)
-      i |= (paramArrayOfByte[(paramInt1++)] & 0xFF) << j * 8;
-    return i;
-  }
-
-  private final short r2()
-  {
-    return (short)((ru() << 8) + ru());
-  }
-
-  public void reset(boolean paramBoolean)
-  {
-    byte[] arrayOfByte = this.info.iMOffs;
-    int j = this.info.W;
-    int k = Math.max(this.user.X, 0);
-    int m = Math.max(this.user.Y, 0);
-    int n = Math.min(this.user.X2, j);
-    int i1 = Math.min(this.user.Y2, this.info.H);
-    for (int i3 = m; i3 < i1; i3++)
-    {
-      int i = k + i3 * j;
-      for (int i2 = k; i2 < n; i2++)
-        arrayOfByte[(i++)] = 0;
-    }
-    if (paramBoolean)
-      dBuffer(false, k, m, n, i1);
-    setD(0, 0, 0, 0);
-  }
-
-  private final int rPo()
-  {
-    int i = r();
-    return i != -128 ? i : r2();
-  }
-
-  private final int ru()
-  {
-    return r() & 0xFF;
-  }
-
-  private final int s(int paramInt1, int paramInt2, int paramInt3)
-  {
-    byte[] arrayOfByte = this.info.iMOffs;
-    int i = this.info.W - 1;
-    int j = (i + 1) * paramInt3 + paramInt2;
-    while ((paramInt2 < i) && (pix(paramInt2 + 1, paramInt3) == paramInt1) && (arrayOfByte[(j + 1)] == 0))
-    {
-      j++;
-      paramInt2++;
-    }
-    return paramInt2;
-  }
-
-  private final int sa(int paramInt)
-  {
-    if ((this.iSOB & 0x1) == 0)
-      return this.iAlpha;
-    int i = this.iSA & 0xFF;
-    return i + (int)(b255[((this.iSA >>> 8) - i)] * paramInt);
-  }
-
-  public final int set(byte[] paramArrayOfByte, int paramInt)
-  {
-    int i = (paramArrayOfByte[(paramInt++)] & 0xFF) << 8 | paramArrayOfByte[(paramInt++)] & 0xFF;
-    int j = paramInt;
-    if (i <= 2)
-      return i + 2;
-    try
-    {
-      int k = 0;
-      int m = 0;
-      int n = paramArrayOfByte[(paramInt++)] & 0xFF;
-      int i1 = paramArrayOfByte[(paramInt++)] & 0xFF;
-      int i2 = paramArrayOfByte[(paramInt++)] & 0xFF;
-      this.isAllL = ((n & 0x1) != 0);
-      this.isAFix = ((n & 0x2) != 0);
-      this.isOver = ((n & 0x4) != 0);
-      this.isCount = ((n & 0x8) != 0);
-      this.isAnti = ((n & 0x10) != 0);
-      this.iSOB = (n >>> 6);
-      if ((i1 & 0x1) != 0)
-      {
-        k = paramArrayOfByte[(paramInt++)] & 0xFF;
-        m = 1;
-        this.iHint = (k >>> 4);
-      }
-      if ((i1 & 0x2) != 0)
-      {
-        if (m == 0)
+        public Dimension getSize()
         {
-          k = paramArrayOfByte[(paramInt++)] & 0xFF;
-          this.iPenM = (k >>> 4);
+            vD.setSize(vWidth, vHeight);
+            return vD;
         }
-        else
-        {
-          this.iPenM = (k & 0xF);
-        }
-        m = m != 0 ? 0 : 1;
-      }
-      if ((i1 & 0x4) != 0)
-      {
-        if (m == 0)
-        {
-          k = paramArrayOfByte[(paramInt++)] & 0xFF;
-          this.iMask = (k >>> 4);
-        }
-        else
-        {
-          this.iMask = (k & 0xF);
-        }
-        m = m != 0 ? 0 : 1;
-      }
-      if ((i1 & 0x8) != 0)
-        this.iPen = (paramArrayOfByte[(paramInt++)] & 0xFF);
-      if ((i1 & 0x10) != 0)
-        this.iTT = (paramArrayOfByte[(paramInt++)] & 0xFF);
-      if ((i1 & 0x20) != 0)
-        this.iLayer = (paramArrayOfByte[(paramInt++)] & 0xFF);
-      if ((i1 & 0x40) != 0)
-        this.iLayerSrc = (paramArrayOfByte[(paramInt++)] & 0xFF);
-      if ((i2 & 0x1) != 0)
-        this.iAlpha = (paramArrayOfByte[(paramInt++)] & 0xFF);
-      if ((i2 & 0x2) != 0)
-      {
-        this.iColor = r(paramArrayOfByte, paramInt, 3);
-        paramInt += 3;
-      }
-      if ((i2 & 0x4) != 0)
-      {
-        this.iColorMask = r(paramArrayOfByte, paramInt, 3);
-        paramInt += 3;
-      }
-      if ((i2 & 0x8) != 0)
-        this.iSize = (paramArrayOfByte[(paramInt++)] & 0xFF);
-      if ((i2 & 0x10) != 0)
-        this.iCount = paramArrayOfByte[(paramInt++)];
-      if ((i2 & 0x20) != 0)
-      {
-        this.iSA = r(paramArrayOfByte, paramInt, 2);
-        paramInt += 2;
-      }
-      if ((i2 & 0x40) != 0)
-      {
-        this.iSS = r(paramArrayOfByte, paramInt, 2);
-        paramInt += 2;
-      }
-      if (this.iPen == 20)
-      {
-        this.iAlpha2 = r(paramArrayOfByte, paramInt, 2);
-        paramInt += 2;
-      }
-      if (isText())
-      {
-        int i3 = r(paramArrayOfByte, paramInt, 2);
-        paramInt += 2;
-        if (i3 == 0)
-        {
-          this.strHint = null;
-        }
-        else
-        {
-          this.strHint = new byte[i3];
-          System.arraycopy(paramArrayOfByte, paramInt, this.strHint, 0, i3);
-          paramInt += i3;
-        }
-      }
-      j = i - (paramInt - j);
-      if (j > 0)
-      {
-        if ((this.offset == null) || (this.offset.length < j))
-          this.offset = new byte[j];
-        this.iOffset = j;
-        System.arraycopy(paramArrayOfByte, paramInt, this.offset, 0, j);
-      }
-      else
-      {
-        this.iOffset = 0;
-      }
-    }
-    catch (RuntimeException localRuntimeException)
-    {
-      localRuntimeException.printStackTrace();
-      this.iOffset = 0;
-    }
-    return i + 2;
-  }
 
-  public final void set(String paramString)
-  {
-    try
+        private void center(Point point)
+        {
+            point.x = point.x / scale + scaleX;
+            point.y = point.y / scale + scaleY;
+        }
+
+        public int[][][] getPenMask()
+        {
+            return bPen;
+        }
+
+        public int getPenSize(M m1)
+        {
+            return (int)Math.sqrt(bPen[m1.iPenM][m1.iSize].length);
+        }
+
+        public int getPMMax()
+        {
+            return !m.isText() && (m.iHint < 3 || m.iHint > 6) ? bPen[m.iPenM].length : 255;
+        }
+
+        public float[] getTT(int i)
+        {
+            i -= 12;
+            if(bTT[i] == null)
+            {
+                if(dirTT != null)
+                {
+                    String s1 = dirTT;
+                    dirTT = null;
+                    try
+                    {
+                        cnf.loadZip(s1);
+                    }
+                    catch(IOException ioexception)
+                    {
+                        ioexception.printStackTrace();
+                    }
+                }
+                int ai[] = loadIm("tt/" + i + ".gif", false);
+                if(ai == null)
+                {
+                    return null;
+                }
+                int j = ai.length;
+                float af[] = new float[j];
+                for(int k = 0; k < j; k++)
+                {
+                    af[k] = M.b255[ai[k]];
+                }
+
+                bTT[i] = af;
+            }
+            return bTT[i];
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+        public Info()
+        {
+            workOut = new ByteStream();
+            isLEdit = false;
+            isFill = false;
+            isClean = false;
+            permission = -1L;
+            unpermission = 0L;
+            dirTT = null;
+            g = null;
+            vD = new Dimension();
+            component = null;
+            Q = 1;
+            layers = null;
+            scale = 1;
+            scaleX = 0;
+            scaleY = 0;
+            bPen = new int[16][][];
+            bTT = new float[14][];
+            m = new M();
+        }
+    }
+
+
+    private Info info;
+    private User user;
+    public int iHint;
+    public int iPen;
+    public int iPenM;
+    public int iTT;
+    public int iColor;
+    public int iColorMask;
+    public int iAlpha;
+    public int iAlpha2;
+    public int iSA;
+    public int iLayer;
+    public int iLayerSrc;
+    public int iMask;
+    public int iSize;
+    public int iSS;
+    public int iCount;
+    public int iSOB;
+    public boolean isAFix;
+    public boolean isOver;
+    public boolean isCount;
+    public boolean isAnti;
+    public boolean isAllL;
+    public byte strHint[];
+    private int iSeek;
+    private int iOffset;
+    private byte offset[];
+    public static final int H_FLINE = 0;
+    public static final int H_LINE = 1;
+    public static final int H_BEZI = 2;
+    public static final int H_RECT = 3;
+    public static final int H_FRECT = 4;
+    public static final int H_OVAL = 5;
+    public static final int H_FOVAL = 6;
+    public static final int H_FILL = 7;
+    public static final int H_TEXT = 8;
+    public static final int H_COPY = 9;
+    public static final int H_CLEAR = 10;
+    public static final int H_SP = 11;
+    public static final int H_VTEXT = 12;
+    public static final int H_L = 14;
+    public static final int P_SOLID = 0;
+    public static final int P_PEN = 1;
+    public static final int P_SUISAI = 2;
+    public static final int P_SUISAI2 = 3;
+    public static final int P_WHITE = 4;
+    public static final int P_SWHITE = 5;
+    public static final int P_LIGHT = 6;
+    public static final int P_DARK = 7;
+    public static final int P_BOKASHI = 8;
+    public static final int P_MOSAIC = 9;
+    public static final int P_FILL = 10;
+    public static final int P_LPEN = 11;
+    public static final int P_NULL = 14;
+    public static final int P_LR = 17;
+    public static final int P_UD = 18;
+    public static final int P_R = 19;
+    public static final int P_FUSION = 20;
+    public static final int PM_PEN = 0;
+    public static final int PM_SUISAI = 1;
+    public static final int PM_MANY = 2;
+    public static final int M_N = 0;
+    public static final int M_M = 1;
+    public static final int M_R = 2;
+    public static final int M_ADD = 3;
+    public static final int M_SUB = 4;
+    private static final int F1O = 4;
+    private static final int F1C = 8;
+    private static final int F1A = 16;
+    private static final int F1S = 32;
+    private static final int F2H = 1;
+    private static final int F2PM = 2;
+    private static final int F2M = 4;
+    private static final int F2P = 8;
+    private static final int F2T = 16;
+    private static final int F2L = 32;
+    private static final int F2LS = 64;
+    private static final int F3A = 1;
+    private static final int F3C = 2;
+    private static final int F3CM = 4;
+    private static final int F3S = 8;
+    private static final int F3E = 16;
+    private static final int F3SA = 32;
+    private static final int F3SS = 64;
+    private static final int DEF_COUNT = -8;
+    private static final String ENCODE = "UTF8";
+    private static float b255[] = new float[256];
+    static float b255d[] = new float[256];
+    private static ColorModel color_model = null;
+    private static final M mgDef = new M();
+
+    public M()
     {
-      if ((paramString == null) || (paramString.length() == 0))
-        return;
-      Field[] arrayOfField = getClass().getDeclaredFields();
-      int i = paramString.indexOf('@');
-      if (i < 0)
-        i = paramString.length();
-      int k;
-      int m;
-      Object localObject;
-      for (int j = 0; j < i; j = k + 1)
-      {
-        k = paramString.indexOf('=', j);
-        if (k == -1)
-          break;
-        String str1 = paramString.substring(j, k);
-        j = k + 1;
-        k = paramString.indexOf(';', j);
-        if (k < 0)
-          k = i;
+        iHint = 0;
+        iPen = 0;
+        iPenM = 0;
+        iTT = 0;
+        iColor = 0;
+        iColorMask = 0;
+        iAlpha = 255;
+        iSA = 65280;
+        iLayer = 0;
+        iLayerSrc = 1;
+        iMask = 0;
+        iSize = 0;
+        iSS = 65280;
+        iCount = -8;
+        isCount = true;
+    }
+
+    public M(Info info1, User user1)
+    {
+        iHint = 0;
+        iPen = 0;
+        iPenM = 0;
+        iTT = 0;
+        iColor = 0;
+        iColorMask = 0;
+        iAlpha = 255;
+        iSA = 65280;
+        iLayer = 0;
+        iLayerSrc = 1;
+        iMask = 0;
+        iSize = 0;
+        iSS = 65280;
+        iCount = -8;
+        isCount = true;
+        info = info1;
+        user = user1;
+    }
+
+    private final void copy(int ai[][], int ai1[][])
+    {
+        for(int i = 0; i < ai1.length; i++)
+        {
+            System.arraycopy(ai[i], 0, ai1[i], 0, ai1[i].length);
+        }
+
+    }
+
+    public final void dBuffer()
+    {
+        dBuffer(!user.isDirect, user.X, user.Y, user.X2, user.Y2);
+    }
+
+    private final void dBuffer(boolean flag, int i, int j, int k, int l)
+    {
         try
         {
-          for (m = 0; m < arrayOfField.length; m++)
-          {
-            localObject = arrayOfField[m];
-            if (!((Field)localObject).getName().equals(str1))
-              continue;
-            String str2 = paramString.substring(j, k);
-            Class localClass = ((Field)localObject).getType();
-            if (localClass.equals(Integer.TYPE))
+            int i1 = info.scale;
+            int j1 = info.Q;
+            int k1 = info.W;
+            int l1 = info.H;
+            int j2 = info.scaleX;
+            int k2 = info.scaleY;
+            boolean flag1 = i1 == 1;
+            int ai[] = user.buffer;
+            Color color = Color.white;
+            Graphics g = info.g;
+            if(g == null)
             {
-              ((Field)localObject).setInt(this, Integer.parseInt(str2));
-              break;
+                return;
             }
-            if (localClass.equals(Boolean.TYPE))
+            i /= j1;
+            j /= j1;
+            k /= j1;
+            l /= j1;
+            i = i > j2 ? i : j2;
+            j = j > k2 ? j : k2;
+            int l2 = info.vWidth / i1 + j2;
+            k = k <= l2 ? k : l2;
+            k = k <= k1 ? k : k1;
+            l2 = info.vHeight / i1 + k2;
+            l = l <= l2 ? l : l2;
+            l = l <= l1 ? l : l1;
+            if(k <= i || l <= j)
             {
-              ((Field)localObject).setBoolean(this, Integer.parseInt(str2) != 0);
-              break;
+                return;
             }
-            ((Field)localObject).set(this, str2);
+            k1 = k - i;
+            int i3 = k1 * i1;
+            int j3 = (i - j2) * i1;
+            int _tmp = i;
+            int k3 = j;
+            l2 = ai.length / (k1 * j1 * j1);
+            do
+            {
+                int i2 = Math.min(l2, l - k3);
+                if(i2 <= 0)
+                {
+                    break;
+                }
+                Image image = flag ? mkMPic(i, k3, k1, i2, j1) : mkLPic(null, i, k3, k1, i2, j1);
+                if(flag1)
+                {
+                    g.drawImage(image, j3, k3 - k2, color, null);
+                } else
+                {
+                    g.drawImage(image, j3, (k3 - k2) * i1, i3, i2 * i1, color, null);
+                }
+                k3 += i2;
+            } while(true);
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            runtimeexception.printStackTrace();
+        }
+    }
+
+    private final void dBz(int ai[])
+        throws InterruptedException
+    {
+        try
+        {
+            int i = ai[0];
+            int k = 0;
+            for(int l = 1; l < 4; l++)
+            {
+                float f2 = ai[l] >> 16;
+                float f4 = (short)ai[l];
+                float _tmp = (float)(i >> 16);
+                float _tmp1 = (float)(short)i;
+                k = (int)((double)k + Math.sqrt(f2 * f2 + f4 * f4));
+                i = ai[l];
+            }
+
+            if(k <= 0)
+            {
+                return;
+            }
+            byte byte0 = -100;
+            byte byte1 = -100;
+            int k1 = -1000;
+            int l1 = -1000;
+            int i2 = 0;
+            boolean flag = isAnti;
+            int j2 = user.pW / 2;
+            for(int j = k; j > 0; j--)
+            {
+                float f1 = (float)j / (float)k;
+                float f = (float)Math.pow(1.0F - f1, 3D);
+                float f3 = f * (float)(ai[3] >> 16);
+                float f5 = f * (float)(short)ai[3];
+                f = 3F * (1.0F - f1) * (1.0F - f1) * f1;
+                f3 += f * (float)(ai[2] >> 16);
+                f5 += f * (float)(short)ai[2];
+                f = 3F * f1 * f1 * (1.0F - f1);
+                f3 += f * (float)(ai[1] >> 16);
+                f5 += f * (float)(short)ai[1];
+                f = f1 * f1 * f1;
+                f3 += f * (float)(ai[0] >> 16);
+                f5 += f * (float)(short)ai[0];
+                int i1 = (int)f3 + j2;
+                int j1 = (int)f5 + j2;
+                if(i1 != k1 || j1 != l1)
+                {
+                    if(flag)
+                    {
+                        shift(i1, j1);
+                        if(++i2 >= 4)
+                        {
+                            dFLine2(iSize);
+                        }
+                    } else
+                    {
+                        dFLine(i1, j1, iSize);
+                    }
+                    k1 = i1;
+                    l1 = j1;
+                }
+            }
+
+            user.X--;
+            user.Y--;
+            user.X2 += 2;
+            user.Y2 += 2;
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            runtimeexception.printStackTrace();
+        }
+    }
+
+    public void dClear()
+    {
+        if(iPen == 14)
+        {
+            return;
+        }
+        for(int i = 0; i < info.L; i++)
+        {
+            if(i >= 64 || (info.unpermission & (long)(1 << i)) == 0L)
+            {
+                info.layers[i].clear();
+            }
+        }
+
+        user.isDirect = true;
+        setD(0, 0, info.W, info.H);
+        if(user.wait >= 0)
+        {
+            dBuffer();
+        }
+    }
+
+    private void dFusion(byte abyte0[])
+    {
+        LO alo[] = info.layers;
+        LO lo2 = new LO();
+        LO lo4 = new LO();
+        int i = info.W;
+        int j = abyte0.length / 4;
+        int ai[] = user.buffer;
+        int k = ai.length / i;
+        for(int i1 = 0; i1 < info.H; i1 += k)
+        {
+            int l = Math.min(info.H - i1, k);
+            int _tmp = i * l;
+            int j1 = 0;
+            LO lo3 = null;
+            for(int l1 = 0; l1 < j; l1++)
+            {
+                LO lo = alo[abyte0[j1++]];
+                lo2.setField(lo);
+                lo.iAlpha = b255[abyte0[j1++] & 0xff];
+                lo.iCopy = abyte0[j1++];
+                j1++;
+                lo.normalize(lo.iAlpha, 0, i1, i, i1 + l);
+                if(lo3 == null)
+                {
+                    lo3 = lo;
+                    lo4.setField(lo2);
+                    lo.reserve();
+                } else
+                {
+                    if(lo.iCopy == 1)
+                    {
+                        memset(ai, 0xffffff);
+                        for(int i2 = 0; i2 < l1 - 2; i2++)
+                        {
+                            alo[i2].draw(ai, 0, i1, i, i1 + l, i);
+                        }
+
+                    }
+                    lo.dAdd(lo3.offset, 0, i1, i, i1 + l, ai);
+                    lo.clear(0, i1, i, i1 + l);
+                    lo.setField(lo2);
+                }
+            }
+
+            if(lo3 != alo[iLayer])
+            {
+                lo3.copyTo(0, i1, i, i1 + l, alo[iLayer], 0, i1, null);
+                lo3.clear(0, i1, i, i1 + l);
+            }
+        }
+
+        lo2.iAlpha = 1.0F;
+        lo2.iCopy = 0;
+        lo2.isDraw = true;
+        for(int k1 = 0; k1 < j; k1++)
+        {
+            LO lo1 = alo[abyte0[k1 * 4]];
+            lo2.name = lo1.name;
+            lo1.setField(lo2);
+        }
+
+    }
+
+    private void dCopy(int ai[])
+    {
+        int _tmp = info.W;
+        int _tmp1 = info.H;
+        int i = ai[0];
+        int j = i >> 16;
+        short word0 = (short)i;
+        i = ai[1];
+        int k = i >> 16;
+        short word1 = (short)i;
+        i = ai[2];
+        int l = i >> 16;
+        short word2 = (short)i;
+        info.layers[iLayerSrc].copyTo(j, word0, k, word1, info.layers[iLayer], l, word2, user.buffer);
+        setD(l, word2, l + (k - j), word2 + (word1 - word0));
+    }
+
+    public final void dEnd()
+        throws InterruptedException
+    {
+        if(!user.isDirect)
+        {
+            dFlush();
+        }
+        ByteStream bytestream = info.workOut;
+        if(bytestream.size() > 0)
+        {
+            offset = bytestream.writeTo(offset, 0);
+            iOffset = bytestream.size();
+        }
+        if(user.wait == -1)
+        {
+            dBuffer();
+        }
+    }
+
+    private void dFill(byte abyte0[], int i, int j, int k, int l)
+    {
+        byte byte0 = (byte)iAlpha;
+        int i1 = info.W;
+        try
+        {
+            int j2 = k - i;
+            for(; j < l; j++)
+            {
+                int j1;
+                int k1 = j1 = j * i1 + i;
+                int i2;
+                for(i2 = 0; i2 < j2; i2++)
+                {
+                    if(abyte0[j1] == byte0)
+                    {
+                        break;
+                    }
+                    j1++;
+                }
+
+                for(; i2 < j2; i2++)
+                {
+                    if(abyte0[j1] != byte0)
+                    {
+                        break;
+                    }
+                    j1++;
+                }
+
+                k1 = j1;
+                if(i2 < j2)
+                {
+                    for(; i2 < j2; i2++)
+                    {
+                        if(abyte0[j1] == byte0)
+                        {
+                            break;
+                        }
+                        j1++;
+                    }
+
+                    int l1 = j1;
+                    if(i2 < j2)
+                    {
+                        for(; k1 < l1; k1++)
+                        {
+                            abyte0[k1] = byte0;
+                        }
+
+                    }
+                }
+            }
+
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            System.out.println(runtimeexception);
+        }
+    }
+
+    private void dFill(int ai[], int i, int j, int k, int l)
+    {
+        int i1 = iAlpha;
+        int j1 = info.W;
+        try
+        {
+            int j2 = k - i;
+            for(; j < l; j++)
+            {
+                int k1 = j * j1 + i;
+                int k2;
+                for(k2 = k1 + j2; k1 < k2; k1++)
+                {
+                    if(ai[k1] == i1)
+                    {
+                        break;
+                    }
+                }
+
+                if(k1 < k2 - 1)
+                {
+                    for(k1++; k1 < k2; k1++)
+                    {
+                        if(ai[k1] != i1)
+                        {
+                            break;
+                        }
+                    }
+
+                    if(k1 < k2 - 1)
+                    {
+                        int l1 = k1;
+                        for(k1++; k1 < k2; k1++)
+                        {
+                            if(ai[k1] == i1)
+                            {
+                                break;
+                            }
+                        }
+
+                        if(k1 < k2)
+                        {
+                            for(int i2 = k1; l1 < i2; l1++)
+                            {
+                                ai[l1] = i1;
+                            }
+
+                        }
+                    }
+                }
+            }
+
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            System.out.println(runtimeexception);
+        }
+    }
+
+    private void dFill(int i, int j)
+    {
+        int k = info.W;
+        int l = info.H;
+        byte byte0 = (byte)iAlpha;
+        byte abyte0[] = info.iMOffs;
+        try
+        {
+            int ai[] = user.buffer;
+            int i1 = 0;
+            if(i < 0 || i >= k || j < 0 || j >= l)
+            {
+                return;
+            }
+            int l1 = pix(i, j);
+            int i2 = iAlpha << 24 | iColor;
+            if(l1 == i2)
+            {
+                return;
+            }
+            ai[i1++] = s(l1, i, j) << 16 | j;
+            while(i1 > 0) 
+            {
+                int j1 = ai[--i1];
+                i = j1 >>> 16;
+                j = j1 & 0xffff;
+                int k1 = k * j;
+                boolean flag = false;
+                boolean flag1 = false;
+                do
+                {
+                    abyte0[k1 + i] = byte0;
+                    if(j > 0 && pix(i, j - 1) == l1 && abyte0[(k1 - k) + i] == 0)
+                    {
+                        if(!flag)
+                        {
+                            flag = true;
+                            ai[i1++] = s(l1, i, j - 1) << 16 | j - 1;
+                        }
+                    } else
+                    {
+                        flag = false;
+                    }
+                    if(j < l - 1 && pix(i, j + 1) == l1 && abyte0[k1 + k + i] == 0)
+                    {
+                        if(!flag1)
+                        {
+                            flag1 = true;
+                            ai[i1++] = s(l1, i, j + 1) << 16 | j + 1;
+                        }
+                    } else
+                    {
+                        flag1 = false;
+                    }
+                    if(i <= 0 || pix(i - 1, j) != l1 || abyte0[(k1 + i) - 1] != 0)
+                    {
+                        break;
+                    }
+                    i--;
+                } while(true);
+            }
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            System.out.println(runtimeexception);
+        }
+        setD(0, 0, k, l);
+        t();
+    }
+
+    private final void dFLine(float f, float f1, int i)
+        throws InterruptedException
+    {
+        int j = user.wait;
+        float f2 = user.fX;
+        float f3 = user.fY;
+        float f4 = f - f2;
+        float f5 = f1 - f3;
+        float f6 = Math.max(Math.abs(f4), Math.abs(f5));
+        int k = (int)f2;
+        int l = (int)f3;
+        int i1 = user.oX;
+        int j1 = user.oY;
+        float f9 = 0.25F;
+        if(!isCount)
+        {
+            user.count = 0;
+        }
+        int i2 = ss(i);
+        int j2 = sa(i);
+        int k2 = Math.max(i2, iSize);
+        float f10 = iSize;
+        float f11 = iAlpha;
+        float f12 = f6 != 0.0F ? ((float)i2 - f10) / f6 : 0.0F;
+        f12 = f12 < 1.0F ? f12 > -1F ? f12 : -1F : 1.0F;
+        float f13 = f6 != 0.0F ? ((float)j2 - f11) / f6 : 0.0F;
+        f13 = f13 < 1.0F ? f13 > -1F ? f13 : -1F : 1.0F;
+        float f14 = f4 != 0.0F ? f4 / f6 : 0.0F;
+        float f15 = f5 != 0.0F ? f5 / f6 : 0.0F;
+        float f16 = f2;
+        float f17 = f3;
+        if(f6 <= 0.0F)
+        {
+            f6++;
+        }
+        f14 *= f9;
+        f15 *= f9;
+        f12 *= f9;
+        f13 *= f9;
+        int l2 = (int)(f6 / f9);
+        for(int i3 = 0; i3 < l2; i3++)
+        {
+            if(i1 != k || j1 != l)
+            {
+                user.count--;
+                i1 = k;
+                j1 = l;
+            }
+            if(user.count <= 0)
+            {
+                user.count = user.countMax;
+                iSize = (int)f10;
+                iAlpha = (int)f11;
+                getPM();
+                int k1 = k - (user.pW >>> 1);
+                int l1 = l - (user.pW >>> 1);
+                float f7 = f16 - (float)(int)f16;
+                float f8 = f17 - (float)(int)f17;
+                if(f7 < 0.0F)
+                {
+                    k1--;
+                    f7++;
+                }
+                if(f8 < 0.0F)
+                {
+                    l1--;
+                    f8++;
+                }
+                if(f7 != 1.0F && f8 != 1.0F)
+                {
+                    dPen(k1, l1, (1.0F - f7) * (1.0F - f8));
+                }
+                if(f7 != 0.0F)
+                {
+                    dPen(k1 + 1, l1, f7 * (1.0F - f8));
+                }
+                if(f8 != 0.0F)
+                {
+                    dPen(k1, l1 + 1, (1.0F - f7) * f8);
+                }
+                if(f7 != 0.0F && f8 != 0.0F)
+                {
+                    dPen(k1 + 1, l1 + 1, f7 * f8);
+                }
+                if(j > 0)
+                {
+                    dBuffer(!user.isDirect, k1, l1, k1 + user.pW, l1 + user.pW);
+                    if(j > 1)
+                    {
+                        Thread.currentThread();
+                        Thread.sleep(j);
+                    }
+                }
+            }
+            k = (int)(f16 += f14);
+            l = (int)(f17 += f15);
+            f10 += f12;
+            f11 += f13;
+        }
+
+        user.fX = f16;
+        user.fY = f17;
+        user.oX = i1;
+        user.oY = j1;
+        int j3 = (int)Math.sqrt(info.bPen[iPenM][k2].length) / 2;
+        int k3 = (int)Math.min(f2, f) - j3;
+        int l3 = (int)Math.min(f3, f1) - j3;
+        int i4 = (int)Math.max(f2, f) + j3 + info.Q + 1;
+        int j4 = (int)Math.max(f3, f1) + j3 + info.Q + 1;
+        if(j == 0)
+        {
+            dBuffer(!user.isDirect, k3, l3, i4, j4);
+        }
+        addD(k3, l3, i4, j4);
+    }
+
+    private final void dFLine(int i, int j, int k)
+        throws InterruptedException
+    {
+        int l = user.wait;
+        int i1 = (int)user.fX;
+        int j1 = (int)user.fY;
+        int k1 = i - i1;
+        int l1 = j - j1;
+        int i2 = Math.max(Math.abs(k1), Math.abs(l1));
+        int j2 = i1;
+        int k2 = j1;
+        int l2 = user.oX;
+        int i3 = user.oY;
+        if(!isCount)
+        {
+            user.count = 0;
+        }
+        int l3 = ss(k);
+        int i4 = sa(k);
+        int j4 = Math.max(l3, iSize);
+        float f = iSize;
+        float f1 = iAlpha;
+        float f2 = i2 != 0 ? ((float)l3 - f) / (float)i2 : 0.0F;
+        f2 = f2 < 1.0F ? f2 > -1F ? f2 : -1F : 1.0F;
+        float f3 = i2 != 0 ? ((float)i4 - f1) / (float)i2 : 0.0F;
+        f3 = f3 < 5F ? f3 > -10F ? f3 : -10F : 5F;
+        float f4 = k1 != 0 ? (float)k1 / (float)i2 : 0.0F;
+        float f5 = l1 != 0 ? (float)l1 / (float)i2 : 0.0F;
+        float f6 = i1;
+        float f7 = j1;
+        if(i2 <= 0)
+        {
+            i2++;
+        }
+        for(int k4 = 0; k4 < i2; k4++)
+        {
+            if(l2 != j2 || i3 != k2)
+            {
+                user.count--;
+                l2 = j2;
+                i3 = k2;
+                if(user.count <= 0)
+                {
+                    user.count = user.countMax;
+                    iSize = (int)f;
+                    iAlpha = (int)f1;
+                    getPM();
+                    int j3 = j2 - (user.pW >>> 1);
+                    int k3 = k2 - (user.pW >>> 1);
+                    dPen(j3, k3, 1.0F);
+                    if(l > 0)
+                    {
+                        dBuffer(!user.isDirect, j3, k3, j3 + user.pW, k3 + user.pW);
+                        if(l > 1)
+                        {
+                            Thread.currentThread();
+                            Thread.sleep(l);
+                        }
+                    }
+                }
+            }
+            j2 = (int)(f6 += f4);
+            k2 = (int)(f7 += f5);
+            f += f2;
+            f1 += f3;
+        }
+
+        user.fX = f6 - f4;
+        user.fY = f7 - f5;
+        user.oX = l2;
+        user.oY = i3;
+        int l4 = (int)Math.sqrt(info.bPen[iPenM][j4].length) / 2;
+        int i5 = Math.min(i1, j2) - l4;
+        int j5 = Math.min(j1, k2) - l4;
+        int k5 = Math.max(i1, j2) + l4 + info.Q;
+        int l5 = Math.max(j1, k2) + l4 + info.Q;
+        if(l == 0)
+        {
+            dBuffer(!user.isDirect, i5, j5, k5, l5);
+        }
+        addD(i5, j5, k5, l5);
+    }
+
+    private final void dFLine2(int i)
+        throws InterruptedException
+    {
+        try
+        {
+            int j = user.pX[0];
+            int k = user.pY[0];
+            int l = user.pX[1];
+            int i1 = user.pY[1];
+            int j1 = user.pX[2];
+            int k1 = user.pY[2];
+            int l1 = user.pX[3];
+            int i2 = user.pY[3];
+            boolean flag = isAnti;
+            float f = user.fX;
+            float f1 = user.fY;
+            int j3 = (int)f;
+            int k3 = (int)f1;
+            int l3 = j3;
+            int i4 = k3;
+            int j4 = user.oX;
+            int k4 = user.oY;
+            int l4 = user.wait;
+            if(!isCount)
+            {
+                user.count = 0;
+            }
+            int k5 = 2 * l;
+            int l5 = 2 * i1;
+            int i6 = ((2 * j - 5 * l) + 4 * j1) - l1;
+            int j6 = ((2 * k - 5 * i1) + 4 * k1) - i2;
+            int k6 = ((-j + 3 * l) - 3 * j1) + l1;
+            int l6 = ((-k + 3 * i1) - 3 * k1) + i2;
+            float f11 = iSize;
+            float f12 = iAlpha;
+            int i7 = ss(i);
+            int j7 = sa(i);
+            float f13 = (float)(i7 - iSize) * 0.25F;
+            f13 = f13 > -1.5F ? f13 < 1.5F ? f13 : 1.5F : -1.5F;
+            float f14 = (float)(j7 - iAlpha) * 0.25F;
+            int k7 = (int)Math.sqrt(Math.max(info.getPenMask()[iPenM][iSize].length, info.getPenMask()[iPenM][i7].length));
+            int l7 = info.Q;
+            for(float f17 = 0.0F; f17 < 1.0F; f17 += 0.25F)
+            {
+                float f7 = f17 * f17;
+                float f8 = f7 * f17;
+                float f2 = 0.5F * ((float)k5 + (float)(-j + j1) * f17 + (float)i6 * f7 + (float)k6 * f8);
+                float f3 = 0.5F * ((float)l5 + (float)(-k + k1) * f17 + (float)j6 * f7 + (float)l6 * f8);
+                float f4 = Math.max(Math.abs(f2 - f), Math.abs(f3 - f1));
+                if(f4 >= 1.0F)
+                {
+                    float f5 = ((f2 - f) / f4) * 0.25F;
+                    f5 = f5 > -1F ? f5 < 1.0F ? f5 : 1.0F : -1F;
+                    float f6 = ((f3 - f1) / f4) * 0.25F;
+                    f6 = f6 > -1F ? f6 < 1.0F ? f6 : 1.0F : -1F;
+                    int k2 = (int)(f4 / 0.25F);
+                    if(k2 < 16)
+                    {
+                        k2 = 1;
+                    }
+                    float f15 = f13 / (float)k2;
+                    float f16 = f14 / (float)k2;
+                    j3 = Math.min(Math.min((int)f, (int)f2), j3);
+                    k3 = Math.min(Math.min((int)f1, (int)f3), k3);
+                    l3 = Math.max(Math.max((int)f, (int)f2), l3);
+                    i4 = Math.max(Math.max((int)f1, (int)f3), i4);
+                    for(int j2 = 0; j2 < k2; j2++)
+                    {
+                        int i5 = (int)f;
+                        int j5 = (int)f1;
+                        if(j4 != i5 || k4 != j5)
+                        {
+                            j4 = i5;
+                            k4 = j5;
+                            user.count--;
+                        } else
+                        {
+                            f11 += f15;
+                            f12 += f16;
+                        }
+                        if(user.count > 0)
+                        {
+                            f += f5;
+                            f1 += f6;
+                        } else
+                        {
+                            iSize = (int)f11;
+                            iAlpha = (int)f12;
+                            getPM();
+                            int l2 = user.pW / 2;
+                            i5 -= l2;
+                            j5 -= l2;
+                            user.count = user.countMax;
+                            if(flag)
+                            {
+                                float f9 = f - (float)(int)f;
+                                float f10 = f1 - (float)(int)f1;
+                                if(f9 < 0.0F)
+                                {
+                                    i5--;
+                                    f9++;
+                                }
+                                if(f10 < 0.0F)
+                                {
+                                    j5--;
+                                    f10++;
+                                }
+                                if(f9 != 1.0F && f10 != 1.0F)
+                                {
+                                    dPen(i5, j5, (1.0F - f9) * (1.0F - f10));
+                                }
+                                if(f9 != 0.0F)
+                                {
+                                    dPen(i5 + 1, j5, f9 * (1.0F - f10));
+                                }
+                                if(f10 != 0.0F)
+                                {
+                                    dPen(i5, j5 + 1, (1.0F - f9) * f10);
+                                }
+                                if(f9 != 0.0F && f10 != 0.0F)
+                                {
+                                    dPen(i5 + 1, j5 + 1, f9 * f10);
+                                }
+                            } else
+                            {
+                                dPen(i5, j5, 1.0F);
+                            }
+                            if(l4 > 0)
+                            {
+                                dBuffer(!user.isDirect, i5, j5, i5 + l2 * 2, j5 + l2 * 2);
+                                if(l4 > 1)
+                                {
+                                    Thread.currentThread();
+                                    Thread.sleep(l4);
+                                }
+                            }
+                            f += f5;
+                            f1 += f6;
+                        }
+                    }
+
+                }
+            }
+
+            user.oX = j4;
+            user.oY = k4;
+            user.fX = f;
+            user.fY = f1;
+            int i3 = k7 / 2;
+            j3 -= i3;
+            k3 -= i3;
+            l3 += i3 + 1;
+            i4 += i3 + 1;
+            addD(j3, k3, l3, i4);
+            if(user.wait == 0)
+            {
+                dBuffer(!user.isDirect, j3, k3, l3 + l7, i4 + l7);
+            }
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            runtimeexception.printStackTrace();
+        }
+    }
+
+    private final void dFlush()
+    {
+        if(user.isPre)
+        {
+            return;
+        }
+        int _tmp = info.Q;
+        int j1 = info.W;
+        int k1 = info.H;
+        int l1 = user.X > 0 ? user.X : 0;
+        int i2 = user.Y > 0 ? user.Y : 0;
+        int j2 = user.X2 < j1 ? user.X2 : j1;
+        int k2 = user.Y2 < k1 ? user.Y2 : k1;
+        if(j2 - l1 <= 0 || k2 - i2 <= 0 || iLayer >= info.L)
+        {
+            return;
+        }
+        byte abyte0[] = info.iMOffs;
+        LO lo = info.layers[iLayer];
+        switch(iPen)
+        {
+        case 17: // '\021'
+            lo.dLR(l1, i2, j2, k2);
+            dCMask(l1, i2, j2, k2);
             break;
-          }
+
+        case 18: // '\022'
+            lo.dUD(l1, i2, j2, k2);
+            dCMask(l1, i2, j2, k2);
+            break;
+
+        case 19: // '\023'
+            lo.dR(l1, i2, j2, k2, null);
+            dCMask(l1, i2, j2, k2);
+            addD(l1, i2, l1 + Math.max(j2 - l1, k2 - i2), i2 + Math.max(j2 - l1, k2 - i2));
+            break;
+
+        case 20: // '\024'
+            int l2 = iOffset <= 8 ? 0 : ((int) (offset[8]));
+            LO lo1 = info.layers[iLayerSrc];
+            LO lo2 = lo;
+            lo1.normalize(b255[iAlpha2 & 0xff], l1, i2, j2, k2);
+            lo2.normalize(b255[iAlpha2 >>> 8], l1, i2, j2, k2);
+            if(lo1.offset == null)
+            {
+                dCMask(l1, i2, j2, k2);
+            } else
+            {
+                lo2.reserve();
+                LO lo3 = lo2;
+                LO lo4 = lo1;
+                if(iLayer < iLayerSrc)
+                {
+                    lo3 = lo1;
+                    lo4 = lo2;
+                }
+                int _tmp1 = lo3.W;
+                LO lo5 = new LO();
+                LO lo6 = new LO();
+                lo5.setField(lo3);
+                lo6.setField(lo4);
+                lo3.iCopy = l2;
+                lo4.reserve();
+                lo3.dAdd(lo4.offset, l1, i2, j2, k2, null);
+                if(lo2 != lo4)
+                {
+                    lo4.copyTo(l1, i2, j2, k2, lo3, l1, i2, null);
+                }
+                lo1.clear(l1, i2, j2, k2);
+                lo1.isDraw = true;
+                dCMask(l1, i2, j2, k2);
+                lo3.setField(lo5);
+                lo4.setField(lo6);
+            }
+            break;
+
+        case 9: // '\t'
+            lo.reserve();
+            int ai[] = lo.offset;
+            int i3 = iAlpha / 10 + 1;
+            l1 = (l1 / i3) * i3;
+            i2 = (i2 / i3) * i3;
+            int ai2[] = user.argb;
+            for(int j3 = i2; j3 < k2; j3 += i3)
+            {
+                for(int l = l1; l < j2; l += i3)
+                {
+                    int k4 = Math.min(i3, j1 - l);
+                    int l4 = Math.min(i3, k1 - j3);
+                    for(int i5 = 0; i5 < 4; i5++)
+                    {
+                        ai2[i5] = 0;
+                    }
+
+                    int k5 = 0;
+                    for(int i4 = 0; i4 < l4; i4++)
+                    {
+                        for(int k3 = 0; k3 < k4; k3++)
+                        {
+                            int l5 = pix(l + k3, j3 + i4);
+                            int i = (j3 + i4) * j1 + l + k3;
+                            for(int j5 = 0; j5 < 4; j5++)
+                            {
+                                ai2[j5] += l5 >>> j5 * 8 & 0xff;
+                            }
+
+                            k5++;
+                        }
+
+                    }
+
+                    int i6 = ai2[3] << 24 | ai2[2] / k5 << 16 | ai2[1] / k5 << 8 | ai2[0] / k5;
+                    for(int j4 = j3; j4 < j3 + l4; j4++)
+                    {
+                        int j = j1 * j4 + l;
+                        for(int l3 = 0; l3 < k4; l3++)
+                        {
+                            if(abyte0[j] != 0)
+                            {
+                                abyte0[j] = 0;
+                                ai[j] = i6;
+                            }
+                            j++;
+                        }
+
+                    }
+
+                }
+
+            }
+
+            break;
+
+        case 3: // '\003'
+            dCMask(l1, i2, j2, k2);
+            break;
+
+        default:
+            if(iHint == 14 || iHint == 9)
+            {
+                dCMask(l1, i2, j2, k2);
+            } else
+            {
+                lo.reserve();
+                int ai1[] = lo.offset;
+                for(; i2 < k2; i2++)
+                {
+                    int k = i2 * j1 + l1;
+                    for(int i1 = l1; i1 < j2; i1++)
+                    {
+                        ai1[k] = getM(ai1[k], abyte0[k] & 0xff, k);
+                        abyte0[k] = 0;
+                        k++;
+                    }
+
+                }
+
+            }
+            break;
         }
-        catch (NumberFormatException localNumberFormatException)
+        if(user.wait >= 0)
         {
+            dBuffer();
         }
-        catch (IllegalAccessException localIllegalAccessException)
+    }
+
+    private final void dCMask(int i, int j, int k, int l)
+    {
+        int i1 = k - i;
+        int j1 = info.W;
+        int k1 = j * j1 + i;
+        byte abyte0[] = info.iMOffs;
+        for(int l1 = 0; l1 < i1; l1++)
         {
+            abyte0[k1 + l1] = 0;
         }
-      }
-      if (i != paramString.length())
-      {
-        localObject = getWork();
-        for (m = i + 1; m < paramString.length(); m += 2)
-          ((ByteStream)localObject).write(Character.digit(paramString.charAt(m), 16) << 4 | Character.digit(paramString.charAt(m + 1), 16));
-        this.offset = ((ByteStream)localObject).toByteArray();
-        this.iOffset = this.offset.length;
-      }
-    }
-    catch (Throwable localThrowable)
-    {
-    }
-  }
 
-  public final void set(M paramM)
-  {
-    if (paramM == null)
-      paramM = mgDef;
-    this.iHint = paramM.iHint;
-    this.iPen = paramM.iPen;
-    this.iPenM = paramM.iPenM;
-    this.iTT = paramM.iTT;
-    this.iMask = paramM.iMask;
-    this.iSize = paramM.iSize;
-    this.iSS = paramM.iSS;
-    this.iCount = paramM.iCount;
-    this.isOver = paramM.isOver;
-    this.isCount = paramM.isCount;
-    this.isAFix = paramM.isAFix;
-    this.isAnti = paramM.isAnti;
-    this.isAllL = paramM.isAllL;
-    this.iAlpha = paramM.iAlpha;
-    this.iAlpha2 = paramM.iAlpha2;
-    this.iSA = paramM.iSA;
-    this.iColor = paramM.iColor;
-    this.iColorMask = paramM.iColorMask;
-    this.iLayer = paramM.iLayer;
-    this.iLayerSrc = paramM.iLayerSrc;
-    this.iSOB = paramM.iSOB;
-    this.strHint = paramM.strHint;
-    this.iOffset = 0;
-  }
-
-  public final int set(ByteStream paramByteStream)
-  {
-    return set(paramByteStream.getBuffer(), 0);
-  }
-
-  public void setRetouch(int[] paramArrayOfInt, byte[] paramArrayOfByte, int paramInt, boolean paramBoolean)
-  {
-    try
-    {
-      int i = 4;
-      int j = this.info.scale;
-      int k = this.info.Q;
-      int m = this.info.scaleX;
-      int n = this.info.scaleY;
-      getPM();
-      int i1 = this.user.pW / 2;
-      int i2 = this.iHint == 2 ? i1 : 0;
-      int[] arrayOfInt = this.user.points;
-      switch (this.iHint)
-      {
-      case 8:
-      case 12:
-        i = 1;
-        break;
-      case 2:
-      case 7:
-        break;
-      case 9:
-        i = 3;
-        break;
-      case 14:
-        break;
-      case 10:
-        i = 0;
-        break;
-      case 3:
-      case 4:
-      case 5:
-      case 6:
-      case 11:
-      case 13:
-      default:
-        i = 2;
-      }
-      if (paramArrayOfInt != null)
-        i = Math.min(i, paramArrayOfInt.length);
-      for (int i5 = 0; i5 < i; i5++)
-      {
-        int i3 = paramArrayOfInt[i5] >> 16;
-        int i4 = (short)paramArrayOfInt[i5];
-        if (paramBoolean)
+        j++;
+        int i2 = k1;
+        k1 += j1;
+        for(; j < l; j++)
         {
-          i3 = (i3 / j + m) * k - i2;
-          i4 = (i4 / j + n) * k - i2;
+            System.arraycopy(abyte0, i2, abyte0, k1, i1);
+            k1 += j1;
         }
-        arrayOfInt[i5] = (i3 << 16 | i4 & 0xFFFF);
-      }
-      ByteStream localByteStream = getWork();
-      for (int i6 = 0; i6 < i; i6++)
-        localByteStream.w(arrayOfInt[i6], 4);
-      if ((paramArrayOfByte != null) && (paramInt > 0))
-        localByteStream.write(paramArrayOfByte, 0, paramInt);
-      this.offset = localByteStream.writeTo(this.offset, 0);
-      this.iOffset = localByteStream.size();
-      localByteStream.reset();
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
 
-  private final void addD(int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    this.user.addRect(paramInt1, paramInt2, paramInt3, paramInt4);
-  }
-
-  private final void setD(int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-  {
-    this.user.setRect(paramInt1, paramInt2, paramInt3, paramInt4);
-  }
-
-  public void setInfo(Info paramInfo)
-  {
-    this.info = paramInfo;
-  }
-
-  public void setUser(User paramUser)
-  {
-    this.user = paramUser;
-  }
-
-  private final void shift(int paramInt1, int paramInt2)
-  {
-    System.arraycopy(this.user.pX, 1, this.user.pX, 0, 3);
-    System.arraycopy(this.user.pY, 1, this.user.pY, 0, 3);
-    this.user.pX[3] = paramInt1;
-    this.user.pY[3] = paramInt2;
-  }
-
-  private final int ss(int paramInt)
-  {
-    if ((this.iSOB & 0x2) == 0)
-      return this.iSize;
-    int i = this.iSS & 0xFF;
-    return (int)((i + b255[((this.iSS >>> 8) - i)] * paramInt) * this.user.pV);
-  }
-
-  private final void t()
-  {
-    if (this.iTT == 0)
-      return;
-    byte[] arrayOfByte = this.info.iMOffs;
-    int k = this.info.W;
-    int m = this.user.X;
-    int n = this.user.Y;
-    int i1 = this.user.X2;
-    int i2 = this.user.Y2;
-    for (int i3 = n; i3 < i2; i3++)
-    {
-      int j = k * i3 + m;
-      for (int i = m; i < i1; i++)
-        arrayOfByte[j] = (byte)(int)((arrayOfByte[(j++)] & 0xFF) * getTT(i, i3));
-    }
-  }
-
-  private final void wPo(int paramInt)
-    throws IOException
-  {
-    ByteStream localByteStream = this.info.workOut;
-    if ((paramInt > 127) || (paramInt < -127))
-    {
-      localByteStream.write(-128);
-      localByteStream.w(paramInt, 2);
-    }
-    else
-    {
-      localByteStream.write(paramInt);
-    }
-  }
-
-  public boolean isText()
-  {
-    return (this.iHint == 8) || (this.iHint == 12);
-  }
-
-  public Font getFont(int paramInt)
-  {
-    try
-    {
-      if (this.strHint != null)
-        return Font.decode(new String(this.strHint, "UTF8") + paramInt);
-    }
-    catch (IOException localIOException)
-    {
-    }
-    return new Font("sansserif", 0, this.iSize);
-  }
-
-  public static float[] getb255()
-  {
-    return b255;
-  }
-
-  public class User
-  {
-    private Image image = null;
-    private SRaster raster = null;
-    private int[] buffer = new int[65536];
-    private int[] argb = new int[4];
-    public int[] points = new int[6];
-    private int[] ps2 = null;
-    private int[] p = null;
-    private int pW;
-    private int pM = -1;
-    private int pA = -1;
-    private int pS = -1;
-    private float pV = 1.0F;
-    private float[] pTT = null;
-    private int pTTW;
-    private boolean isDirect;
-    public int wait = 0;
-    public boolean isPre = false;
-    private int[] pX = new int[4];
-    private int[] pY = new int[4];
-    private int oX;
-    private int oY;
-    private float fX;
-    private float fY;
-    private int iDCount;
-    private int X;
-    private int Y;
-    private int X2;
-    private int Y2;
-    private int count = 0;
-    private int countMax;
-
-    public User()
-    {
     }
 
-    private void setup(M paramM)
+    private final boolean dNext()
+        throws InterruptedException
     {
-      this.pV = M.b255[(M.Info.access$0(paramM.info)[paramM.iPenM].length - 1)];
-      paramM.getPM();
-      this.count = 0;
-      this.iDCount = 0;
-      this.oX = -1000;
-      this.oY = -1000;
-      this.isDirect = ((paramM.iPen == 3) || (paramM.iHint == 9) || (paramM.isOver));
-      if (M.this.info.L <= paramM.iLayer)
-        M.this.info.setL(paramM.iLayer + 1);
-      M.this.info.layers[paramM.iLayer].isDraw = true;
-      if (paramM.iTT >= 12)
-      {
-        this.pTT = M.this.info.getTT(paramM.iTT);
-        this.pTTW = (int)Math.sqrt(this.pTT.length);
-      }
-    }
-
-    public void setIm(M paramM)
-    {
-      if (paramM.isText())
-        return;
-      if ((this.pM != paramM.iPenM) || (this.pA != paramM.iAlpha) || (this.pS != paramM.iSize))
-      {
-        int[] arrayOfInt = M.Info.access$0(paramM.info)[paramM.iPenM][paramM.iSize];
-        int i = arrayOfInt.length;
-        if ((this.p == null) || (this.p.length < i))
-          this.p = new int[i];
-        float f1 = M.b255[paramM.iAlpha];
-        for (int j = 0; j < i; j++)
+        if(iSeek >= iOffset)
         {
-          float f2 = arrayOfInt[j] * f1;
-          this.p[j] = ((f2 <= 1.0F) && (f2 > 0.0F) ? 1 : (int)f2);
+            return false;
         }
-        this.pW = (paramM.iPen = (int)Math.sqrt(i));
-        this.pM = paramM.iPenM;
-        this.pA = paramM.iAlpha;
-        this.pS = paramM.iSize;
-      }
-    }
-
-    public int getPixel(int paramInt1, int paramInt2)
-    {
-      int i = M.this.info.imW;
-      if ((paramInt1 < 0) || (paramInt2 < 0) || (paramInt1 >= i) || (paramInt2 >= M.this.info.imH))
-        return 0;
-      int j = M.this.info.Q;
-      M.this.mkLPic(this.buffer, paramInt1, paramInt2, 1, 1, j);
-      LO[] arrayOfLO = M.this.info.layers;
-      paramInt1 *= j;
-      paramInt2 *= j;
-      float f = 0.0F;
-      for (int k = M.this.info.m.iLayer; k >= 0; k--)
-      {
-        f += (1.0F - f) * M.b255[(arrayOfLO[k].getPixel(paramInt1, paramInt2) >>> 24)] * arrayOfLO[k].iAlpha;
-        if (f >= 1.0F)
-          break;
-      }
-      return ((int)(f * 255.0F) << 24) + (this.buffer[0] & 0xFFFFFF);
-    }
-
-    public int[] getBuffer()
-    {
-      return this.buffer;
-    }
-
-    public long getRect()
-    {
-      return (this.X <= 0 ? 0 : this.X) << 48 | (this.Y <= 0 ? 0 : this.Y) << 32 | this.X2 << 16 | this.Y2;
-    }
-
-    public void setRect(int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-    {
-      this.X = paramInt1;
-      this.Y = paramInt2;
-      this.X2 = paramInt3;
-      this.Y2 = paramInt4;
-    }
-
-    public final void addRect(int paramInt1, int paramInt2, int paramInt3, int paramInt4)
-    {
-      setRect(Math.min(paramInt1, this.X), Math.min(paramInt2, this.Y), Math.max(paramInt3, this.X2), Math.max(paramInt4, this.Y2));
-    }
-
-    public Image mkImage(int paramInt1, int paramInt2)
-    {
-      this.raster.newPixels(this.image, this.buffer, paramInt1, paramInt2);
-      return this.image;
-    }
-  }
-
-  public class Info
-  {
-    private ByteStream workOut = new ByteStream();
-    public boolean isLEdit = false;
-    public boolean isFill = false;
-    public boolean isClean = false;
-    public long permission = -1L;
-    public long unpermission = 0L;
-    private Res cnf;
-    private String dirTT = null;
-    public Graphics g = null;
-    private int vWidth;
-    private int vHeight;
-    private Dimension vD = new Dimension();
-    private Component component = null;
-    public int Q = 1;
-    public int L;
-    public LO[] layers = null;
-    public int scale = 1;
-    public int scaleX = 0;
-    public int scaleY = 0;
-    private byte[] iMOffs;
-    public int imH;
-    public int imW;
-    public int W;
-    public int H;
-    private int[][][] bPen = new int[16];
-    private float[][] bTT = new float[14];
-    public M m = new M();
-
-    public Info()
-    {
-    }
-
-    public void setSize(int paramInt1, int paramInt2, int paramInt3)
-    {
-      int i = paramInt1 * paramInt3;
-      int j = paramInt2 * paramInt3;
-      if ((i != this.W) || (j != this.H))
-        for (k = 0; k < this.L; k++)
-          this.layers[k].setSize(i, j);
-      this.imW = paramInt1;
-      this.imH = paramInt2;
-      this.W = i;
-      this.H = j;
-      this.Q = paramInt3;
-      int k = this.W * this.H;
-      if ((this.iMOffs == null) || (this.iMOffs.length < k))
-        this.iMOffs = new byte[k];
-    }
-
-    public void setLayers(LO[] paramArrayOfLO)
-    {
-      this.L = paramArrayOfLO.length;
-      this.layers = paramArrayOfLO;
-    }
-
-    public void setComponent(Component paramComponent, Graphics paramGraphics, int paramInt1, int paramInt2)
-    {
-      this.component = paramComponent;
-      this.vWidth = paramInt1;
-      this.vHeight = paramInt2;
-      this.g = paramGraphics;
-    }
-
-    public void setL(int paramInt)
-    {
-      int i = this.layers == null ? 0 : this.layers.length;
-      int j = Math.min(i, paramInt);
-      if (i != paramInt)
-      {
-        LO[] arrayOfLO = new LO[paramInt];
-        if (this.layers != null)
-          System.arraycopy(this.layers, 0, arrayOfLO, 0, j);
-        for (int k = 0; k < paramInt; k++)
+        int i = user.pX[3] + rPo();
+        int j = user.pY[3] + rPo();
+        int k = iSOB == 0 ? 0 : ru();
+        shift(i, j);
+        user.iDCount++;
+        if(iHint != 11)
         {
-          if (arrayOfLO[k] != null)
-            continue;
-          arrayOfLO[k] = LO.getLO(this.W, this.H);
-        }
-        this.layers = arrayOfLO;
-      }
-      this.L = paramInt;
-    }
-
-    public void delL(int paramInt)
-    {
-      int i = this.layers.length;
-      if (paramInt >= i)
-        return;
-      LO[] arrayOfLO = new LO[i - 1];
-      int j = 0;
-      for (int k = 0; k < i; k++)
-      {
-        if (k == paramInt)
-          continue;
-        arrayOfLO[(j++)] = this.layers[k];
-      }
-      this.layers = arrayOfLO;
-      this.L = (i - 1);
-    }
-
-    public void swapL(int paramInt1, int paramInt2)
-    {
-      int i = Math.max(paramInt1, paramInt2);
-      if (i >= this.L)
-        setL(i);
-      this.layers[paramInt1].isDraw = true;
-      this.layers[paramInt2].isDraw = true;
-      this.layers[paramInt1].swap(this.layers[paramInt2]);
-    }
-
-    public boolean addScale(int paramInt, boolean paramBoolean)
-    {
-      if (paramBoolean)
-      {
-        if (paramInt <= 0)
+            if(isAnti)
+            {
+                dFLine(i, j, k);
+            } else
+            {
+                dFLine(i, j, k);
+            }
+        } else
+        if(user.iDCount >= 2)
         {
-          this.scale = 1;
-          setQuality(1 - paramInt);
-        }
-        else
-        {
-          setQuality(1);
-          this.scale = paramInt;
+            dFLine2(k);
         }
         return true;
-      }
-      int i = this.scale + paramInt;
-      if (i > 32)
-        return false;
-      if (i <= 0)
-      {
-        this.scale = 1;
-        setQuality(this.Q + 1 - i);
-      }
-      else if (this.Q >= 2)
-      {
-        setQuality(this.Q - 1);
-      }
-      else
-      {
-        setQuality(1);
-        this.scale = i;
-      }
-      return true;
     }
 
-    public void setQuality(int paramInt)
+    public final void dNext(int i, int j, int k, int l)
+        throws InterruptedException, IOException
     {
-      this.Q = paramInt;
-      this.imW = (this.W / this.Q);
-      this.imH = (this.H / this.Q);
-    }
-
-    public Dimension getSize()
-    {
-      this.vD.setSize(this.vWidth, this.vHeight);
-      return this.vD;
-    }
-
-    private void center(Point paramPoint)
-    {
-      paramPoint.x = (paramPoint.x / this.scale + this.scaleX);
-      paramPoint.y = (paramPoint.y / this.scale + this.scaleY);
-    }
-
-    public int[][][] getPenMask()
-    {
-      return this.bPen;
-    }
-
-    public int getPenSize(M paramM)
-    {
-      return (int)Math.sqrt(this.bPen[paramM.iPenM][paramM.iSize].length);
-    }
-
-    public int getPMMax()
-    {
-      return (this.m.isText()) || ((this.m.iHint >= 3) && (this.m.iHint <= 6)) ? 255 : this.bPen[this.m.iPenM].length;
-    }
-
-    public float[] getTT(int paramInt)
-    {
-      paramInt -= 12;
-      if (this.bTT[paramInt] == null)
-      {
-        if (this.dirTT != null)
+        int i1 = info.scale;
+        int _tmp = user.pW;
+        i = (i / i1 + info.scaleX) * info.Q;
+        j = (j / i1 + info.scaleY) * info.Q;
+        if(Math.abs(i - user.pX[3]) + Math.abs(j - user.pY[3]) < l)
         {
-          localObject = this.dirTT;
-          this.dirTT = null;
-          try
-          {
-            this.cnf.loadZip((String)localObject);
-          }
-          catch (IOException localIOException)
-          {
-            localIOException.printStackTrace();
-          }
+            return;
         }
-        Object localObject = M.this.loadIm("tt/" + paramInt + ".gif", false);
-        if (localObject == null)
-          return null;
-        int i = localObject.length;
-        float[] arrayOfFloat = new float[i];
-        for (int j = 0; j < i; j++)
-          arrayOfFloat[j] = M.access$0()[localObject[j]];
-        this.bTT[paramInt] = arrayOfFloat;
-      }
-      return (F)this.bTT[paramInt];
+        wPo(i - user.pX[3]);
+        wPo(j - user.pY[3]);
+        shift(i, j);
+        user.iDCount++;
+        if(iSOB != 0)
+        {
+            info.workOut.write(k);
+        }
+        if(iHint == 11)
+        {
+            if(user.iDCount >= 2)
+            {
+                dFLine2(k);
+            }
+        } else
+        if(isAnti)
+        {
+            dFLine(i, j, k);
+        } else
+        {
+            dFLine(i, j, k);
+        }
     }
-  }
-}
 
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.M
- * JD-Core Version:    0.6.0
- */
+    private final void dPen(int i, int j, float f)
+    {
+        if(iPen == 3)
+        {
+            if(!user.isPre)
+            {
+                dPY(i, j);
+            }
+            return;
+        }
+        dPenM(i, j, f);
+        if(isOver)
+        {
+            dFlush();
+        }
+    }
+
+    private final void dPenM(int i, int j, float f)
+    {
+        boolean flag = false;
+        int _tmp = info.Q;
+        int ai[] = getPM();
+        int i2 = info.W;
+        int j2 = user.pW;
+        int k2 = j2 * Math.max(-j, 0) + Math.max(-i, 0);
+        int l2 = Math.min(i + j2, i2);
+        int i3 = Math.min(j + j2, info.H);
+        if(l2 <= 0 || i3 <= 0)
+        {
+            return;
+        }
+        i = i > 0 ? i : 0;
+        j = j > 0 ? j : 0;
+        int ai1[] = info.layers[iLayer].offset;
+        byte abyte0[] = info.iMOffs;
+        for(int l = j; l < i3; l++)
+        {
+            int i1 = i2 * l + i;
+            int j1 = k2;
+            k2 += j2;
+            for(int k = i; k < l2; k++)
+            {
+                if(isM(ai1[i1]))
+                {
+                    i1++;
+                    j1++;
+                } else
+                {
+                    int k1 = abyte0[i1] & 0xff;
+                    int l1 = ai[j1++];
+                    if(l1 == 0)
+                    {
+                        i1++;
+                    } else
+                    {
+                        switch(iPen)
+                        {
+                        case 1: // '\001'
+                        case 20: // '\024'
+                            l1 = Math.max((int)((float)l1 * b255[255 - k1 >>> 1] * f), 1);
+                            abyte0[i1++] = (byte)Math.min(k1 + l1, 255);
+                            break;
+
+                        case 2: // '\002'
+                        case 5: // '\005'
+                        case 6: // '\006'
+                        case 7: // '\007'
+                            if((l1 = (int)((float)l1 * getTT(k, l))) != 0)
+                            {
+                                abyte0[i1] = (byte)Math.min(k1 + Math.max((int)((float)l1 * b255[255 - k1 >>> 2]), 1), 255);
+                            }
+                            i1++;
+                            break;
+
+                        default:
+                            abyte0[i1++] = (byte)Math.max((int)((float)l1 * getTT(k, l)), k1);
+                            break;
+                        }
+                    }
+                }
+            }
+
+        }
+
+    }
+
+    private final void dPY(int i, int j)
+    {
+        info.layers[iLayer].reserve();
+        boolean flag = false;
+        int ai[] = getPM();
+        int j2 = info.W;
+        int k2 = user.pW;
+        int l2 = k2 * Math.max(-j, 0) + Math.max(-i, 0);
+        int i3 = l2;
+        int j3 = Math.min(i + k2, j2);
+        int k3 = Math.min(j + k2, info.H);
+        i = i > 0 ? i : 0;
+        j = j > 0 ? j : 0;
+        if(j3 - i <= 0 || k3 - j <= 0)
+        {
+            return;
+        }
+        int ai1[] = info.layers[iLayer].offset;
+        int l3 = 0;
+        int j5 = 0;
+        int k5 = 0;
+        int l5 = 0;
+        int i6 = 0;
+        for(int l6 = j; l6 < k3; l6++)
+        {
+            int k = j2 * l6 + i;
+            int j1 = i3;
+            i3 += k2;
+            for(int j7 = i; j7 < j3; j7++)
+            {
+                int l1;
+                int j6;
+                if((l1 = ai[j1++]) == 0 || isM(j6 = ai1[k++]))
+                {
+                    k++;
+                } else
+                {
+                    j5 += j6 >>> 24;
+                    k5 += j6 >>> 16 & 0xff;
+                    l5 += j6 >>> 8 & 0xff;
+                    i6 += j6 & 0xff;
+                    l3++;
+                }
+            }
+
+        }
+
+        if(l3 == 0)
+        {
+            return;
+        }
+        j5 /= l3;
+        k5 /= l3;
+        l5 /= l3;
+        i6 /= l3;
+        if(iAlpha > 0)
+        {
+            float f1 = b255[iAlpha] / 3F;
+            int k7 = iColor >>> 16 & 0xff;
+            int i8 = iColor >>> 8 & 0xff;
+            int j8 = iColor & 0xff;
+            j5 = Math.max((int)((float)j5 + (float)(255 - j5) * f1), 1);
+            int l = (int)((float)(k7 - k5) * f1);
+            k5 += l == 0 ? ((int) (k7 <= k5 ? ((int) (k7 >= k5 ? 0 : -1)) : 1)) : l;
+            l = (int)((float)(i8 - l5) * f1);
+            l5 += l == 0 ? ((int) (i8 <= l5 ? ((int) (i8 >= l5 ? 0 : -1)) : 1)) : l;
+            l = (int)((float)(j8 - i6) * f1);
+            i6 += l == 0 ? ((int) (j8 <= i6 ? ((int) (j8 >= i6 ? 0 : -1)) : 1)) : l;
+        }
+        i3 = l2;
+        for(int i7 = j; i7 < k3; i7++)
+        {
+            int i1 = j2 * i7 + i;
+            int k1 = i3;
+            i3 += k2;
+            for(int l7 = i; l7 < j3; l7++)
+            {
+                int i2 = ai[k1++];
+                int k6 = ai1[i1];
+                float f;
+                if(i2 == 0 || isM(k6) || (f = getTT(l7, i7) * b255[i2]) == 0.0F)
+                {
+                    i1++;
+                } else
+                {
+                    int j4 = k6 >>> 24;
+                    int k4 = k6 >>> 16 & 0xff;
+                    int i5 = k6 >>> 8 & 0xff;
+                    int l4 = k6 & 0xff;
+                    int i4 = (int)((float)(j5 - j4) * f);
+                    j4 += i4 == 0 ? ((int) (j5 <= j4 ? ((int) (j5 >= j4 ? 0 : -1)) : 1)) : i4;
+                    i4 = (int)((float)(k5 - k4) * f);
+                    k4 += i4 == 0 ? ((int) (k5 <= k4 ? ((int) (k5 >= k4 ? 0 : -1)) : 1)) : i4;
+                    i4 = (int)((float)(l5 - i5) * f);
+                    i5 += i4 == 0 ? ((int) (l5 <= i5 ? ((int) (l5 >= i5 ? 0 : -1)) : 1)) : i4;
+                    i4 = (int)((float)(i6 - l4) * f);
+                    l4 += i4 == 0 ? ((int) (i6 <= l4 ? ((int) (i6 >= l4 ? 0 : -1)) : 1)) : i4;
+                    ai1[i1++] = (j4 << 24) + (k4 << 16) + (i5 << 8) + l4;
+                }
+            }
+
+        }
+
+    }
+
+    public final void draw()
+        throws InterruptedException
+    {
+        try
+        {
+            if(info == null)
+            {
+                return;
+            }
+            iSeek = 0;
+            switch(iHint)
+            {
+            case 0: // '\0'
+            case 1: // '\001'
+            case 11: // '\013'
+                dStart();
+                while(dNext()) ;
+                break;
+
+            case 10: // '\n'
+                dClear();
+                break;
+
+            default:
+                dRetouch();
+                break;
+            }
+        }
+        catch(InterruptedException _ex) { }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+        dEnd();
+    }
+
+    private void dRect(int i, int j, int k, int l)
+    {
+        int i1 = info.W;
+        int j1 = info.H;
+        byte abyte0[] = info.iMOffs;
+        int j3 = (byte)iAlpha;
+        if(i < 0)
+        {
+            i = 0;
+        }
+        if(j < 0)
+        {
+            j = 0;
+        }
+        if(k > i1)
+        {
+            k = i1;
+        }
+        if(l > j1)
+        {
+            l = j1;
+        }
+        if(i >= k || j >= l || j3 == 0)
+        {
+            return;
+        }
+        setD(i, j, k, l);
+        info.layers[iLayer].reserve();
+        int ai[] = info.layers[iLayer].offset;
+label0:
+        switch(iHint)
+        {
+        default:
+            break;
+
+        case 3: // '\003'
+            for(int k3 = j; k3 < l; k3++)
+            {
+                int k1 = k3 * i1 + i;
+                for(int k2 = i; k2 < k; k2++)
+                {
+                    if(!isM(ai[k1]))
+                    {
+                        abyte0[k1] = j3;
+                    }
+                    k1++;
+                }
+
+            }
+
+            break;
+
+        case 4: // '\004'
+            int l3 = i;
+            int j4 = j;
+            int l4 = k;
+            int j5 = l;
+            for(int l5 = 0; l5 < iSize + 1; l5++)
+            {
+                int l1 = i1 * j4 + l3;
+                int j2 = i1 * (j5 - 1) + l3;
+                for(int l2 = l3; l2 < l4; l2++)
+                {
+                    if(!isM(ai[l1]))
+                    {
+                        abyte0[l1] = j3;
+                    }
+                    if(!isM(ai[j2]))
+                    {
+                        abyte0[j2] = j3;
+                    }
+                    l1++;
+                    j2++;
+                }
+
+                l1 = i1 * j4 + l3;
+                j2 = (i1 * j4 + l4) - 1;
+                for(int j6 = j4; j6 < j5; j6++)
+                {
+                    if(!isM(ai[l1]))
+                    {
+                        abyte0[l1] = j3;
+                    }
+                    if(!isM(ai[j2]))
+                    {
+                        abyte0[j2] = j3;
+                    }
+                    l1 += i1;
+                    j2 += i1;
+                }
+
+                l3++;
+                l4--;
+                j4++;
+                j5--;
+                if(l4 <= l3 || j5 <= j4)
+                {
+                    break label0;
+                }
+            }
+
+            break;
+
+        case 5: // '\005'
+        case 6: // '\006'
+            int i4 = k - i - 1;
+            int k4 = l - j - 1;
+            int i6 = i4 / 2;
+            int k6 = k4 / 2;
+            int l6 = Math.min(Math.min(iSize + 1, i6), k6);
+            for(int i7 = 0; i7 < l6; i7++)
+            {
+                for(float f = 0.0F; f < 7F; f = (float)((double)f + 0.001D))
+                {
+                    int i5 = i + i6 + (int)Math.round(Math.cos(f) * (double)(i6 - i7));
+                    int k5 = j + k6 + (int)Math.round(Math.sin(f) * (double)(k6 - i7));
+                    abyte0[i1 * k5 + i5] = j3;
+                }
+
+            }
+
+            if(iHint == 5 && i6 > 0 && k6 > 0)
+            {
+                int j7 = iColor;
+                iColor = j3;
+                dFill(abyte0, i, j, k, l);
+                iColor = j7;
+            }
+            for(int k7 = j; k7 < l; k7++)
+            {
+                int i2 = k7 * i1 + i;
+                for(int i3 = i; i3 < k; i3++)
+                {
+                    if(isM(ai[i2]))
+                    {
+                        abyte0[i2] = 0;
+                    }
+                    i2++;
+                }
+
+            }
+
+            break;
+        }
+        t();
+    }
+
+    public void dRetouch()
+        throws InterruptedException
+    {
+        try
+        {
+            getPM();
+            user.setup(this);
+            int i = user.pW / 2;
+            int j = info.W;
+            int k = info.H;
+            LO alo[] = info.layers;
+            setD(0, 0, 0, 0);
+            int ai[] = user.points;
+            byte byte0 = ((byte)(isText() ? 1 : 4));
+            for(int l = 0; l < byte0 && iSeek < iOffset; l++)
+            {
+                ai[l] = (r2() & 0xffff) << 16 | r2() & 0xffff;
+            }
+
+            int i1 = ai[0] >> 16;
+            short word0 = (short)ai[0];
+            switch(iHint)
+            {
+            case 2: // '\002'
+                int j1 = user.wait;
+                user.wait = -2;
+                dStart(i1 + i, word0 + i, 0, false, false);
+                dBz(ai);
+                user.wait = j1;
+                break;
+
+            case 8: // '\b'
+            case 12: // '\f'
+                String s1 = new String(offset, iSeek, iOffset - iSeek, "UTF8");
+                int k1 = s1.indexOf('\0');
+                dText(s1.substring(k1 + 1), i1, word0);
+                break;
+
+            case 9: // '\t'
+                dCopy(ai);
+                break;
+
+            case 7: // '\007'
+                dFill(i1, word0);
+                break;
+
+            case 14: // '\016'
+                LO lo = alo[iLayer];
+                switch(word0)
+                {
+                case 4: // '\004'
+                default:
+                    break;
+
+                case 0: // '\0'
+                    info.swapL(iLayerSrc, iLayer);
+                    break;
+
+                case 1: // '\001'
+                    info.setL(ai[1]);
+                    break;
+
+                case 2: // '\002'
+                    info.delL(iLayerSrc);
+                    break;
+
+                case 3: // '\003'
+                    if(iLayer > iLayerSrc)
+                    {
+                        for(int l1 = iLayerSrc; l1 < iLayer; l1++)
+                        {
+                            info.swapL(l1, l1 + 1);
+                        }
+
+                    }
+                    if(iLayer >= iLayerSrc)
+                    {
+                        break;
+                    }
+                    for(int i2 = iLayerSrc; i2 > iLayer; i2--)
+                    {
+                        info.swapL(i2, i2 - 1);
+                    }
+
+                    break;
+
+                case 6: // '\006'
+                    try
+                    {
+                        Toolkit toolkit = info.component.getToolkit();
+                        i1 = ai[1] >> 16;
+                        word0 = (short)ai[1];
+                        Image image;
+                        if((ai[2] & 0xff) == 1)
+                        {
+                            image = toolkit.createImage(offset, iSeek, iOffset - iSeek);
+                        } else
+                        {
+                            image = toolkit.createImage((byte[])info.cnf.getRes(new String(offset, iSeek, iOffset - iSeek, "UTF8")));
+                        }
+                        if(image == null)
+                        {
+                            break;
+                        }
+                        Awt.wait(image);
+                        int j2 = image.getWidth(null);
+                        int k2 = image.getHeight(null);
+                        int ai1[] = Awt.getPix(image);
+                        image.flush();
+                        image = null;
+                        if(j2 > 0 && k2 > 0)
+                        {
+                            alo[iLayer].toCopy(j2, k2, ai1, i1, word0);
+                        }
+                    }
+                    catch(Throwable throwable1)
+                    {
+                        throwable1.printStackTrace();
+                    }
+                    break;
+
+                case 7: // '\007'
+                    byte byte1 = offset[4];
+                    byte abyte0[] = new byte[byte1 * 4];
+                    System.arraycopy(offset, 6, abyte0, 0, byte1 * 4);
+                    dFusion(abyte0);
+                    break;
+
+                case 5: // '\005'
+                case 8: // '\b'
+                    lo.iAlpha = b255[offset[4] & 0xff];
+                    break;
+
+                case 9: // '\t'
+                    lo.iCopy = offset[4];
+                    break;
+
+                case 10: // '\n'
+                    lo.name = new String(offset, 4, iOffset - 4, "UTF8");
+                    break;
+                }
+                setD(0, 0, j, k);
+                break;
+
+            case 3: // '\003'
+            case 4: // '\004'
+            case 5: // '\005'
+            case 6: // '\006'
+            case 10: // '\n'
+            case 11: // '\013'
+            case 13: // '\r'
+            default:
+                dRect(i1, word0, ai[1] >> 16, (short)ai[1]);
+                break;
+            }
+            if(isOver)
+            {
+                dFlush();
+            }
+            if(user.wait >= 0)
+            {
+                dBuffer();
+            }
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    private void dStart()
+    {
+        try
+        {
+            int i = r2();
+            int j = r2();
+            user.setup(this);
+            info.layers[iLayer].reserve();
+            int k = iSOB == 0 ? 0 : ru();
+            if(iSOB != 0)
+            {
+                iSize = ss(k);
+                iAlpha = sa(k);
+            }
+            memset(user.pX, i);
+            memset(user.pY, j);
+            int l = user.pW / 2;
+            setD(i - l - 1, j - l - 1, i + l, j + l);
+            user.fX = (float)i;
+            user.fY = (float)j;
+            if(iHint != 11 && !isAnti)
+            {
+                dFLine(i, j, k);
+            }
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            runtimeexception.printStackTrace();
+        }
+        catch(InterruptedException _ex) { }
+    }
+
+    public void dStart(int i, int j, int k, boolean flag, boolean flag1)
+    {
+        try
+        {
+            user.setup(this);
+            info.layers[iLayer].reserve();
+            iSize = ss(k);
+            iAlpha = sa(k);
+            user.setup(this);
+            if(flag1)
+            {
+                int l = info.scale;
+                i = (i / l + info.scaleX) * info.Q;
+                j = (j / l + info.scaleY) * info.Q;
+            }
+            if(flag)
+            {
+                ByteStream bytestream = getWork();
+                bytestream.w(i, 2);
+                bytestream.w(j, 2);
+                if(iSOB != 0)
+                {
+                    bytestream.write(k);
+                }
+            }
+            memset(user.pX, i);
+            memset(user.pY, j);
+            int i1 = user.pW / 2;
+            setD(i - i1 - 1, j - i1 - 1, i + i1, j + i1);
+            user.fX = (float)i;
+            user.fY = (float)j;
+            if(iHint != 11 && !isAnti)
+            {
+                dFLine(i, j, k);
+            }
+        }
+        catch(IOException ioexception)
+        {
+            ioexception.printStackTrace();
+        }
+        catch(InterruptedException interruptedexception)
+        {
+            interruptedexception.printStackTrace();
+        }
+    }
+
+    private void dText(String s1, int i, int j)
+    {
+        try
+        {
+            int k = info.W;
+            int l = info.H;
+            int ai[] = info.layers[iLayer].offset;
+            byte abyte0[] = info.iMOffs;
+            float f = b255[iAlpha];
+            if(f == 0.0F)
+            {
+                return;
+            }
+            Font font = getFont(iSize);
+            FontMetrics fontmetrics = info.component.getFontMetrics(font);
+            if(s1 == null || s1.length() <= 0)
+            {
+                return;
+            }
+            info.layers[iLayer].reserve();
+            boolean flag = iHint == 8;
+            int i1 = fontmetrics.getMaxAdvance();
+            int k1 = fontmetrics.getMaxAscent() + fontmetrics.getMaxDescent() + fontmetrics.getLeading() + 2;
+            int l1 = fontmetrics.getMaxAscent() + fontmetrics.getLeading() / 2 + 1;
+            int k2 = s1.length();
+            int i2;
+            int j2;
+            if(flag)
+            {
+                i2 = i1 * (k2 + 1) + 2;
+                j2 = k1;
+            } else
+            {
+                int j1 = fontmetrics.getMaxAdvance();
+                i2 = j1 + 2;
+                j2 = (k1 + iCount) * (k2 + 1);
+            }
+            i2 = Math.min(i2, k);
+            j2 = Math.min(j2, l);
+            setD(i, j, i + i2, j + j2);
+            Image image = info.component.createImage(i2, j2);
+            Graphics g = image.getGraphics();
+            g.setFont(font);
+            g.setColor(Color.black);
+            g.fillRect(0, 0, i2, j2);
+            g.setColor(Color.blue);
+            if(flag)
+            {
+                g.drawString(s1, 1, l1);
+            } else
+            {
+                int l2 = l1;
+                for(int i3 = 0; i3 < k2; i3++)
+                {
+                    g.drawString(String.valueOf(s1.charAt(i3)), 1, l2);
+                    l2 += k1 + iCount;
+                }
+
+            }
+            g.dispose();
+            g = null;
+            font = null;
+            fontmetrics = null;
+            int ai1[] = Awt.getPix(image);
+            image.flush();
+            image = null;
+            boolean flag1 = false;
+            int l3 = Math.min(k - i, i2);
+            int i4 = Math.min(l - j, j2);
+            for(int j4 = 0; j4 < i4; j4++)
+            {
+                int j3 = j4 * i2;
+                int k3 = (j4 + j) * k + i;
+                for(int k4 = 0; k4 < l3; k4++)
+                {
+                    if(!isM(ai[k3]))
+                    {
+                        abyte0[k3] = (byte)(int)((float)(ai1[j3] & 0xff) * f);
+                    }
+                    j3++;
+                    k3++;
+                }
+
+            }
+
+            setD(i, j, i + i2, j + j2);
+            t();
+        }
+        catch(Exception exception)
+        {
+            exception.printStackTrace();
+        }
+    }
+
+    private final int fu(int i, int j, int k)
+    {
+        if(k == 0)
+        {
+            return i;
+        } else
+        {
+            int l = i >>> 24;
+            int i1 = l + (int)((float)k * b255[255 - l]);
+            float f = b255[Math.min((int)((float)k * b255d[i1]), 255)];
+            int j1 = i >>> 16 & 0xff;
+            int k1 = i >>> 8 & 0xff;
+            int l1 = i & 0xff;
+            return i1 << 24 | j1 + (int)((float)((j >>> 16 & 0xff) - j1) * f) << 16 | k1 + (int)((float)((j >>> 8 & 0xff) - k1) * f) << 8 | l1 + (int)((float)((j & 0xff) - l1) * f);
+        }
+    }
+
+    public final void get(OutputStream outputstream, ByteStream bytestream, M m)
+    {
+        try
+        {
+            bytestream.reset();
+            int i = 0;
+            boolean flag = false;
+            int j = getFlag(m);
+            int k = j >>> 8 & 0xff;
+            int l = j & 0xff;
+            bytestream.write(j >>> 16);
+            bytestream.write(k);
+            bytestream.write(l);
+            if((k & 1) != 0)
+            {
+                i = iHint;
+                flag = true;
+            }
+            if((k & 2) != 0)
+            {
+                if(flag)
+                {
+                    bytestream.write(i << 4 | iPenM);
+                } else
+                {
+                    i = iPenM;
+                }
+                flag = !flag;
+            }
+            if((k & 4) != 0)
+            {
+                if(flag)
+                {
+                    bytestream.write(i << 4 | iMask);
+                } else
+                {
+                    i = iMask;
+                }
+                flag = !flag;
+            }
+            if(flag)
+            {
+                bytestream.write(i << 4);
+            }
+            if((k & 8) != 0)
+            {
+                bytestream.write(iPen);
+            }
+            if((k & 0x10) != 0)
+            {
+                bytestream.write(iTT);
+            }
+            if((k & 0x20) != 0)
+            {
+                bytestream.write(iLayer);
+            }
+            if((k & 0x40) != 0)
+            {
+                bytestream.write(iLayerSrc);
+            }
+            if((l & 1) != 0)
+            {
+                bytestream.write(iAlpha);
+            }
+            if((l & 2) != 0)
+            {
+                bytestream.w(iColor, 3);
+            }
+            if((l & 4) != 0)
+            {
+                bytestream.w(iColorMask, 3);
+            }
+            if((l & 8) != 0)
+            {
+                bytestream.write(iSize);
+            }
+            if((l & 0x10) != 0)
+            {
+                bytestream.write(iCount);
+            }
+            if((l & 0x20) != 0)
+            {
+                bytestream.w(iSA, 2);
+            }
+            if((l & 0x40) != 0)
+            {
+                bytestream.w(iSS, 2);
+            }
+            if(iPen == 20)
+            {
+                bytestream.w2(iAlpha2);
+            }
+            if(isText())
+            {
+                if(strHint == null)
+                {
+                    bytestream.w2(0);
+                } else
+                {
+                    bytestream.w2(strHint.length);
+                    bytestream.write(strHint);
+                }
+            }
+            if(offset != null && iOffset > 0)
+            {
+                bytestream.write(offset, 0, iOffset);
+            }
+            outputstream.write(bytestream.size() >>> 8);
+            outputstream.write(bytestream.size() & 0xff);
+            bytestream.writeTo(outputstream);
+        }
+        catch(IOException ioexception)
+        {
+            ioexception.printStackTrace();
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            runtimeexception.printStackTrace();
+        }
+    }
+
+    private final int getFlag(M m)
+    {
+        int j = 0;
+        if(isAllL)
+        {
+            j |= 1;
+        }
+        if(isAFix)
+        {
+            j |= 2;
+        }
+        if(isAnti)
+        {
+            j |= 0x10;
+        }
+        if(isCount)
+        {
+            j |= 8;
+        }
+        if(isOver)
+        {
+            j |= 4;
+        }
+        j |= iSOB << 6;
+        int i = j << 16;
+        if(m == null)
+        {
+            return i | 0xffff;
+        }
+        j = 0;
+        if(iHint != m.iHint)
+        {
+            j |= 1;
+        }
+        if(iPenM != m.iPenM)
+        {
+            j |= 2;
+        }
+        if(iMask != m.iMask)
+        {
+            j |= 4;
+        }
+        if(iPen != m.iPen)
+        {
+            j |= 8;
+        }
+        if(iTT != m.iTT)
+        {
+            j |= 0x10;
+        }
+        if(iLayer != m.iLayer)
+        {
+            j |= 0x20;
+        }
+        if(iLayerSrc != m.iLayerSrc)
+        {
+            j |= 0x40;
+        }
+        i |= j << 8;
+        j = 0;
+        if(iAlpha != m.iAlpha)
+        {
+            j |= 1;
+        }
+        if(iColor != m.iColor)
+        {
+            j |= 2;
+        }
+        if(iColorMask != m.iColorMask)
+        {
+            j |= 4;
+        }
+        if(iSize != m.iSize)
+        {
+            j |= 8;
+        }
+        if(iCount != m.iCount)
+        {
+            j |= 0x10;
+        }
+        if(iSA != m.iSA)
+        {
+            j |= 0x20;
+        }
+        if(iSS != m.iSS)
+        {
+            j |= 0x40;
+        }
+        return i | j;
+    }
+
+    public Image getImage(int i, int j, int k, int l, int i1)
+    {
+        j = Math.round(j / info.scale) + info.scaleX;
+        k = Math.round(k / info.scale) + info.scaleY;
+        l /= info.scale;
+        i1 /= info.scale;
+        int j1 = info.Q;
+        if(j1 <= 1)
+        {
+            return info.component.createImage(new MemoryImageSource(l, i1, info.layers[i].offset, k * info.W + j, info.W));
+        } else
+        {
+            Image image = info.component.createImage(new MemoryImageSource(l * j1, i1 * j1, info.layers[i].offset, k * j1 * info.W + j * j1, info.W));
+            Image image1 = image.getScaledInstance(l, i1, 2);
+            image.flush();
+            return image1;
+        }
+    }
+
+    private final int getM(int i, int j, int k)
+    {
+        if(j == 0)
+        {
+            return i;
+        }
+        switch(iPen)
+        {
+        case 12: // '\f'
+        case 13: // '\r'
+        case 14: // '\016'
+        case 15: // '\017'
+        case 16: // '\020'
+        case 17: // '\021'
+        case 18: // '\022'
+        case 19: // '\023'
+        default:
+            return fu(i, iColor, j);
+
+        case 4: // '\004'
+        case 5: // '\005'
+            int l = i >>> 24;
+            int k1 = l - (int)((float)l * b255[j]);
+            return k1 != 0 ? k1 << 24 | i & 0xffffff : 0xffffff;
+
+        case 6: // '\006'
+        case 11: // '\013'
+            int i1 = i >>> 24;
+            int l1 = i >>> 16 & 0xff;
+            int j2 = i >>> 8 & 0xff;
+            int k3 = i & 0xff;
+            int _tmp = iColor;
+            float f1 = b255[j];
+            return (i1 << 24) + (Math.min(l1 + (int)((float)l1 * f1), 255) << 16) + (Math.min(j2 + (int)((float)j2 * f1), 255) << 8) + Math.min(k3 + (int)((float)k3 * f1), 255);
+
+        case 7: // '\007'
+            int j1 = i >>> 24;
+            int i2 = i >>> 16 & 0xff;
+            int k2 = i >>> 8 & 0xff;
+            int l3 = i & 0xff;
+            int _tmp1 = iColor;
+            float f2 = b255[j];
+            return (j1 << 24) + (Math.max(i2 - (int)((float)(255 - i2) * f2), 0) << 16) + (Math.max(k2 - (int)((float)(255 - k2) * f2), 0) << 8) + Math.max(l3 - (int)((float)(255 - l3) * f2), 0);
+
+        case 8: // '\b'
+            int _tmp2 = i >>> 24;
+            int _tmp3 = i >>> 16 & 0xff;
+            int _tmp4 = i >>> 8 & 0xff;
+            int _tmp5 = i & 0xff;
+            int _tmp6 = iColor;
+            float f = b255[j];
+            int ai[] = user.argb;
+            int ai1[] = info.layers[iLayer].offset;
+            int i4 = info.W;
+            for(int j4 = 0; j4 < 4; j4++)
+            {
+                ai[j4] = 0;
+            }
+
+            int l2 = k % i4;
+            k += l2 != 0 ? l2 != i4 - 1 ? 0 : -1 : 1;
+            k += k >= i4 ? k <= i4 * (info.H - 1) ? 0 : -i4 : i4;
+            for(int k4 = -1; k4 < 2; k4++)
+            {
+                for(int i5 = -1; i5 < 2; i5++)
+                {
+                    int i3 = ai1[k + i5 + k4 * i4];
+                    int _tmp7 = i3 >>> 24;
+                    for(int j5 = 0; j5 < 4; j5++)
+                    {
+                        ai[j5] += i3 >>> (j5 << 3) & 0xff;
+                    }
+
+                }
+
+            }
+
+            for(int l4 = 0; l4 < 4; l4++)
+            {
+                int j3 = i >>> (l4 << 3) & 0xff;
+                ai[l4] = j3 + (int)((float)(ai[l4] / 9 - j3) * f);
+            }
+
+            return ai[3] << 24 | ai[2] << 16 | ai[1] << 8 | ai[0];
+
+        case 9: // '\t'
+        case 20: // '\024'
+            if(j == 0)
+            {
+                return i;
+            } else
+            {
+                return j << 24 | 0xff0000;
+            }
+
+        case 10: // '\n'
+            return j << 24 | iColor;
+        }
+    }
+
+    public final byte[] getOffset()
+    {
+        return offset;
+    }
+
+    private final int[] getPM()
+    {
+        if(isText() || iHint >= 3 && iHint <= 6)
+        {
+            return null;
+        }
+        int ai[] = user.p;
+        if(user.pM != iPenM || user.pA != iAlpha || user.pS != iSize)
+        {
+            int ai1[][] = info.bPen[iPenM];
+            int ai2[] = ai1[iSize];
+            int i = ai2.length;
+            if(ai == null || ai.length < i)
+            {
+                ai = new int[i];
+            }
+            float f = b255[iAlpha];
+            for(int j = 0; j < i; j++)
+            {
+                ai[j] = (int)((float)ai2[j] * f);
+            }
+
+            user.pW = (int)Math.sqrt(i);
+            user.pM = iPenM;
+            user.pA = iAlpha;
+            user.pS = iSize;
+            user.p = ai;
+            user.countMax = iCount < 0 ? (int)(((float)user.pW / (float)Math.sqrt(ai1[ai1.length - 1].length)) * (float)(-iCount)) : iCount;
+            user.count = Math.min(user.countMax, user.count);
+        }
+        return ai;
+    }
+
+    private final float getTT(int i, int j)
+    {
+        if(iTT == 0)
+        {
+            return 1.0F;
+        }
+        if(iTT < 12)
+        {
+            return (float)(isTone(iTT - 1, i, j) ? 0 : 1);
+        } else
+        {
+            int k = user.pTTW;
+            return user.pTT[(j % k) * k + i % k];
+        }
+    }
+
+    private final ByteStream getWork()
+    {
+        info.workOut.reset();
+        return info.workOut;
+    }
+
+    private final boolean isM(int i)
+    {
+        if(iMask == 0)
+        {
+            return false;
+        } else
+        {
+            i &= 0xffffff;
+            return iMask != 1 ? iMask != 2 ? false : iColorMask != i : iColorMask == i;
+        }
+    }
+
+    public static final boolean isTone(int i, int j, int k)
+    {
+        switch(i)
+        {
+        default:
+            break;
+
+        case 10: // '\n'
+            if((j + 3) % 4 == 0 && (k + 2) % 4 == 0)
+            {
+                return true;
+            }
+            break;
+
+        case 9: // '\t'
+            if((j + 1) % 4 == 0 && (k + 2) % 4 == 0)
+            {
+                break;
+            }
+            // fall through
+
+        case 8: // '\b'
+            if(j % 2 != 0 && (k + 1) % 2 != 0)
+            {
+                return true;
+            }
+            break;
+
+        case 7: // '\007'
+            if((j + 2) % 4 == 0 && (k + 3) % 4 == 0)
+            {
+                break;
+            }
+            // fall through
+
+        case 6: // '\006'
+            if(j % 4 == 0 && (k + 1) % 4 == 0)
+            {
+                break;
+            }
+            // fall through
+
+        case 5: // '\005'
+            if((j + 1) % 2 != (k + 1) % 2)
+            {
+                return true;
+            }
+            break;
+
+        case 4: // '\004'
+            if((j + 1) % 4 == 0 && (k + 3) % 4 == 0)
+            {
+                break;
+            }
+            // fall through
+
+        case 3: // '\003'
+            if(j % 2 != 0 || k % 2 != 0)
+            {
+                return true;
+            }
+            break;
+
+        case 2: // '\002'
+            if((j + 2) % 4 == 0 && (k + 4) % 4 == 0)
+            {
+                break;
+            }
+            // fall through
+
+        case 1: // '\001'
+            if((j + 2) % 4 == 0 && (k + 2) % 4 == 0)
+            {
+                break;
+            }
+            // fall through
+
+        case 0: // '\0'
+            if(j % 4 != 0 || k % 4 != 0)
+            {
+                return true;
+            }
+            break;
+        }
+        return false;
+    }
+
+    private int[] loadIm(Object obj, boolean flag)
+    {
+        try
+        {
+            Component component = info.component;
+            Image image = component.getToolkit().createImage((byte[])info.cnf.getRes(obj));
+            info.cnf.remove(obj);
+            Awt.wait(image);
+            int ai[] = Awt.getPix(image);
+            int i = ai.length;
+            image.flush();
+            image = null;
+            if(flag)
+            {
+                for(int j = 0; j < i; j++)
+                {
+                    ai[j] = ai[j] & 0xff ^ 0xff;
+                }
+
+            } else
+            {
+                for(int k = 0; k < i; k++)
+                {
+                    ai[k] &= 0xff;
+                }
+
+            }
+            return ai;
+        }
+        catch(RuntimeException _ex)
+        {
+            return null;
+        }
+    }
+
+    public final void m_paint(int i, int j, int k, int l)
+    {
+        int i1 = info.scale;
+        int j1 = info.Q;
+        i = (i / i1 + info.scaleX) * j1;
+        j = (j / i1 + info.scaleY) * j1;
+        k = (k / i1) * j1;
+        l = (l / i1) * j1;
+        dBuffer(false, i, j, i + k, j + l);
+    }
+
+    public final void memset(float af[], float f)
+    {
+        int i = af.length >>> 1;
+        for(int j = 0; j < i; j++)
+        {
+            af[j] = f;
+        }
+
+        System.arraycopy(af, 0, af, i - 1, i);
+        af[(i + i) - 1] = f;
+    }
+
+    public final void memset(int ai[], int i)
+    {
+        int j = ai.length >>> 1;
+        for(int k = 0; k < j; k++)
+        {
+            ai[k] = i;
+        }
+
+        System.arraycopy(ai, 0, ai, j - 1, j);
+        ai[(j + j) - 1] = i;
+    }
+
+    public final void memset(byte abyte0[], byte byte0)
+    {
+        int i = abyte0.length >>> 1;
+        for(int j = 0; j < i; j++)
+        {
+            abyte0[j] = byte0;
+        }
+
+        System.arraycopy(abyte0, 0, abyte0, i - 1, i);
+        abyte0[(i + i) - 1] = byte0;
+    }
+
+    public final Image mkLPic(int ai[], int i, int j, int k, int l, int i1)
+    {
+        i *= i1;
+        j *= i1;
+        k *= i1;
+        l *= i1;
+        boolean flag = ai == null;
+        int j1 = info.L;
+        LO alo[] = info.layers;
+        if(flag)
+        {
+            ai = user.buffer;
+        }
+        memset(ai, 0xffffff);
+        for(int k1 = 0; k1 < j1; k1++)
+        {
+            alo[k1].draw(ai, i, j, i + k, j + l, k);
+        }
+
+        if(flag)
+        {
+            user.raster.newPixels(user.image, k, l, i1);
+        } else
+        {
+            user.raster.scale(ai, k, l, i1);
+        }
+        return user.image;
+    }
+
+    private final Image mkMPic(int i, int j, int k, int l, int i1)
+    {
+        i *= i1;
+        j *= i1;
+        k *= i1;
+        l *= i1;
+        int ai[] = user.buffer;
+        int j1 = info.L;
+        LO alo[] = info.layers;
+        memset(ai, 0xffffff);
+        for(int k1 = 0; k1 < j1; k1++)
+        {
+            if(k1 == iLayer)
+            {
+                byte abyte0[] = info.iMOffs;
+                int ai1[] = alo[k1].offset;
+                int j6 = info.W;
+                float f = alo[k1].iAlpha;
+                if(ai1 != null)
+                {
+                    switch(alo[k1].iCopy)
+                    {
+                    case 1: // '\001'
+                        for(int k5 = 0; k5 < l; k5++)
+                        {
+                            int j3 = j6 * (k5 + j) + i;
+                            int i4 = k * k5;
+                            for(int l4 = 0; l4 < k; l4++)
+                            {
+                                int j7 = ai[i4];
+                                int k6 = getM(ai1[j3], abyte0[j3] & 0xff, j3);
+                                float f1 = b255[k6 >>> 24] * f;
+                                if(f1 > 0.0F)
+                                {
+                                    ai[i4] = ((j7 >>> 16 & 0xff) - (int)(b255[j7 >>> 16 & 0xff] * ((float)(k6 >>> 16 & 0xff ^ 0xff) * f1)) << 16) + ((j7 >>> 8 & 0xff) - (int)(b255[j7 >>> 8 & 0xff] * ((float)(k6 >>> 8 & 0xff ^ 0xff) * f1)) << 8) + ((j7 & 0xff) - (int)(b255[j7 & 0xff] * ((float)(k6 & 0xff ^ 0xff) * f1)));
+                                }
+                                i4++;
+                                j3++;
+                            }
+
+                        }
+
+                        break;
+
+                    case 2: // '\002'
+                        for(int l5 = 0; l5 < l; l5++)
+                        {
+                            int k3 = j6 * (l5 + j) + i;
+                            int j4 = k * l5;
+                            for(int i5 = 0; i5 < k; i5++)
+                            {
+                                int k7 = ai[j4];
+                                int l6 = getM(ai1[k3], abyte0[k3] & 0xff, k3);
+                                float f2 = b255[l6 >>> 24] * f;
+                                l6 ^= 0xffffff;
+                                int l1 = k7 >>> 16 & 0xff;
+                                int j2 = k7 >>> 8 & 0xff;
+                                int l2 = k7 & 0xff;
+                                ai[j4++] = f2 != 1.0F ? l1 + (int)((float)((l6 >>> 16 & 0xff) - l1) * f2) << 16 | j2 + (int)((float)((l6 >>> 8 & 0xff) - j2) * f2) << 8 | l2 + (int)((float)((l6 & 0xff) - l2) * f2) : l6;
+                                k3++;
+                            }
+
+                        }
+
+                        break;
+
+                    default:
+                        for(int i6 = 0; i6 < l; i6++)
+                        {
+                            int l3 = j6 * (i6 + j) + i;
+                            int k4 = k * i6;
+                            for(int j5 = 0; j5 < k; j5++)
+                            {
+                                int l7 = ai[k4];
+                                int i7 = getM(ai1[l3], abyte0[l3] & 0xff, l3);
+                                float f3 = b255[i7 >>> 24] * f;
+                                if(f3 == 1.0F)
+                                {
+                                    ai[k4++] = i7;
+                                } else
+                                {
+                                    int i2 = l7 >>> 16 & 0xff;
+                                    int k2 = l7 >>> 8 & 0xff;
+                                    int i3 = l7 & 0xff;
+                                    ai[k4++] = i2 + (int)((float)((i7 >>> 16 & 0xff) - i2) * f3) << 16 | k2 + (int)((float)((i7 >>> 8 & 0xff) - k2) * f3) << 8 | i3 + (int)((float)((i7 & 0xff) - i3) * f3);
+                                }
+                                l3++;
+                            }
+
+                        }
+
+                        break;
+                    }
+                }
+            } else
+            {
+                alo[k1].draw(ai, i, j, i + k, j + l, k);
+            }
+        }
+
+        user.raster.newPixels(user.image, k, l, i1);
+        return user.image;
+    }
+
+    public Info newInfo(Applet applet, Component component, Res res)
+    {
+        if(info != null)
+        {
+            return info;
+        }
+        info = new Info();
+        info.cnf = res;
+        info.component = component;
+        Info info1 = info;
+        M m = info.m;
+        float f = 3.141593F;
+        for(int i = 1; i < 256; i++)
+        {
+            b255[i] = (float)i / 255F;
+            b255d[i] = 255F / (float)i;
+        }
+
+        b255[0] = 0.0F;
+        b255d[0] = 0.0F;
+        int ai[][][] = info.bPen;
+        boolean flag = false;
+        int j4 = 1;
+        char c = '\377';
+        m.iAlpha = 255;
+        set(m);
+        int ai1[][] = new int[23][];
+        for(int j = 0; j < 23; j++)
+        {
+            int j2 = j4 * j4;
+            if(j4 <= 6)
+            {
+                int ai2[];
+                ai1[j] = ai2 = new int[j2];
+                int k4 = j4;
+                for(int i1 = 0; i1 < j2; i1++)
+                {
+                    ai2[i1] = i1 >= j4 && j2 - i1 >= j4 && i1 % j4 != 0 && i1 % j4 != j4 - 1 ? m.iAlpha : ((int) (c));
+                }
+
+                if(j4 >= 3)
+                {
+                    ai2[0] = ai2[j4 - 1] = ai2[j4 * (j4 - 1)] = ai2[j2 - 1] = 0;
+                }
+            } else
+            {
+                int l4 = j4 + 1;
+                int ai3[];
+                ai1[j] = ai3 = new int[l4 * l4];
+                int i4 = (j4 - 1) / 2;
+                int l2 = (int)((float)Math.round(2.0F * f * (float)i4) * 3F);
+                for(int j1 = 0; j1 < l2; j1++)
+                {
+                    int k3 = Math.min(i4 + (int)Math.round((double)i4 * Math.cos(j1)), j4);
+                    int l3 = Math.min(i4 + (int)Math.round((double)i4 * Math.sin(j1)), j4);
+                    ai3[l3 * l4 + k3] = c;
+                }
+
+                info1.W = info1.H = l4;
+                dFill(ai3, 0, 0, l4, l4);
+            }
+            j4 += j > 7 ? j >= 18 ? 4 : 2 : 1;
+        }
+
+        ai[0] = ai1;
+        m.iAlpha = 255;
+        ai1 = new int[32][];
+        ai1[0] = (new int[] {
+            128
+        });
+        ai1[1] = (new int[] {
+            255
+        });
+        ai1[2] = (new int[] {
+            0, 128, 0, 128, 255, 128, 0, 128, 0
+        });
+        ai1[3] = (new int[] {
+            128, 174, 128, 174, 255, 174, 128, 174, 128
+        });
+        ai1[4] = (new int[] {
+            174, 255, 174, 255, 255, 255, 174, 255, 174
+        });
+        ai1[5] = new int[9];
+        memset(ai1[5], 255);
+        ai1[6] = (new int[] {
+            0, 128, 128, 0, 128, 255, 255, 128, 128, 255, 
+            255, 128, 0, 128, 128, 0
+        });
+        int ai4[] = ai1[7] = new int[16];
+        memset(ai4, 255);
+        ai4[0] = ai4[3] = ai4[15] = ai4[12] = 128;
+        memset(ai1[8] = new int[16], 255);
+        j4 = 3;
+        for(int k = 9; k < 32; k++)
+        {
+            int i5 = j4 + 3;
+            float f5 = (float)j4 / 2.0F;
+            int ai5[];
+            ai1[k] = ai5 = new int[i5 * i5];
+            int i3 = (int)((float)Math.round(2.0F * f * f5) * (float)(2 + k / 16)) + k * 2;
+            for(int k1 = 0; k1 < i3; k1++)
+            {
+                float f1;
+                int j5 = (int)(f1 = f5 + 1.5F + f5 * (float)Math.cos(k1));
+                float f2;
+                int k5 = (int)(f2 = f5 + 1.5F + f5 * (float)Math.sin(k1));
+                float f3 = f1 - (float)j5;
+                float f4 = f2 - (float)k5;
+                int l5 = k5 * i5 + j5;
+                ai5[l5] += (int)((1.0F - f3) * 255F);
+                ai5[l5 + 1] += (int)(f3 * 255F);
+                ai5[l5 + i5] += (int)((1.0F - f4) * 255F);
+                ai5[l5 + i5 + 1] += (int)(f4 * 255F);
+            }
+
+            int k2 = i5 * i5;
+            for(int l1 = 0; l1 < k2; l1++)
+            {
+                ai5[l1] = Math.min(ai5[l1], 255);
+            }
+
+            j4 += 2;
+            info1.W = info1.H = i5;
+            dFill(ai5, 0, 0, i5, i5);
+        }
+
+        ai[1] = ai1;
+        set(((M) (null)));
+        m.set(((M) (null)));
+        if(res != null)
+        {
+            for(int l = 0; l < 16; l++)
+            {
+                int j3;
+                for(j3 = 0; res.get("pm" + l + '/' + j3 + ".gif") != null; j3++) { }
+                if(j3 > 0)
+                {
+                    ai[l] = new int[j3][];
+                    for(int i2 = 0; i2 < j3; i2++)
+                    {
+                        ai[l][i2] = loadIm("pm" + l + '/' + i2 + ".gif", true);
+                    }
+
+                }
+            }
+
+            info.bTT = new float[res.getP("tt_size", 31)][];
+        }
+        String s1 = applet.getParameter("tt.zip");
+        if(s1 != null && s1.length() > 0)
+        {
+            info.dirTT = s1;
+        }
+        return info;
+    }
+
+    public User newUser(Component component)
+    {
+        if(user == null)
+        {
+            user = new User();
+            if(color_model == null)
+            {
+                color_model = new DirectColorModel(24, 0xff0000, 65280, 255);
+            }
+            user.raster = new SRaster(color_model, user.buffer, 128, 128);
+            user.image = component.createImage(user.raster);
+        }
+        return user;
+    }
+
+    public final int pix(int i, int j)
+    {
+        if(!isAllL)
+        {
+            return info.layers[iLayer].getPixel(i, j);
+        }
+        int k = info.L;
+        int i1 = 0;
+        int k1 = 0xffffff;
+        int _tmp = info.W * j + i;
+        for(int i2 = 0; i2 < k; i2++)
+        {
+            int l1 = info.layers[i2].getPixel(i, j);
+            float f = b255[l1 >>> 24];
+            if(f != 0.0F)
+            {
+                if(f == 1.0F)
+                {
+                    k1 = l1;
+                    i1 = 255;
+                }
+                i1 = (int)((float)i1 + (float)(255 - i1) * f);
+                int l = 0;
+                for(int j2 = 16; j2 >= 0; j2 -= 8)
+                {
+                    int j1 = k1 >>> j2 & 0xff;
+                    l |= j1 + (int)((float)((l1 >>> j2 & 0xff) - j1) * f) << j2;
+                }
+
+                k1 = l;
+            }
+        }
+
+        return i1 << 24 | k1;
+    }
+
+    private final byte r()
+    {
+        if(iSeek >= iOffset)
+        {
+            return 0;
+        } else
+        {
+            return offset[iSeek++];
+        }
+    }
+
+    private final int r(byte abyte0[], int i, int j)
+    {
+        int k = 0;
+        for(int l = j - 1; l >= 0; l--)
+        {
+            k |= (abyte0[i++] & 0xff) << l * 8;
+        }
+
+        return k;
+    }
+
+    private final short r2()
+    {
+        return (short)((ru() << 8) + ru());
+    }
+
+    public void reset(boolean flag)
+    {
+        byte abyte0[] = info.iMOffs;
+        int j = info.W;
+        int k = Math.max(user.X, 0);
+        int l = Math.max(user.Y, 0);
+        int i1 = Math.min(user.X2, j);
+        int j1 = Math.min(user.Y2, info.H);
+        for(int l1 = l; l1 < j1; l1++)
+        {
+            int i = k + l1 * j;
+            for(int k1 = k; k1 < i1; k1++)
+            {
+                abyte0[i++] = 0;
+            }
+
+        }
+
+        if(flag)
+        {
+            dBuffer(false, k, l, i1, j1);
+        }
+        setD(0, 0, 0, 0);
+    }
+
+    private final int rPo()
+    {
+        byte byte0 = r();
+        return byte0 == -128 ? r2() : byte0;
+    }
+
+    private final int ru()
+    {
+        return r() & 0xff;
+    }
+
+    private final int s(int i, int j, int k)
+    {
+        byte abyte0[] = info.iMOffs;
+        int l = info.W - 1;
+        for(int i1 = (l + 1) * k + j; j < l && pix(j + 1, k) == i && abyte0[i1 + 1] == 0; j++)
+        {
+            i1++;
+        }
+
+        return j;
+    }
+
+    private final int sa(int i)
+    {
+        if((iSOB & 1) == 0)
+        {
+            return iAlpha;
+        } else
+        {
+            int j = iSA & 0xff;
+            return j + (int)(b255[(iSA >>> 8) - j] * (float)i);
+        }
+    }
+
+    public final int set(byte abyte0[], int i)
+    {
+        int j = (abyte0[i++] & 0xff) << 8 | abyte0[i++] & 0xff;
+        int k = i;
+        if(j <= 2)
+        {
+            return j + 2;
+        }
+        try
+        {
+            int l = 0;
+            boolean flag = false;
+            int i1 = abyte0[i++] & 0xff;
+            int j1 = abyte0[i++] & 0xff;
+            int k1 = abyte0[i++] & 0xff;
+            isAllL = (i1 & 1) != 0;
+            isAFix = (i1 & 2) != 0;
+            isOver = (i1 & 4) != 0;
+            isCount = (i1 & 8) != 0;
+            isAnti = (i1 & 0x10) != 0;
+            iSOB = i1 >>> 6;
+            if((j1 & 1) != 0)
+            {
+                l = abyte0[i++] & 0xff;
+                flag = true;
+                iHint = l >>> 4;
+            }
+            if((j1 & 2) != 0)
+            {
+                if(!flag)
+                {
+                    l = abyte0[i++] & 0xff;
+                    iPenM = l >>> 4;
+                } else
+                {
+                    iPenM = l & 0xf;
+                }
+                flag = !flag;
+            }
+            if((j1 & 4) != 0)
+            {
+                if(!flag)
+                {
+                    l = abyte0[i++] & 0xff;
+                    iMask = l >>> 4;
+                } else
+                {
+                    iMask = l & 0xf;
+                }
+                flag = !flag;
+            }
+            if((j1 & 8) != 0)
+            {
+                iPen = abyte0[i++] & 0xff;
+            }
+            if((j1 & 0x10) != 0)
+            {
+                iTT = abyte0[i++] & 0xff;
+            }
+            if((j1 & 0x20) != 0)
+            {
+                iLayer = abyte0[i++] & 0xff;
+            }
+            if((j1 & 0x40) != 0)
+            {
+                iLayerSrc = abyte0[i++] & 0xff;
+            }
+            if((k1 & 1) != 0)
+            {
+                iAlpha = abyte0[i++] & 0xff;
+            }
+            if((k1 & 2) != 0)
+            {
+                iColor = r(abyte0, i, 3);
+                i += 3;
+            }
+            if((k1 & 4) != 0)
+            {
+                iColorMask = r(abyte0, i, 3);
+                i += 3;
+            }
+            if((k1 & 8) != 0)
+            {
+                iSize = abyte0[i++] & 0xff;
+            }
+            if((k1 & 0x10) != 0)
+            {
+                iCount = abyte0[i++];
+            }
+            if((k1 & 0x20) != 0)
+            {
+                iSA = r(abyte0, i, 2);
+                i += 2;
+            }
+            if((k1 & 0x40) != 0)
+            {
+                iSS = r(abyte0, i, 2);
+                i += 2;
+            }
+            if(iPen == 20)
+            {
+                iAlpha2 = r(abyte0, i, 2);
+                i += 2;
+            }
+            if(isText())
+            {
+                int l1 = r(abyte0, i, 2);
+                i += 2;
+                if(l1 == 0)
+                {
+                    strHint = null;
+                } else
+                {
+                    strHint = new byte[l1];
+                    System.arraycopy(abyte0, i, strHint, 0, l1);
+                    i += l1;
+                }
+            }
+            k = j - (i - k);
+            if(k > 0)
+            {
+                if(offset == null || offset.length < k)
+                {
+                    offset = new byte[k];
+                }
+                iOffset = k;
+                System.arraycopy(abyte0, i, offset, 0, k);
+            } else
+            {
+                iOffset = 0;
+            }
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            runtimeexception.printStackTrace();
+            iOffset = 0;
+        }
+        return j + 2;
+    }
+
+    public final void set(String s1)
+    {
+        try
+        {
+            if(s1 == null || s1.length() == 0)
+            {
+                return;
+            }
+            Field afield[] = getClass().getDeclaredFields();
+            int i = s1.indexOf('@');
+            if(i < 0)
+            {
+                i = s1.length();
+            }
+            int k;
+            for(int j = 0; j < i; j = k + 1)
+            {
+                k = s1.indexOf('=', j);
+                if(k == -1)
+                {
+                    break;
+                }
+                String s2 = s1.substring(j, k);
+                j = k + 1;
+                k = s1.indexOf(';', j);
+                if(k < 0)
+                {
+                    k = i;
+                }
+                try
+                {
+                    for(int l = 0; l < afield.length; l++)
+                    {
+                        Field field = afield[l];
+                        if(!field.getName().equals(s2))
+                        {
+                            continue;
+                        }
+                        String s3 = s1.substring(j, k);
+                        Class class1 = field.getType();
+                        if(class1.equals(Integer.TYPE))
+                        {
+                            field.setInt(this, Integer.parseInt(s3));
+                        } else
+                        if(class1.equals(Boolean.TYPE))
+                        {
+                            field.setBoolean(this, Integer.parseInt(s3) != 0);
+                        } else
+                        {
+                            field.set(this, s3);
+                        }
+                        break;
+                    }
+
+                }
+                catch(NumberFormatException _ex) { }
+                catch(IllegalAccessException _ex) { }
+            }
+
+            if(i != s1.length())
+            {
+                ByteStream bytestream = getWork();
+                for(int i1 = i + 1; i1 < s1.length(); i1 += 2)
+                {
+                    bytestream.write(Character.digit(s1.charAt(i1), 16) << 4 | Character.digit(s1.charAt(i1 + 1), 16));
+                }
+
+                offset = bytestream.toByteArray();
+                iOffset = offset.length;
+            }
+        }
+        catch(Throwable _ex) { }
+    }
+
+    public final void set(M m)
+    {
+        if(m == null)
+        {
+            m = mgDef;
+        }
+        iHint = m.iHint;
+        iPen = m.iPen;
+        iPenM = m.iPenM;
+        iTT = m.iTT;
+        iMask = m.iMask;
+        iSize = m.iSize;
+        iSS = m.iSS;
+        iCount = m.iCount;
+        isOver = m.isOver;
+        isCount = m.isCount;
+        isAFix = m.isAFix;
+        isAnti = m.isAnti;
+        isAllL = m.isAllL;
+        iAlpha = m.iAlpha;
+        iAlpha2 = m.iAlpha2;
+        iSA = m.iSA;
+        iColor = m.iColor;
+        iColorMask = m.iColorMask;
+        iLayer = m.iLayer;
+        iLayerSrc = m.iLayerSrc;
+        iSOB = m.iSOB;
+        strHint = m.strHint;
+        iOffset = 0;
+    }
+
+    public final int set(ByteStream bytestream)
+    {
+        return set(bytestream.getBuffer(), 0);
+    }
+
+    public void setRetouch(int ai[], byte abyte0[], int i, boolean flag)
+    {
+        try
+        {
+            int j = 4;
+            int k = info.scale;
+            int l = info.Q;
+            int i1 = info.scaleX;
+            int j1 = info.scaleY;
+            getPM();
+            int k1 = user.pW / 2;
+            int l1 = iHint != 2 ? 0 : k1;
+            int ai1[] = user.points;
+            switch(iHint)
+            {
+            case 8: // '\b'
+            case 12: // '\f'
+                j = 1;
+                break;
+
+            case 9: // '\t'
+                j = 3;
+                break;
+
+            case 10: // '\n'
+                j = 0;
+                break;
+
+            case 3: // '\003'
+            case 4: // '\004'
+            case 5: // '\005'
+            case 6: // '\006'
+            case 11: // '\013'
+            case 13: // '\r'
+            default:
+                j = 2;
+                break;
+
+            case 2: // '\002'
+            case 7: // '\007'
+            case 14: // '\016'
+                break;
+            }
+            if(ai != null)
+            {
+                j = Math.min(j, ai.length);
+            }
+            for(int k2 = 0; k2 < j; k2++)
+            {
+                int i2 = ai[k2] >> 16;
+                int j2 = (short)ai[k2];
+                if(flag)
+                {
+                    i2 = (i2 / k + i1) * l - l1;
+                    j2 = (j2 / k + j1) * l - l1;
+                }
+                ai1[k2] = i2 << 16 | j2 & 0xffff;
+            }
+
+            ByteStream bytestream = getWork();
+            for(int l2 = 0; l2 < j; l2++)
+            {
+                bytestream.w(ai1[l2], 4);
+            }
+
+            if(abyte0 != null && i > 0)
+            {
+                bytestream.write(abyte0, 0, i);
+            }
+            offset = bytestream.writeTo(offset, 0);
+            iOffset = bytestream.size();
+            bytestream.reset();
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    private final void addD(int i, int j, int k, int l)
+    {
+        user.addRect(i, j, k, l);
+    }
+
+    private final void setD(int i, int j, int k, int l)
+    {
+        user.setRect(i, j, k, l);
+    }
+
+    public void setInfo(Info info1)
+    {
+        info = info1;
+    }
+
+    public void setUser(User user1)
+    {
+        user = user1;
+    }
+
+    private final void shift(int i, int j)
+    {
+        System.arraycopy(user.pX, 1, user.pX, 0, 3);
+        System.arraycopy(user.pY, 1, user.pY, 0, 3);
+        user.pX[3] = i;
+        user.pY[3] = j;
+    }
+
+    private final int ss(int i)
+    {
+        if((iSOB & 2) == 0)
+        {
+            return iSize;
+        } else
+        {
+            int j = iSS & 0xff;
+            return (int)(((float)j + b255[(iSS >>> 8) - j] * (float)i) * user.pV);
+        }
+    }
+
+    private final void t()
+    {
+        if(iTT == 0)
+        {
+            return;
+        }
+        byte abyte0[] = info.iMOffs;
+        int k = info.W;
+        int l = user.X;
+        int i1 = user.Y;
+        int j1 = user.X2;
+        int k1 = user.Y2;
+        for(int l1 = i1; l1 < k1; l1++)
+        {
+            int j = k * l1 + l;
+            for(int i = l; i < j1; i++)
+            {
+                abyte0[j] = (byte)(int)((float)(abyte0[j++] & 0xff) * getTT(i, l1));
+            }
+
+        }
+
+    }
+
+    private final void wPo(int i)
+        throws IOException
+    {
+        ByteStream bytestream = info.workOut;
+        if(i > 127 || i < -127)
+        {
+            bytestream.write(-128);
+            bytestream.w(i, 2);
+        } else
+        {
+            bytestream.write(i);
+        }
+    }
+
+    public boolean isText()
+    {
+        return iHint == 8 || iHint == 12;
+    }
+
+    public Font getFont(int i)
+    {
+        try
+        {
+            if(strHint != null)
+            {
+                return Font.decode(new String(strHint, "UTF8") + i);
+            }
+        }
+        catch(IOException _ex) { }
+        return new Font("sansserif", 0, iSize);
+    }
+
+    public static float[] getb255()
+    {
+        return b255;
+    }
+
+
+
+
+
+}

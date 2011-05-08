@@ -1,236 +1,244 @@
 package paintchat.config;
 
 import java.applet.Applet;
-import java.awt.Checkbox;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Frame;
-import java.awt.Label;
-import java.awt.Point;
-import java.awt.TextComponent;
-import java.awt.TextField;
-import java.awt.event.ComponentEvent;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.Hashtable;
 import paintchat.Res;
 import paintchat.Resource;
 import syi.applet.ServerStub;
-import syi.awt.HelpWindow;
-import syi.awt.HelpWindowContent;
-import syi.awt.LButton;
-import syi.awt.LTextField;
-import syi.util.PProperties;
+import syi.awt.*;
 
 public class ConfigApplet extends Applet
-  implements MouseListener, FocusListener
+    implements MouseListener, FocusListener
 {
-  Res res = Resource.loadResource("Config");
-  private HelpWindow helpWindow = null;
 
-  public void focusGained(FocusEvent paramFocusEvent)
-  {
-  }
+    Res res;
+    private HelpWindow helpWindow;
 
-  public void focusLost(FocusEvent paramFocusEvent)
-  {
-    getHelp().reset();
-  }
-
-  protected boolean getBool(String paramString)
-  {
-    if ((paramString == null) || (paramString.length() <= 0))
-      return false;
-    int i = Character.toLowerCase(paramString.charAt(0));
-    switch (i)
+    public ConfigApplet()
     {
-    case 49:
-    case 111:
-    case 116:
-    case 121:
-      return true;
+        res = Resource.loadResource("Config");
+        helpWindow = null;
     }
-    return false;
-  }
 
-  protected boolean getBool(String paramString, boolean paramBoolean)
-  {
-    if ((paramString == null) || (paramString.length() <= 0))
-      return paramBoolean;
-    int i = Character.toLowerCase(paramString.charAt(0));
-    switch (i)
+    public void focusGained(FocusEvent focusevent)
     {
-    case 49:
-    case 111:
-    case 116:
-    case 121:
-      return true;
-    case 48:
-    case 99:
-    case 102:
-    case 110:
-      return false;
     }
-    return paramBoolean;
-  }
 
-  protected HelpWindow getHelp()
-  {
-    if (this.helpWindow == null)
+    public void focusLost(FocusEvent focusevent)
     {
-      this.helpWindow = new HelpWindow((Frame)getParent().getParent());
-      this.helpWindow.setIsShow(getBool(getParameter("App_IsConsole"), true));
+        getHelp().reset();
     }
-    return this.helpWindow;
-  }
 
-  public void getParameter(Component paramComponent)
-  {
-    Object localObject;
-    if ((paramComponent instanceof Container))
+    protected boolean getBool(String s)
     {
-      localObject = ((Container)paramComponent).getComponents();
-      for (int i = 0; i < localObject.length; i++)
-        getParameter(localObject[i]);
+        if(s == null || s.length() <= 0)
+        {
+            return false;
+        }
+        char c = Character.toLowerCase(s.charAt(0));
+        switch(c)
+        {
+        case 49: // '1'
+        case 111: // 'o'
+        case 116: // 't'
+        case 121: // 'y'
+            return true;
+        }
+        return false;
     }
-    else
+
+    protected boolean getBool(String s, boolean flag)
     {
-      if ((!(paramComponent instanceof LTextField)) && (!(paramComponent instanceof Checkbox)))
-        return;
-      localObject = getParameter(paramComponent.getName());
-      if (localObject == null)
-        return;
-      if ((paramComponent instanceof LTextField))
-        ((LTextField)paramComponent).setText((String)localObject);
-      if ((paramComponent instanceof Checkbox))
-        ((Checkbox)paramComponent).setState(getBool((String)localObject));
-    }
-  }
+        if(s == null || s.length() <= 0)
+        {
+            return flag;
+        }
+        char c = Character.toLowerCase(s.charAt(0));
+        switch(c)
+        {
+        case 49: // '1'
+        case 111: // 'o'
+        case 116: // 't'
+        case 121: // 'y'
+            return true;
 
-  public void getResource(Res paramRes, Component paramComponent)
-  {
-    Object localObject;
-    if ((paramComponent instanceof Container))
+        case 48: // '0'
+        case 99: // 'c'
+        case 102: // 'f'
+        case 110: // 'n'
+            return false;
+        }
+        return flag;
+    }
+
+    protected HelpWindow getHelp()
     {
-      localObject = (Container)paramComponent;
-      int i = ((Container)localObject).getComponentCount();
-      for (int j = 0; j < i; j++)
-        getResource(paramRes, ((Container)localObject).getComponent(j));
+        if(helpWindow == null)
+        {
+            helpWindow = new HelpWindow((Frame)getParent().getParent());
+            helpWindow.setIsShow(getBool(getParameter("App_IsConsole"), true));
+        }
+        return helpWindow;
     }
-    else
+
+    public void getParameter(Component component)
     {
-      localObject = paramComponent.getName();
-      localObject = paramRes.get((String)localObject, (String)localObject);
-      if ((paramComponent instanceof LTextField))
-      {
-        ((LTextField)paramComponent).setTitle((String)localObject);
-        return;
-      }
-      if ((paramComponent instanceof LButton))
-      {
-        ((LButton)paramComponent).setText((String)localObject);
-        return;
-      }
-      if ((paramComponent instanceof Checkbox))
-      {
-        ((Checkbox)paramComponent).setLabel((String)localObject);
-        return;
-      }
-      if ((paramComponent instanceof Label))
-      {
-        Label localLabel = (Label)paramComponent;
-        localLabel.setText(paramRes.get(localLabel.getText(), localLabel.getText()));
-        return;
-      }
+        if(component instanceof Container)
+        {
+            Component acomponent[] = ((Container)component).getComponents();
+            for(int i = 0; i < acomponent.length; i++)
+            {
+                getParameter(acomponent[i]);
+            }
+
+        } else
+        {
+            if(!(component instanceof LTextField) && !(component instanceof Checkbox))
+            {
+                return;
+            }
+            String s = getParameter(component.getName());
+            if(s == null)
+            {
+                return;
+            }
+            if(component instanceof LTextField)
+            {
+                ((LTextField)component).setText(s);
+            }
+            if(component instanceof Checkbox)
+            {
+                ((Checkbox)component).setState(getBool(s));
+            }
+        }
     }
-  }
 
-  public void mouseClicked(MouseEvent paramMouseEvent)
-  {
-  }
-
-  public void mouseEntered(MouseEvent paramMouseEvent)
-  {
-    Component localComponent = paramMouseEvent.getComponent();
-    if ((localComponent instanceof Container))
-      return;
-    String str = localComponent.getName();
-    if ((str != null) && (str.length() > 0))
+    public void getResource(Res res1, Component component)
     {
-      Point localPoint1 = localComponent.getLocationOnScreen();
-      Point localPoint2 = paramMouseEvent.getPoint();
-      localPoint1.translate(localPoint2.x + 10, localPoint2.y);
-      getHelp().startHelp(new HelpWindowContent(str, true, localPoint1, this.res));
+        if(component instanceof Container)
+        {
+            Container container = (Container)component;
+            int i = container.getComponentCount();
+            for(int j = 0; j < i; j++)
+            {
+                getResource(res1, container.getComponent(j));
+            }
+
+        } else
+        {
+            String s = component.getName();
+            s = res1.get(s, s);
+            if(component instanceof LTextField)
+            {
+                ((LTextField)component).setTitle(s);
+                return;
+            }
+            if(component instanceof LButton)
+            {
+                ((LButton)component).setText(s);
+                return;
+            }
+            if(component instanceof Checkbox)
+            {
+                ((Checkbox)component).setLabel(s);
+                return;
+            }
+            if(component instanceof Label)
+            {
+                Label label = (Label)component;
+                label.setText(res1.get(label.getText(), label.getText()));
+                return;
+            }
+        }
     }
-  }
 
-  public void mouseExited(MouseEvent paramMouseEvent)
-  {
-    getHelp().reset();
-  }
-
-  public void mousePressed(MouseEvent paramMouseEvent)
-  {
-  }
-
-  public void mouseReleased(MouseEvent paramMouseEvent)
-  {
-  }
-
-  public void setMouseListener(Component paramComponent, MouseListener paramMouseListener)
-  {
-    if ((paramComponent instanceof Container))
+    public void mouseClicked(MouseEvent mouseevent)
     {
-      Component[] arrayOfComponent = ((Container)paramComponent).getComponents();
-      int i = arrayOfComponent.length;
-      for (int j = 0; j < i; j++)
-        setMouseListener(arrayOfComponent[j], paramMouseListener);
     }
-    else
-    {
-      paramComponent.addMouseListener(paramMouseListener);
-    }
-  }
 
-  protected void setParam(Component paramComponent, Hashtable paramHashtable)
-  {
-    if ((paramComponent instanceof Container))
+    public void mouseEntered(MouseEvent mouseevent)
     {
-      Component[] arrayOfComponent = ((Container)paramComponent).getComponents();
-      int i = arrayOfComponent.length;
-      for (int j = 0; j < i; j++)
-        setParam(arrayOfComponent[j], paramHashtable);
+        Component component = mouseevent.getComponent();
+        if(component instanceof Container)
+        {
+            return;
+        }
+        String s = component.getName();
+        if(s != null && s.length() > 0)
+        {
+            Point point = component.getLocationOnScreen();
+            Point point1 = mouseevent.getPoint();
+            point.translate(point1.x + 10, point1.y);
+            getHelp().startHelp(new HelpWindowContent(s, true, point, res));
+        }
     }
-    else
-    {
-      if ((paramComponent instanceof LTextField))
-      {
-        paramHashtable.put(paramComponent.getName(), ((LTextField)paramComponent).getText());
-        return;
-      }
-      if ((paramComponent instanceof Checkbox))
-      {
-        paramHashtable.put(paramComponent.getName(), String.valueOf(((Checkbox)paramComponent).getState()));
-        return;
-      }
-      if ((paramComponent instanceof TextField))
-      {
-        paramHashtable.put(paramComponent.getName(), ((TextField)paramComponent).getText());
-        return;
-      }
-    }
-  }
 
-  public void setParameter(Component paramComponent)
-  {
-    PProperties localPProperties = ((ServerStub)getAppletContext()).getHashTable();
-    setParam(this, localPProperties);
-  }
+    public void mouseExited(MouseEvent mouseevent)
+    {
+        getHelp().reset();
+    }
+
+    public void mousePressed(MouseEvent mouseevent)
+    {
+    }
+
+    public void mouseReleased(MouseEvent mouseevent)
+    {
+    }
+
+    public void setMouseListener(Component component, MouseListener mouselistener)
+    {
+        if(component instanceof Container)
+        {
+            Component acomponent[] = ((Container)component).getComponents();
+            int i = acomponent.length;
+            for(int j = 0; j < i; j++)
+            {
+                setMouseListener(acomponent[j], mouselistener);
+            }
+
+        } else
+        {
+            component.addMouseListener(mouselistener);
+        }
+    }
+
+    protected void setParam(Component component, Hashtable hashtable)
+    {
+        if(component instanceof Container)
+        {
+            Component acomponent[] = ((Container)component).getComponents();
+            int i = acomponent.length;
+            for(int j = 0; j < i; j++)
+            {
+                setParam(acomponent[j], hashtable);
+            }
+
+        } else
+        {
+            if(component instanceof LTextField)
+            {
+                hashtable.put(component.getName(), ((LTextField)component).getText());
+                return;
+            }
+            if(component instanceof Checkbox)
+            {
+                hashtable.put(component.getName(), String.valueOf(((Checkbox)component).getState()));
+                return;
+            }
+            if(component instanceof TextField)
+            {
+                hashtable.put(component.getName(), ((TextField)component).getText());
+                return;
+            }
+        }
+    }
+
+    public void setParameter(Component component)
+    {
+        syi.util.PProperties pproperties = ((ServerStub)getAppletContext()).getHashTable();
+        setParam(this, pproperties);
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.config.ConfigApplet
- * JD-Core Version:    0.6.0
- */

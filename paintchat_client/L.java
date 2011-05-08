@@ -1,594 +1,644 @@
 package paintchat_client;
 
-import java.awt.AWTEvent;
-import java.awt.CheckboxMenuItem;
-import java.awt.Choice;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.Image;
-import java.awt.Menu;
-import java.awt.MenuComponent;
-import java.awt.MenuItem;
-import java.awt.Panel;
-import java.awt.PopupMenu;
-import java.awt.TextComponent;
-import java.awt.TextField;
-import java.awt.Toolkit;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.DirectColorModel;
 import java.awt.image.MemoryImageSource;
-import paintchat.LO;
-import paintchat.M;
-import paintchat.M.Info;
-import paintchat.M.User;
-import paintchat.Res;
-import paintchat.ToolBox;
+import paintchat.*;
 import syi.awt.Awt;
 import syi.awt.LComponent;
 
+// Referenced classes of package paintchat_client:
+//            Mi, Me
+
 public class L extends LComponent
-  implements ActionListener, ItemListener
+    implements ActionListener, ItemListener
 {
-  private Mi mi;
-  private ToolBox tool;
-  private Res res;
-  private M m;
-  private int B = -1;
-  private Font bFont;
-  private int bH;
-  private int bW;
-  private int base;
-  private int layer_size = -1;
-  private int mouse = -1;
-  private boolean isASlide = false;
-  private int Y;
-  private int YOFF;
-  private PopupMenu popup = null;
-  private String strMenu;
-  private boolean is_pre = true;
-  private boolean is_DIm = false;
-  private Color cM;
-  private Color cT;
-  private String sL;
 
-  public L(Mi paramMi, ToolBox paramToolBox, Res paramRes1, Res paramRes2)
-  {
-    this.tool = paramToolBox;
-    this.bFont = Awt.getDefFont();
-    this.bFont = new Font(this.bFont.getName(), 0, (int)(this.bFont.getSize() * 0.8F));
-    FontMetrics localFontMetrics = getFontMetrics(this.bFont);
-    this.bH = (localFontMetrics.getHeight() + 6);
-    this.base = (this.bH - 2 - localFontMetrics.getMaxDescent());
-    int i = (int)(60.0F * LComponent.Q);
-    String str = paramRes1.res("Layer");
-    this.sL = str;
-    this.strMenu = paramRes1.res("MenuLayer");
-    this.cM = new Color(paramRes2.getP("l_m_color", 0));
-    this.cT = new Color(paramRes2.getP("l_m_color_text", 16777215));
-    localFontMetrics = getFontMetrics(this.bFont);
-    i = Math.max(localFontMetrics.stringWidth(str + "00") + 4, i);
-    i = Math.max(localFontMetrics.stringWidth(this.strMenu) + 4, i);
-    this.bW = i;
-    i += this.bH + 100;
-    this.mi = paramMi;
-    this.res = paramRes1;
-    setTitle(str);
-    this.isGUI = true;
-    this.m = paramMi.info.m;
-    Dimension localDimension = new Dimension(this.bW, this.bH);
-    setDimension(new Dimension(localDimension), localDimension, new Dimension());
-    setSize(getMaximumSize());
-  }
+    private Mi mi;
+    private ToolBox tool;
+    private Res res;
+    private M m;
+    private int B;
+    private Font bFont;
+    private int bH;
+    private int bW;
+    private int base;
+    private int layer_size;
+    private int mouse;
+    private boolean isASlide;
+    private int Y;
+    private int YOFF;
+    private PopupMenu popup;
+    private String strMenu;
+    private boolean is_pre;
+    private boolean is_DIm;
+    private Color cM;
+    private Color cT;
+    private String sL;
 
-  public void actionPerformed(ActionEvent paramActionEvent)
-  {
-    try
+    public L(Mi mi1, ToolBox toolbox, Res res1, Res res2)
     {
-      String str = paramActionEvent.getActionCommand();
-      int i = this.popup.getItemCount();
-      for (int j = 0; j < i; j++)
-        if (this.popup.getItem(j).getLabel().equals(str))
-          break;
-      M.Info localInfo = this.mi.info;
-      M localM = mg();
-      setA(localM);
-      LO[] arrayOfLO = localInfo.layers;
-      int k = localInfo.L;
-      byte[] arrayOfByte = new byte[4];
-      int n = 0;
-      int i1 = 0;
-      int i2 = this.mi.user.wait;
-      this.mi.user.wait = -2;
-      if (this.popup.getName().charAt(0) == 'm')
-      {
-        switch (j)
-        {
-        case 0:
-          localM.setRetouch(new int[] { 1, k + 1 }, null, 0, false);
-          n = 1;
-          i1 = 1;
-          break;
-        case 1:
-          if ((localInfo.L <= 1) || (!confirm(arrayOfLO[localM.iLayer].name + this.res.res("DelLayerQ"))))
-            return;
-          localM.iLayerSrc = localM.iLayer;
-          localM.setRetouch(new int[] { 2 }, null, 0, false);
-          n = 1;
-          break;
-        case 2:
-          dFusion();
-          break;
-        case 3:
-          config(this.m.iLayer);
-        default:
-          break;
-        }
-      }
-      else if (j == 0)
-      {
-        localM.iHint = 14;
-        localM.setRetouch(new int[] { 3 }, null, 0, false);
-        n = 1;
-      }
-      else
-      {
-        int i3 = (byte)arrayOfLO[localM.iLayerSrc].iCopy;
-        if (i3 == 1)
-        {
-          dFusion();
-        }
-        else
-        {
-          localM.iHint = 3;
-          localM.iPen = 20;
-          arrayOfByte[0] = i3;
-          localM.setRetouch(new int[] { 0, localInfo.W << 16 | localInfo.H }, arrayOfByte, 4, false);
-          n = 1;
-        }
-      }
-      if (n != 0)
-      {
-        localM.draw();
-        if (i1 != 0)
-          localInfo.layers[(localInfo.L - 1)].makeName(this.sL);
-        this.mi.send(localM);
-      }
-      this.m.iLayerSrc = (this.m.iLayer = Math.min(this.m.iLayer, localInfo.L - 1));
-      repaint();
-      this.mi.user.wait = i2;
-      this.mi.repaint();
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
-
-  private int b(int paramInt)
-  {
-    if (paramInt < this.bH)
-      return 0;
-    return Math.max(this.mi.info.L - (paramInt / this.bH - 1), 1);
-  }
-
-  private void send(int[] paramArrayOfInt, byte[] paramArrayOfByte)
-  {
-    M localM = mg();
-    setA(localM);
-    localM.setRetouch(paramArrayOfInt, paramArrayOfByte, paramArrayOfByte != null ? paramArrayOfByte.length : 0, false);
-    int i = this.mi.user.wait;
-    try
-    {
-      localM.draw();
-      this.mi.send(localM);
-    }
-    catch (Throwable localThrowable)
-    {
-    }
-    repaint();
-    this.mi.user.wait = i;
-    this.mi.repaint();
-  }
-
-  private void dFusion()
-  {
-    if (!confirm(this.res.res("CombineVQ")))
-      return;
-    try
-    {
-      int i = this.mi.info.L;
-      LO[] arrayOfLO = this.mi.info.layers;
-      int j = 0;
-      for (int k = 0; k < i; k++)
-      {
-        if (arrayOfLO[k].iAlpha <= 0.0F)
-          continue;
-        j++;
-      }
-      if (j <= 0)
-        return;
-      k = this.mi.user.wait;
-      M localM = mg();
-      setA(localM);
-      byte[] arrayOfByte = new byte[j * 4 + 2];
-      int n = 2;
-      arrayOfByte[0] = (byte)j;
-      for (int i1 = 0; i1 < i; i1++)
-      {
-        LO localLO = arrayOfLO[i1];
-        if (localLO.iAlpha <= 0.0F)
-          continue;
-        arrayOfByte[(n++)] = (byte)i1;
-        arrayOfByte[(n++)] = (byte)(int)(localLO.iAlpha * 255.0F);
-        arrayOfByte[(n++)] = (byte)localLO.iCopy;
-        arrayOfByte[(n++)] = 41;
-      }
-      this.mi.user.wait = -2;
-      localM.setRetouch(new int[] { 7 }, arrayOfByte, arrayOfByte.length, false);
-      localM.draw();
-      this.mi.send(localM);
-      this.mi.user.wait = k;
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
-
-  private boolean confirm(String paramString)
-  {
-    return Me.confirm(paramString, true);
-  }
-
-  private void dL(Graphics paramGraphics, int paramInt1, int paramInt2)
-  {
-    if (this.mi.info.L <= paramInt2)
-      return;
-    getSize();
-    int i = this.bW - 1;
-    int j = this.bH - 2;
-    Color localColor = this.m.iLayer == paramInt2 ? Awt.cFSel : this.clFrame;
-    LO localLO = this.mi.info.layers[paramInt2];
-    paramGraphics.setColor(localColor);
-    paramGraphics.drawRect(0, paramInt1, i, j);
-    paramGraphics.setColor(Awt.cFore);
-    paramGraphics.setFont(this.bFont);
-    paramGraphics.drawString(localLO.name, 2, paramInt1 + this.base);
-    paramGraphics.setColor(localColor);
-    paramGraphics.drawRect(this.bW, paramInt1, 100, j);
-    paramGraphics.setColor(this.cM);
-    int k = (int)(100.0F * localLO.iAlpha);
-    paramGraphics.fillRect(this.bW + 1, paramInt1 + 1, k - 1, j - 1);
-    paramGraphics.setColor(this.cT);
-    paramGraphics.drawString(k + "%", this.bW + 3, paramInt1 + this.base);
-    int n = this.bW + 100;
-    paramGraphics.setColor(localColor);
-    paramGraphics.drawRect(n + 1, paramInt1, j - 2, j);
-    paramGraphics.setColor(Awt.cFore);
-    if (k == 0)
-    {
-      paramGraphics.drawLine(n + 2, paramInt1 + 1, n + j - 2, paramInt1 + j - 1);
-      paramGraphics.drawLine(1, paramInt1 + 1, i - 1, paramInt1 + this.bH - 3);
-    }
-    else
-    {
-      paramGraphics.drawOval(n + 2, paramInt1 + 2, j - 3, j - 3);
-    }
-  }
-
-  public Dimension getMaximumSize()
-  {
-    Dimension localDimension = super.getMaximumSize();
-    if (this.mi != null)
-      localDimension.setSize(this.bW + 100 + this.bH, this.bH * (this.mi.info.L + 1));
-    return localDimension;
-  }
-
-  public void itemStateChanged(ItemEvent paramItemEvent)
-  {
-    this.is_pre = (!this.is_pre);
-  }
-
-  private M mg()
-  {
-    M localM = new M(this.mi.info, this.mi.user);
-    localM.iAlpha = 255;
-    localM.iHint = 14;
-    localM.iLayer = this.m.iLayer;
-    localM.iLayerSrc = this.m.iLayerSrc;
-    return localM;
-  }
-
-  private void p()
-  {
-    repaint();
-    this.tool.up();
-  }
-
-  public void paint2(Graphics paramGraphics)
-  {
-    try
-    {
-      int i = this.mi.info.L;
-      for (int j = 0; j < i; j++)
-      {
-        LO localLO = this.mi.info.layers[j];
-        if (localLO.name != null)
-          continue;
-        localLO.makeName(this.sL);
-      }
-      if (this.layer_size != i)
-      {
-        this.layer_size = i;
+        B = -1;
+        layer_size = -1;
+        mouse = -1;
+        isASlide = false;
+        popup = null;
+        is_pre = true;
+        is_DIm = false;
+        tool = toolbox;
+        bFont = Awt.getDefFont();
+        bFont = new Font(bFont.getName(), 0, (int)((float)bFont.getSize() * 0.8F));
+        FontMetrics fontmetrics = getFontMetrics(bFont);
+        bH = fontmetrics.getHeight() + 6;
+        base = bH - 2 - fontmetrics.getMaxDescent();
+        int i = (int)(60F * LComponent.Q);
+        String s = res1.res("Layer");
+        sL = s;
+        strMenu = res1.res("MenuLayer");
+        cM = new Color(res2.getP("l_m_color", 0));
+        cT = new Color(res2.getP("l_m_color_text", 0xffffff));
+        fontmetrics = getFontMetrics(bFont);
+        i = Math.max(fontmetrics.stringWidth(s + "00") + 4, i);
+        i = Math.max(fontmetrics.stringWidth(strMenu) + 4, i);
+        bW = i;
+        i += bH + 100;
+        mi = mi1;
+        res = res1;
+        setTitle(s);
+        super.isGUI = true;
+        m = mi1.info.m;
+        Dimension dimension = new Dimension(bW, bH);
+        setDimension(new Dimension(dimension), dimension, new Dimension());
         setSize(getMaximumSize());
-        return;
-      }
-      Dimension localDimension = getSize();
-      int k = i - 1;
-      int n = this.bH;
-      paramGraphics.setFont(this.bFont);
-      paramGraphics.setColor(Awt.cBk);
-      paramGraphics.fillRect(0, 0, localDimension.width, localDimension.height);
-      while (n < localDimension.height)
-      {
-        if ((this.isASlide) || (k != this.mouse - 1))
-          dL(paramGraphics, n, k);
-        k--;
-        if (k < 0)
-          break;
-        n += this.bH;
-      }
-      if ((!this.isASlide) && (this.mouse > 0))
-        dL(paramGraphics, this.Y - this.YOFF, this.mouse - 1);
-      Awt.drawFrame(paramGraphics, this.mouse == 0, 0, 0, this.bW, this.bH - 2);
-      paramGraphics.setColor(Awt.cFore);
-      paramGraphics.drawString(this.strMenu, 3, this.bH - 6);
     }
-    catch (Throwable localThrowable)
-    {
-    }
-  }
 
-  public void pMouse(MouseEvent paramMouseEvent)
-  {
-    try
+    public void actionPerformed(ActionEvent actionevent)
     {
-      int i = this.Y = paramMouseEvent.getY();
-      int j = paramMouseEvent.getX();
-      M.Info localInfo = this.mi.info;
-      boolean bool = Awt.isR(paramMouseEvent);
-      int i1;
-      switch (paramMouseEvent.getID())
-      {
-      case 501:
-        if (this.mouse >= 0)
-          break;
-        int k = b(i);
-        int n = k - 1;
-        if (n >= 0)
-        {
-          if (j > this.bW + 100 + 1)
-          {
-            i1 = this.mi.user.wait;
-            this.mi.user.wait = -2;
-            if (bool)
-              for (int i2 = 0; i2 < localInfo.L; i2++)
-                setAlpha(i2, i2 == n ? 255 : 0, true);
-            else
-              setAlpha(n, localInfo.layers[n].iAlpha == 0.0F ? 255 : 0, true);
-            this.mi.user.wait = i1;
-            this.mi.repaint();
-            p();
-          }
-          else if ((paramMouseEvent.getClickCount() >= 2) || (bool))
-          {
-            config(n);
-            this.mi.repaint();
-          }
-          else
-          {
-            this.isASlide = (j >= this.bW);
-            this.mouse = k;
-            this.m.iLayer = (this.m.iLayerSrc = n);
-            this.YOFF = (i % this.bH);
-            if (this.isASlide)
-              setAlpha(n, (int)((j - this.bW) / 100.0F * 255.0F), false);
-            else
-              p();
-          }
-        }
-        else
-        {
-          this.m.iLayerSrc = this.m.iLayer;
-          if ((j >= this.bW) || (i <= 2))
-            break;
-          popup(new String[] { "AddLayer", "DelLayer", "CombineV", "PropertyLayer" }, j, i, true);
-        }
-        break;
-      case 506:
-        if (this.mouse <= 0)
-          break;
-        if (this.isASlide)
-        {
-          setAlpha(this.m.iLayer, (int)((j - this.bW) / 100.0F * 255.0F), false);
-        }
-        else
-        {
-          this.m.iLayer = (b(this.Y) - 1);
-          repaint();
-        }
-        break;
-      case 503:
-        i1 = b(i) - 1;
-        if ((!this.is_pre) || (i1 < 0) || (j >= this.bW))
-        {
-          if (this.is_DIm)
-          {
-            this.is_DIm = false;
-            repaint();
-          }
-          return;
-        }
-        this.is_DIm = true;
-        Dimension localDimension = getSize();
-        int i4 = this.mi.info.W;
-        int i5 = this.mi.info.H;
-        int[] arrayOfInt = this.mi.info.layers[i1].offset;
-        Graphics localGraphics = getG();
-        int i6 = Math.min(localDimension.width - this.bW - 1, localDimension.height - 1);
-        if (arrayOfInt == null)
-        {
-          localGraphics.setColor(Color.white);
-          localGraphics.fillRect(this.bW + 1, 1, i6 - 1, i6 - 1);
-        }
-        else
-        {
-          Image localImage = getToolkit().createImage(new MemoryImageSource(i4, i5, new DirectColorModel(24, 16711680, 65280, 255), arrayOfInt, 0, i4));
-          localGraphics.drawImage(localImage, this.bW + 1, 1, i6 - 1, i6 - 1, null);
-          localImage.flush();
-        }
-        localGraphics.setColor(Color.black);
-        localGraphics.drawRect(this.bW, 0, i6, i6);
-        localGraphics.dispose();
-        break;
-      case 502:
-        if (bool)
-          break;
-        if (this.isASlide)
-        {
-          setAlpha(this.m.iLayer, (int)((j - this.bW) / 100.0F * 255.0F), true);
-          this.mouse = -1;
-          this.isASlide = false;
-        }
-        else
-        {
-          i1 = this.mouse - 1;
-          int i3 = b(this.Y) - 1;
-          if ((i1 >= 0) && (i3 >= 0) && (i1 != i3))
-          {
-            this.m.iLayer = i3;
-            this.m.iLayerSrc = i1;
-            popup(new String[] { this.res.res("Shift"), this.res.res("Combine") }, j, i, false);
-          }
-          this.mouse = -1;
-          repaint();
-        }
-      case 504:
-      case 505:
-      }
-    }
-    catch (Throwable localThrowable)
-    {
-      localThrowable.printStackTrace();
-    }
-  }
-
-  private void popup(String[] paramArrayOfString, int paramInt1, int paramInt2, boolean paramBoolean)
-  {
-    if (!this.mi.info.isLEdit)
-      return;
-    if (this.popup == null)
-    {
-      this.popup = new PopupMenu();
-      this.popup.addActionListener(this);
-      add(this.popup);
-    }
-    else
-    {
-      this.popup.removeAll();
-    }
-    for (int i = 0; i < paramArrayOfString.length; i++)
-      this.popup.add(this.res.res(paramArrayOfString[i]));
-    if (paramBoolean)
-    {
-      this.popup.addSeparator();
-      CheckboxMenuItem localCheckboxMenuItem = new CheckboxMenuItem(this.res.res("IsPreview"), this.is_pre);
-      localCheckboxMenuItem.addItemListener(this);
-      this.popup.add(localCheckboxMenuItem);
-      this.popup.setName("m");
-    }
-    else
-    {
-      this.popup.setName("l");
-    }
-    this.popup.show(this, paramInt1, paramInt2);
-  }
-
-  private void setA(M paramM)
-  {
-    paramM.iAlpha2 = ((int)(this.mi.info.layers[paramM.iLayer].iAlpha * 255.0F) << 8 | (int)(this.mi.info.layers[paramM.iLayerSrc].iAlpha * 255.0F));
-  }
-
-  public void setAlpha(int paramInt1, int paramInt2, boolean paramBoolean)
-    throws Throwable
-  {
-    paramInt2 = paramInt2 >= 255 ? 255 : paramInt2 <= 0 ? 0 : paramInt2;
-    if (paramInt2 == this.mi.info.layers[paramInt1].iAlpha)
-      return;
-    if (paramBoolean)
-    {
-      int i = this.m.iLayer;
-      this.m.iLayer = paramInt1;
-      send(new int[] { 8 }, new byte[] { (byte)paramInt2 });
-      this.m.iLayer = i;
-    }
-    else
-    {
-      this.mi.info.layers[paramInt1].iAlpha = (paramInt2 / 255.0F);
-      this.mi.repaint();
-      repaint();
-    }
-  }
-
-  public void config(int paramInt)
-  {
-    LO localLO = this.mi.info.layers[paramInt];
-    Choice localChoice = new Choice();
-    localChoice.add(this.res.res("Normal"));
-    localChoice.add(this.res.res("Multiply"));
-    localChoice.add(this.res.res("Reverse"));
-    localChoice.select(localLO.iCopy);
-    TextField localTextField = new TextField(localLO.name);
-    Me localMe = Me.getMe();
-    Panel localPanel = new Panel(new GridLayout(0, 1));
-    localPanel.add(localTextField);
-    localPanel.add(localChoice);
-    localTextField.addActionListener(localMe);
-    localMe.add(localPanel, "Center");
-    localMe.pack();
-    Awt.moveCenter(localMe);
-    localMe.setVisible(true);
-    if (localMe.isOk)
-    {
-      String str = localTextField.getText();
-      if (!str.equals(localLO.name))
         try
         {
-          send(new int[] { 10 }, str.getBytes("UTF8"));
-        }
-        catch (Throwable localThrowable)
-        {
-        }
-      int i = localChoice.getSelectedIndex();
-      if (localLO.iCopy != i)
-        send(new int[] { 9 }, new byte[] { (byte)i });
-      repaint();
-    }
-  }
-}
+            String s = actionevent.getActionCommand();
+            int i = popup.getItemCount();
+            int j;
+            for(j = 0; j < i; j++)
+            {
+                if(popup.getItem(j).getLabel().equals(s))
+                {
+                    break;
+                }
+            }
 
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat_client.L
- * JD-Core Version:    0.6.0
- */
+            paintchat.M.Info info = mi.info;
+            M m1 = mg();
+            setA(m1);
+            LO alo[] = info.layers;
+            int k = info.L;
+            byte abyte0[] = new byte[4];
+            boolean flag = false;
+            boolean flag1 = false;
+            int l = mi.user.wait;
+            mi.user.wait = -2;
+            if(popup.getName().charAt(0) == 'm')
+            {
+                switch(j)
+                {
+                case 0: // '\0'
+                    m1.setRetouch(new int[] {
+                        1, k + 1
+                    }, null, 0, false);
+                    flag = true;
+                    flag1 = true;
+                    break;
+
+                case 1: // '\001'
+                    if(info.L <= 1 || !confirm(alo[m1.iLayer].name + res.res("DelLayerQ")))
+                    {
+                        return;
+                    }
+                    m1.iLayerSrc = m1.iLayer;
+                    m1.setRetouch(new int[] {
+                        2
+                    }, null, 0, false);
+                    flag = true;
+                    break;
+
+                case 2: // '\002'
+                    dFusion();
+                    break;
+
+                case 3: // '\003'
+                    config(m.iLayer);
+                    break;
+                }
+            } else
+            if(j == 0)
+            {
+                m1.iHint = 14;
+                m1.setRetouch(new int[] {
+                    3
+                }, null, 0, false);
+                flag = true;
+            } else
+            {
+                byte byte0 = (byte)alo[m1.iLayerSrc].iCopy;
+                if(byte0 == 1)
+                {
+                    dFusion();
+                } else
+                {
+                    m1.iHint = 3;
+                    m1.iPen = 20;
+                    abyte0[0] = byte0;
+                    m1.setRetouch(new int[] {
+                        0, info.W << 16 | info.H
+                    }, abyte0, 4, false);
+                    flag = true;
+                }
+            }
+            if(flag)
+            {
+                m1.draw();
+                if(flag1)
+                {
+                    info.layers[info.L - 1].makeName(sL);
+                }
+                mi.send(m1);
+            }
+            m.iLayerSrc = m.iLayer = Math.min(m.iLayer, info.L - 1);
+            repaint();
+            mi.user.wait = l;
+            mi.repaint();
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    private int b(int i)
+    {
+        if(i < bH)
+        {
+            return 0;
+        } else
+        {
+            return Math.max(mi.info.L - (i / bH - 1), 1);
+        }
+    }
+
+    private void send(int ai[], byte abyte0[])
+    {
+        M m1 = mg();
+        setA(m1);
+        m1.setRetouch(ai, abyte0, abyte0 == null ? 0 : abyte0.length, false);
+        int i = mi.user.wait;
+        try
+        {
+            m1.draw();
+            mi.send(m1);
+        }
+        catch(Throwable _ex) { }
+        repaint();
+        mi.user.wait = i;
+        mi.repaint();
+    }
+
+    private void dFusion()
+    {
+        if(!confirm(res.res("CombineVQ")))
+        {
+            return;
+        }
+        try
+        {
+            int i = mi.info.L;
+            LO alo[] = mi.info.layers;
+            int j = 0;
+            for(int k = 0; k < i; k++)
+            {
+                if(alo[k].iAlpha > 0.0F)
+                {
+                    j++;
+                }
+            }
+
+            if(j <= 0)
+            {
+                return;
+            }
+            int l = mi.user.wait;
+            M m1 = mg();
+            setA(m1);
+            byte abyte0[] = new byte[j * 4 + 2];
+            int i1 = 2;
+            abyte0[0] = (byte)j;
+            for(int j1 = 0; j1 < i; j1++)
+            {
+                LO lo = alo[j1];
+                if(lo.iAlpha > 0.0F)
+                {
+                    abyte0[i1++] = (byte)j1;
+                    abyte0[i1++] = (byte)(int)(lo.iAlpha * 255F);
+                    abyte0[i1++] = (byte)lo.iCopy;
+                    abyte0[i1++] = 41;
+                }
+            }
+
+            mi.user.wait = -2;
+            m1.setRetouch(new int[] {
+                7
+            }, abyte0, abyte0.length, false);
+            m1.draw();
+            mi.send(m1);
+            mi.user.wait = l;
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    private boolean confirm(String s)
+    {
+        return Me.confirm(s, true);
+    }
+
+    private void dL(Graphics g, int i, int j)
+    {
+        if(mi.info.L <= j)
+        {
+            return;
+        }
+        getSize();
+        int k = bW - 1;
+        int l = bH - 2;
+        Color color = m.iLayer != j ? super.clFrame : Awt.cFSel;
+        LO lo = mi.info.layers[j];
+        g.setColor(color);
+        g.drawRect(0, i, k, l);
+        g.setColor(Awt.cFore);
+        g.setFont(bFont);
+        g.drawString(lo.name, 2, i + base);
+        g.setColor(color);
+        g.drawRect(bW, i, 100, l);
+        g.setColor(cM);
+        int i1 = (int)(100F * lo.iAlpha);
+        g.fillRect(bW + 1, i + 1, i1 - 1, l - 1);
+        g.setColor(cT);
+        g.drawString(i1 + "%", bW + 3, i + base);
+        int j1 = bW + 100;
+        g.setColor(color);
+        g.drawRect(j1 + 1, i, l - 2, l);
+        g.setColor(Awt.cFore);
+        if(i1 == 0)
+        {
+            g.drawLine(j1 + 2, i + 1, (j1 + l) - 2, (i + l) - 1);
+            g.drawLine(1, i + 1, k - 1, (i + bH) - 3);
+        } else
+        {
+            g.drawOval(j1 + 2, i + 2, l - 3, l - 3);
+        }
+    }
+
+    public Dimension getMaximumSize()
+    {
+        Dimension dimension = super.getMaximumSize();
+        if(mi != null)
+        {
+            dimension.setSize(bW + 100 + bH, bH * (mi.info.L + 1));
+        }
+        return dimension;
+    }
+
+    public void itemStateChanged(ItemEvent itemevent)
+    {
+        is_pre = !is_pre;
+    }
+
+    private M mg()
+    {
+        M m1 = new M(mi.info, mi.user);
+        m1.iAlpha = 255;
+        m1.iHint = 14;
+        m1.iLayer = m.iLayer;
+        m1.iLayerSrc = m.iLayerSrc;
+        return m1;
+    }
+
+    private void p()
+    {
+        repaint();
+        tool.up();
+    }
+
+    public void paint2(Graphics g)
+    {
+        try
+        {
+            int i = mi.info.L;
+            for(int j = 0; j < i; j++)
+            {
+                LO lo = mi.info.layers[j];
+                if(lo.name == null)
+                {
+                    lo.makeName(sL);
+                }
+            }
+
+            if(layer_size != i)
+            {
+                layer_size = i;
+                setSize(getMaximumSize());
+                return;
+            }
+            Dimension dimension = getSize();
+            int k = i - 1;
+            int l = bH;
+            g.setFont(bFont);
+            g.setColor(Awt.cBk);
+            g.fillRect(0, 0, dimension.width, dimension.height);
+            for(; l < dimension.height; l += bH)
+            {
+                if(isASlide || k != mouse - 1)
+                {
+                    dL(g, l, k);
+                }
+                if(--k < 0)
+                {
+                    break;
+                }
+            }
+
+            if(!isASlide && mouse > 0)
+            {
+                dL(g, Y - YOFF, mouse - 1);
+            }
+            Awt.drawFrame(g, mouse == 0, 0, 0, bW, bH - 2);
+            g.setColor(Awt.cFore);
+            g.drawString(strMenu, 3, bH - 6);
+        }
+        catch(Throwable _ex) { }
+    }
+
+    public void pMouse(MouseEvent mouseevent)
+    {
+        try
+        {
+            int i = Y = mouseevent.getY();
+            int j = mouseevent.getX();
+            paintchat.M.Info info = mi.info;
+            boolean flag = Awt.isR(mouseevent);
+            switch(mouseevent.getID())
+            {
+            case 504: 
+            case 505: 
+            default:
+                break;
+
+            case 501: 
+                if(mouse >= 0)
+                {
+                    break;
+                }
+                int k = b(i);
+                int l = k - 1;
+                if(l >= 0)
+                {
+                    if(j > bW + 100 + 1)
+                    {
+                        int i1 = mi.user.wait;
+                        mi.user.wait = -2;
+                        if(flag)
+                        {
+                            for(int l1 = 0; l1 < info.L; l1++)
+                            {
+                                setAlpha(l1, l1 != l ? 0 : 255, true);
+                            }
+
+                        } else
+                        {
+                            setAlpha(l, info.layers[l].iAlpha != 0.0F ? 0 : 255, true);
+                        }
+                        mi.user.wait = i1;
+                        mi.repaint();
+                        p();
+                        break;
+                    }
+                    if(mouseevent.getClickCount() >= 2 || flag)
+                    {
+                        config(l);
+                        mi.repaint();
+                        break;
+                    }
+                    isASlide = j >= bW;
+                    mouse = k;
+                    m.iLayer = m.iLayerSrc = l;
+                    YOFF = i % bH;
+                    if(isASlide)
+                    {
+                        setAlpha(l, (int)(((float)(j - bW) / 100F) * 255F), false);
+                    } else
+                    {
+                        p();
+                    }
+                    break;
+                }
+                m.iLayerSrc = m.iLayer;
+                if(j < bW && i > 2)
+                {
+                    popup(new String[] {
+                        "AddLayer", "DelLayer", "CombineV", "PropertyLayer"
+                    }, j, i, true);
+                }
+                break;
+
+            case 506: 
+                if(mouse <= 0)
+                {
+                    break;
+                }
+                if(isASlide)
+                {
+                    setAlpha(m.iLayer, (int)(((float)(j - bW) / 100F) * 255F), false);
+                } else
+                {
+                    m.iLayer = b(Y) - 1;
+                    repaint();
+                }
+                break;
+
+            case 503: 
+                int j1 = b(i) - 1;
+                if(!is_pre || j1 < 0 || j >= bW)
+                {
+                    if(is_DIm)
+                    {
+                        is_DIm = false;
+                        repaint();
+                    }
+                    return;
+                }
+                is_DIm = true;
+                Dimension dimension = getSize();
+                int j2 = mi.info.W;
+                int k2 = mi.info.H;
+                int ai[] = mi.info.layers[j1].offset;
+                Graphics g = getG();
+                int l2 = Math.min(dimension.width - bW - 1, dimension.height - 1);
+                if(ai == null)
+                {
+                    g.setColor(Color.white);
+                    g.fillRect(bW + 1, 1, l2 - 1, l2 - 1);
+                } else
+                {
+                    Image image = getToolkit().createImage(new MemoryImageSource(j2, k2, new DirectColorModel(24, 0xff0000, 65280, 255), ai, 0, j2));
+                    g.drawImage(image, bW + 1, 1, l2 - 1, l2 - 1, null);
+                    image.flush();
+                }
+                g.setColor(Color.black);
+                g.drawRect(bW, 0, l2, l2);
+                g.dispose();
+                break;
+
+            case 502: 
+                if(flag)
+                {
+                    break;
+                }
+                if(isASlide)
+                {
+                    setAlpha(m.iLayer, (int)(((float)(j - bW) / 100F) * 255F), true);
+                    mouse = -1;
+                    isASlide = false;
+                    break;
+                }
+                int k1 = mouse - 1;
+                int i2 = b(Y) - 1;
+                if(k1 >= 0 && i2 >= 0 && k1 != i2)
+                {
+                    m.iLayer = i2;
+                    m.iLayerSrc = k1;
+                    popup(new String[] {
+                        res.res("Shift"), res.res("Combine")
+                    }, j, i, false);
+                }
+                mouse = -1;
+                repaint();
+                break;
+            }
+        }
+        catch(Throwable throwable)
+        {
+            throwable.printStackTrace();
+        }
+    }
+
+    private void popup(String as[], int i, int j, boolean flag)
+    {
+        if(!mi.info.isLEdit)
+        {
+            return;
+        }
+        if(popup == null)
+        {
+            popup = new PopupMenu();
+            popup.addActionListener(this);
+            add(popup);
+        } else
+        {
+            popup.removeAll();
+        }
+        for(int k = 0; k < as.length; k++)
+        {
+            popup.add(res.res(as[k]));
+        }
+
+        if(flag)
+        {
+            popup.addSeparator();
+            CheckboxMenuItem checkboxmenuitem = new CheckboxMenuItem(res.res("IsPreview"), is_pre);
+            checkboxmenuitem.addItemListener(this);
+            popup.add(checkboxmenuitem);
+            popup.setName("m");
+        } else
+        {
+            popup.setName("l");
+        }
+        popup.show(this, i, j);
+    }
+
+    private void setA(M m1)
+    {
+        m1.iAlpha2 = (int)(mi.info.layers[m1.iLayer].iAlpha * 255F) << 8 | (int)(mi.info.layers[m1.iLayerSrc].iAlpha * 255F);
+    }
+
+    public void setAlpha(int i, int j, boolean flag)
+        throws Throwable
+    {
+        j = j > 0 ? j < 255 ? j : 255 : 0;
+        if((float)j == mi.info.layers[i].iAlpha)
+        {
+            return;
+        }
+        if(flag)
+        {
+            int k = m.iLayer;
+            m.iLayer = i;
+            send(new int[] {
+                8
+            }, new byte[] {
+                (byte)j
+            });
+            m.iLayer = k;
+        } else
+        {
+            mi.info.layers[i].iAlpha = (float)j / 255F;
+            mi.repaint();
+            repaint();
+        }
+    }
+
+    public void config(int i)
+    {
+        LO lo = mi.info.layers[i];
+        Choice choice = new Choice();
+        choice.add(res.res("Normal"));
+        choice.add(res.res("Multiply"));
+        choice.add(res.res("Reverse"));
+        choice.select(lo.iCopy);
+        TextField textfield = new TextField(lo.name);
+        Me me = Me.getMe();
+        Panel panel = new Panel(new GridLayout(0, 1));
+        panel.add(textfield);
+        panel.add(choice);
+        textfield.addActionListener(me);
+        me.add(panel, "Center");
+        me.pack();
+        Awt.moveCenter(me);
+        me.setVisible(true);
+        if(me.isOk)
+        {
+            String s = textfield.getText();
+            if(!s.equals(lo.name))
+            {
+                try
+                {
+                    send(new int[] {
+                        10
+                    }, s.getBytes("UTF8"));
+                }
+                catch(Throwable _ex) { }
+            }
+            int j = choice.getSelectedIndex();
+            if(lo.iCopy != j)
+            {
+                send(new int[] {
+                    9
+                }, new byte[] {
+                    (byte)j
+                });
+            }
+            repaint();
+        }
+    }
+}

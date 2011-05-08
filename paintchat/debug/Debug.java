@@ -1,170 +1,197 @@
 package paintchat.debug;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.Writer;
+import java.io.*;
 import paintchat.Res;
 
+// Referenced classes of package paintchat.debug:
+//            DebugListener
+
 public class Debug
-  implements DebugListener
+    implements DebugListener
 {
-  private DebugListener listener = null;
-  private Res res = null;
-  public BufferedWriter wFile = null;
-  public boolean bool_debug = false;
 
-  public Debug()
-  {
-  }
+    private DebugListener listener;
+    private Res res;
+    public BufferedWriter wFile;
+    public boolean bool_debug;
 
-  public Debug(DebugListener paramDebugListener, Res paramRes)
-  {
-    this.listener = paramDebugListener;
-    this.res = paramRes;
-  }
-
-  public Debug(Res paramRes)
-  {
-    this.res = paramRes;
-  }
-
-  protected void finalize()
-    throws Throwable
-  {
-    mDestroy();
-  }
-
-  public void log(Object paramObject)
-  {
-    try
+    public Debug()
     {
-      if (this.listener != null)
-        this.listener.log(paramObject);
-      else
-        logSys(paramObject);
-      writeLogFile(paramObject);
+        listener = null;
+        res = null;
+        wFile = null;
+        bool_debug = false;
     }
-    catch (RuntimeException localRuntimeException)
+
+    public Debug(DebugListener debuglistener, Res res1)
     {
-      System.out.println("debug_log:" + localRuntimeException.getMessage());
+        listener = null;
+        res = null;
+        wFile = null;
+        bool_debug = false;
+        listener = debuglistener;
+        res = res1;
     }
-  }
 
-  public void logDebug(Object paramObject)
-  {
-    if (!this.bool_debug)
-      return;
-    log(paramObject);
-  }
-
-  public void logRes(String paramString)
-  {
-    log(this.res.get(paramString));
-  }
-
-  public void logSys(Object paramObject)
-  {
-    try
+    public Debug(Res res1)
     {
-      if (paramObject == null)
-        paramObject = "null";
-      if ((paramObject instanceof Throwable))
-        ((Throwable)paramObject).printStackTrace();
-      else
-        System.out.println(paramObject.toString());
+        listener = null;
+        res = null;
+        wFile = null;
+        bool_debug = false;
+        res = res1;
     }
-    catch (RuntimeException localRuntimeException)
+
+    protected void finalize()
+        throws Throwable
     {
-      localRuntimeException.printStackTrace();
+        mDestroy();
     }
-  }
 
-  public void newLogFile(String paramString)
-  {
-    if (this.wFile == null)
-      return;
-    setFileWriter(paramString);
-  }
-
-  private void writeLogFile(Object paramObject)
-  {
-    String str = paramObject == null ? "null" : paramObject.toString();
-    synchronized (this)
+    public void log(Object obj)
     {
-      BufferedWriter localBufferedWriter = this.wFile;
-      try
-      {
-        if (localBufferedWriter == null)
-          return;
-        localBufferedWriter.write(str);
-        localBufferedWriter.newLine();
-      }
-      catch (IOException localIOException1)
-      {
         try
         {
-          localBufferedWriter.close();
+            if(listener != null)
+            {
+                listener.log(obj);
+            } else
+            {
+                logSys(obj);
+            }
+            writeLogFile(obj);
         }
-        catch (IOException localIOException2)
+        catch(RuntimeException runtimeexception)
         {
+            System.out.println("debug_log:" + runtimeexception.getMessage());
         }
-        this.wFile = null;
-      }
     }
-  }
 
-  public synchronized void setListener(DebugListener paramDebugListener)
-  {
-    this.listener = paramDebugListener;
-  }
-
-  public synchronized void setResource(Res paramRes)
-  {
-    this.res = paramRes;
-  }
-
-  public void setDebug(boolean paramBoolean)
-  {
-    this.bool_debug = paramBoolean;
-  }
-
-  public synchronized void setFileWriter(String paramString)
-  {
-    try
+    public void logDebug(Object obj)
     {
-      if (this.wFile != null)
-      {
-        this.wFile.flush();
-        this.wFile.close();
-      }
-      this.wFile = new BufferedWriter(new FileWriter(paramString));
+        if(!bool_debug)
+        {
+            return;
+        } else
+        {
+            log(obj);
+            return;
+        }
     }
-    catch (IOException localIOException)
-    {
-      System.out.println("debug:" + localIOException);
-      this.wFile = null;
-    }
-  }
 
-  public void mDestroy()
-  {
-    this.listener = null;
-    BufferedWriter localBufferedWriter = this.wFile;
-    this.wFile = null;
-    try
+    public void logRes(String s)
     {
-      localBufferedWriter.flush();
-      localBufferedWriter.close();
+        log(res.get(s));
     }
-    catch (IOException localIOException)
+
+    public void logSys(Object obj)
     {
+        try
+        {
+            if(obj == null)
+            {
+                obj = "null";
+            }
+            if(obj instanceof Throwable)
+            {
+                ((Throwable)obj).printStackTrace();
+            } else
+            {
+                System.out.println(obj.toString());
+            }
+        }
+        catch(RuntimeException runtimeexception)
+        {
+            runtimeexception.printStackTrace();
+        }
     }
-  }
+
+    public void newLogFile(String s)
+    {
+        if(wFile == null)
+        {
+            return;
+        } else
+        {
+            setFileWriter(s);
+            return;
+        }
+    }
+
+    private void writeLogFile(Object obj)
+    {
+        String s = obj != null ? obj.toString() : "null";
+        Debug debug = this;
+        JVM INSTR monitorenter ;
+        BufferedWriter bufferedwriter = wFile;
+label0:
+        {
+            if(bufferedwriter != null)
+            {
+                break label0;
+            }
+            return;
+        }
+        bufferedwriter.write(s);
+        bufferedwriter.newLine();
+        break MISSING_BLOCK_LABEL_61;
+        JVM INSTR pop ;
+        try
+        {
+            bufferedwriter.close();
+        }
+        catch(IOException _ex) { }
+        wFile = null;
+          goto _L1
+        debug;
+        JVM INSTR monitorexit ;
+        throw ;
+_L1:
+    }
+
+    public synchronized void setListener(DebugListener debuglistener)
+    {
+        listener = debuglistener;
+    }
+
+    public synchronized void setResource(Res res1)
+    {
+        res = res1;
+    }
+
+    public void setDebug(boolean flag)
+    {
+        bool_debug = flag;
+    }
+
+    public synchronized void setFileWriter(String s)
+    {
+        try
+        {
+            if(wFile != null)
+            {
+                wFile.flush();
+                wFile.close();
+            }
+            wFile = new BufferedWriter(new FileWriter(s));
+        }
+        catch(IOException ioexception)
+        {
+            System.out.println("debug:" + ioexception);
+            wFile = null;
+        }
+    }
+
+    public void mDestroy()
+    {
+        listener = null;
+        BufferedWriter bufferedwriter = wFile;
+        wFile = null;
+        try
+        {
+            bufferedwriter.flush();
+            bufferedwriter.close();
+        }
+        catch(IOException _ex) { }
+    }
 }
-
-/* Location:           /home/rich/paintchat/paintchat/reveng/
- * Qualified Name:     paintchat.debug.Debug
- * JD-Core Version:    0.6.0
- */
