@@ -120,7 +120,9 @@ public class Data
                 {
                     try
                     {
-                        return new Socket(address, Port);
+                        Socket tmp = new Socket(address, Port);
+                        tmp.setKeepAlive(true);
+                        return tmp;
                     }
                     catch(IOException _ex)
                     {

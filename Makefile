@@ -99,9 +99,14 @@ CLASSES = \
 	./paintchat/config/PConfig.java \
 	./paintchat/Config.java 
 
+
 default: classes
+
+jar: classes
+	find . -iname \*\.class | xargs jar -cmf META-INF/MANIFEST.MF PaintChat.jar
 
 classes: $(CLASSES:.java=.class)
 
 clean:
-	$(RM) *.class */*.class */*/*.class */*/*/*.class
+	$(RM) *.class */*.class */*/*.class */*/*/*.class PaintChat.jar
+

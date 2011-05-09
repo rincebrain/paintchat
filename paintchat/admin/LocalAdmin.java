@@ -53,6 +53,7 @@ public class LocalAdmin
             byte abyte0[] = stringbuffer.toString().getBytes("UTF8");
             stringbuffer = null;
             Socket socket = new Socket(addr, iPort);
+            socket.setKeepAlive(true);
             InputStream inputstream = socket.getInputStream();
             OutputStream outputstream = socket.getOutputStream();
             outputstream.write(98);
