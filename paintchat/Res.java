@@ -41,7 +41,15 @@ public class Res extends Hashtable
         {
             return s1;
         }
-        String s2 = (String)super.get(s);
+        String s2;
+        Object baz;
+        try {
+        	baz = super.get(s);
+        	s2 = (String)baz;
+        }
+        catch (ClassCastException e) {
+        	return s1;
+        }
         if(s2 == null)
         {
             return s1;
