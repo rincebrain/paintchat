@@ -455,6 +455,7 @@ public class TextPanel extends Canvas
                 {
                     g.fillRect(1, k1, l, H + i);
                     g.setColor(colors[i2]);
+                    // java.lang.ClassCastException: sun.java2d.NullSurfaceData cannot be cast to sun.java2d.d3d.D3DSurfaceData
                     g.drawString(strings[i2], 1, (k1 + Gap + H) - Ds);
                     g.setColor(color);
                 } else

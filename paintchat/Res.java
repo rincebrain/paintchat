@@ -45,10 +45,12 @@ public class Res extends Hashtable
         Object baz;
         try {
         	baz = super.get(s);
+        	if (baz == null)
+        			return s1;
         	s2 = (String)baz;
         }
         catch (ClassCastException e) {
-        	return s1;
+        	return "Ayup.";
         }
         if(s2 == null)
         {
