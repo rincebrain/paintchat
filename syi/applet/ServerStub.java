@@ -6,7 +6,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 import paintchat.Config;
-import sun.applet.AppletAudioClip;
+//import sun.applet.AppletAudioClip;
 import syi.awt.Awt;
 import syi.awt.Gui;
 import syi.util.PProperties;
@@ -66,7 +66,8 @@ public class ServerStub
     {
         try
         {
-            return new AppletAudioClip(url);
+            //return new AppletAudioClip(url);
+        	return null;
         }
         catch(Throwable throwable)
         {

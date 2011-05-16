@@ -457,6 +457,8 @@ public class Pl extends Panel
         tField = new TextField();
         tField.addActionListener(this);
         panel.add(tField, s);
+//        assert(dd.res != null);
+        // FIXME: this line doesn't check for, and fails if, dd.res is null
         tLabel = new Label(dd.res.res("input"));
         panel.add(tLabel, s2);
         String as[] = {

@@ -84,7 +84,7 @@ public class TPen extends LComponent
         int k = 30;
         String s = String.valueOf(i);
         int l;
-        for(l = 0; res.get(String.valueOf('t') + s + l) != null; l++) { }
+        for(l = 0; res.get(String.valueOf('t') + s + l) != ""; l++) { }
         if(l != 0)
         {
             mgs = new M[l];
