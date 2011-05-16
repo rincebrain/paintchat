@@ -3270,7 +3270,8 @@ label0:
             for(int l = 0; l < 16; l++)
             {
                 int j3;
-                for(j3 = 0; res.get("pm" + l + '/' + j3 + ".gif") != null; j3++) { }
+                Object foo;
+                for(j3 = 0; res.get("pm" + l + '/' + j3 + ".gif") != ""; j3++) { }
                 if(j3 > 0)
                 {
                     ai[l] = new int[j3][];
